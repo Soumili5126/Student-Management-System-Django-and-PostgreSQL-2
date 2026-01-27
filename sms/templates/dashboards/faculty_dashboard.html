@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Faculty Dashboard</h2>
+
+<p>
+    Logged in as: {{ request.user.username }} <br>
+    Role: {{ request.user.role }}
+</p>
+
+{% endblock %}
