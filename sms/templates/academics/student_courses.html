@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>My Courses</h3>
+
+<ul class="list-group">
+    {% for e in enrollments %}
+        <li class="list-group-item">
+            {{ e.course.code }} - {{ e.course.name }}
+        </li>
+    {% empty %}
+        <li class="list-group-item">No courses enrolled</li>
+    {% endfor %}
+</ul>
+{% endblock %}

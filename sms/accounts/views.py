@@ -12,6 +12,11 @@ from .models import User
 from .forms import UserRegisterForm
 from .utils import generate_otp, get_otp_expiry,generate_reset_token
 from django.urls import reverse
+from .decorators import admin_only, faculty_only, student_only
+from .decorators import role_required
+from django.http import HttpResponseForbidden
+from .models import User, FacultyProfile, StudentProfile
+from academics.models import Course, Enrollment
 
 
 # -------- REGISTER --------
@@ -94,8 +99,9 @@ def dashboard(request):
         return redirect('faculty_dashboard')
     elif user.role == 'student':
         return redirect('student_dashboard')
-    else:
-        return redirect('login')
+
+    messages.error(request, "Invalid role.")
+    return redirect('login')
 
 # -------- ROLE DASHBOARDS --------
 @login_required
@@ -208,3 +214,83 @@ def reset_password(request, token):
             return redirect('login')
 
     return render(request, 'accounts/reset_password.html')
+
+# -----Role-based access-----
+@login_required
+@admin_only
+def admin_dashboard(request):
+    return render(request, 'dashboards/admin_dashboard.html')
+
+@login_required
+@faculty_only
+def faculty_dashboard(request):
+    return render(request, 'dashboards/faculty_dashboard.html')
+
+@login_required
+@student_only
+def student_dashboard(request):
+    return render(request, 'dashboards/student_dashboard.html')
+
+@login_required
+@role_required(['admin'])
+def admin_dashboard(request):
+    return render(request, 'dashboards/admin_dashboard.html')
+
+@login_required
+@role_required(['faculty'])
+def faculty_dashboard(request):
+    return render(request, 'dashboards/faculty_dashboard.html')
+
+@login_required
+@role_required(['student'])
+def student_dashboard(request):
+    return render(request, 'dashboards/student_dashboard.html')
+
+
+@login_required
+def admin_dashboard(request):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden(render(request, '403.html'))
+
+    context = {
+        'total_students': User.objects.filter(role='student').count(),
+        'total_faculty': User.objects.filter(role='faculty').count(),
+        'total_courses': Course.objects.count(),
+    }
+
+    return render(request, 'dashboards/admin_dashboard.html', context)
+
+# -----Admin,Faculty and Student Dashboards-----
+@login_required
+def faculty_dashboard(request):
+    if request.user.role != 'faculty':
+        return HttpResponseForbidden(render(request, '403.html'))
+
+    courses = Course.objects.filter(faculty=request.user)
+
+    course_data = []
+    for course in courses:
+        students = Enrollment.objects.filter(course=course)
+        course_data.append({
+            'course': course,
+            'students': students
+        })
+
+    return render(
+        request,
+        'dashboards/faculty_dashboard.html',
+        {'course_data': course_data}
+    )
+
+@login_required
+def student_dashboard(request):
+    if request.user.role != 'student':
+        return HttpResponseForbidden(render(request, '403.html'))
+
+    enrollments = Enrollment.objects.filter(student=request.user)
+
+    return render(
+        request,
+        'dashboards/student_dashboard.html',
+        {'enrollments': enrollments}
+    )

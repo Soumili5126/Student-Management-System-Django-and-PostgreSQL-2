@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
+
 <h2>Admin Dashboard</h2>
-<p>Welcome Admin, {{ request.user.username }}</p>
+
+<div class="row">
+    <div class="col">Students: {{ total_students }}</div>
+    <div class="col">Faculty: {{ total_faculty }}</div>
+    <div class="col">Courses: {{ total_courses }}</div>
+</div>
+
 {% endblock %}

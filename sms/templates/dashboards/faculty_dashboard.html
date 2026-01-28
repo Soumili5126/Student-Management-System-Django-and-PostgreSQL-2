@@ -1,10 +1,20 @@
+
 {% extends 'base.html' %}
 {% block content %}
+
 <h2>Faculty Dashboard</h2>
 
-<p>
-    Logged in as: {{ request.user.username }} <br>
-    Role: {{ request.user.role }}
-</p>
+{% for item in course_data %}
+    <h4>{{ item.course.name }}</h4>
+    <ul>
+        {% for enroll in item.students %}
+            <li>{{ enroll.student.username }}</li>
+        {% empty %}
+            <li>No students enrolled</li>
+        {% endfor %}
+    </ul>
+{% empty %}
+    <p>No courses assigned.</p>
+{% endfor %}
 
 {% endblock %}

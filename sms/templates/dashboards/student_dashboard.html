@@ -1,5 +1,15 @@
+
 {% extends 'base.html' %}
 {% block content %}
+
 <h2>Student Dashboard</h2>
-<p>Welcome Student, {{ request.user.username }}</p>
+
+<ul>
+    {% for enroll in enrollments %}
+        <li>{{ enroll.course.name }} ({{ enroll.course.code }})</li>
+    {% empty %}
+        <li>No enrollments yet</li>
+    {% endfor %}
+</ul>
+
 {% endblock %}
