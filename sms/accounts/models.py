@@ -24,3 +24,29 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.role})"
+
+class StudentProfile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': 'student'},
+        related_name='student_profile'
+    )
+    roll_number = models.CharField(max_length=20, unique=True)
+    class Meta:
+        db_table = 'academics_studentprofile'  # old table
+
+class FacultyProfile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': 'faculty'},
+        related_name='faculty_profile'
+    )
+    department = models.CharField(max_length=100)
+    designation = models.CharField(max_length=100)  # keep it
+    class Meta:
+        db_table = 'academics_facultyprofile'
+      
+
+
