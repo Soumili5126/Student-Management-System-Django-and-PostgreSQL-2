@@ -13,6 +13,10 @@ urlpatterns = [
     path("verify-otp/", views.verify_otp, name="verify_otp"),
     path('forgot-password/', views.forgot_password, name='forgot_password'),
     path('reset-password/<str:token>/', views.reset_password, name='reset_password'),
-
+    path(
+    'faculty/attendance/<int:course_id>/',
+    views.mark_attendance,
+    name='mark_attendance'
+),
 
 ]

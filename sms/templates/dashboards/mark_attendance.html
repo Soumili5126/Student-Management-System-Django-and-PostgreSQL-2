@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Mark Attendance — {{ course.name }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label>Date</label>
+        <input type="date"
+               name="date"
+               class="form-control"
+               value="{{ today }}"
+               required>
+    </div>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>Student</th>
+            <th>Present</th>
+            <th>Absent</th>
+        </tr>
+
+        {% for e in enrollments %}
+        <tr>
+            <td>{{ e.student.user.username }}</td>
+
+            {% if record_exists %}
+                <td colspan="2">
+                    <span class="badge bg-secondary">Already Marked</span>
+                </td>
+            {% else %}
+                <td>
+                   <input type="radio" name="{{ e.student.id }}" value="present" required>
+                </td>
+                <td>
+                   <input type="radio" name="{{ e.student.id }}" value="absent">
+                </td>
+            {% endif %}
+
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    <button class="btn btn-success">Submit Attendance</button>
+</form>
+
+{% endblock %}

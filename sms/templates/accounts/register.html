@@ -7,6 +7,37 @@
 <form method="post">
     {% csrf_token %}
     {{ form|crispy }}
+    <script>
+    const roleField = document.getElementById("id_role");
+
+    const studentFields = [
+    "id_phone", "id_date_of_birth", "id_gender",
+    "id_address", "id_admission_year"
+    ];
+
+    const facultyFields = [
+    "id_department", "id_designation"
+    ];
+
+    function toggleFields() {
+    const role = roleField.value;
+
+    studentFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.closest("div").style.display =
+            role === "student" ? "block" : "none";
+    });
+
+    facultyFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.closest("div").style.display =
+            role === "faculty" ? "block" : "none";
+    });
+    }
+
+    roleField.addEventListener("change", toggleFields);
+    window.onload = toggleFields;
+    </script>
     <button class="btn btn-primary">Register</button>
 </form>
 

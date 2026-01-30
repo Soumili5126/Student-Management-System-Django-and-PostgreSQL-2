@@ -38,3 +38,28 @@ class Enrollment(models.Model):
     def __str__(self):
         return f"{self.student.user.username} → {self.course.code}"
 
+class Attendance(models.Model):
+    STATUS_CHOICES = (
+        ('present', 'Present'),
+        ('absent', 'Absent'),
+    )
+
+    student = models.ForeignKey(
+        StudentProfile,
+        on_delete=models.CASCADE,
+        related_name='attendance'
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='attendance'
+    )
+    date = models.DateField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+
+    class Meta:
+        db_table = 'academics_attendance'
+        unique_together = ('student', 'course', 'date')
+
+    def __str__(self):
+        return f"{self.student.user.username} - {self.course.code} ({self.date})"

@@ -1,11 +1,12 @@
 <h2>Verify OTP</h2>
 
 <form method="post">
-  {% csrf_token %}
-  <input type="email" name="email" placeholder="Enter your email" required>
-  <input type="text" name="otp" placeholder="Enter OTP" required>
-  <button type="submit">Verify</button>
+    {% csrf_token %}
+    <label>Enter OTP</label>
+    <input type="text" name="otp" class="form-control" required>
+    <button type="submit" class="btn btn-primary mt-3">Verify</button>
 </form>
+
 
 {% for message in messages %}
 <p>{{ message }}</p>

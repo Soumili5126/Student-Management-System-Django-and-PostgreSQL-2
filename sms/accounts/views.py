@@ -16,47 +16,65 @@ from .decorators import admin_only, faculty_only, student_only
 from .decorators import role_required
 from django.http import HttpResponseForbidden
 from .models import User, FacultyProfile, StudentProfile
-from academics.models import Course, Enrollment
-
+from academics.models import Course, Enrollment,Attendance
+from datetime import date
+from academics.models import Attendance
+from django.db import IntegrityError
 
 # -------- REGISTER --------
 def register_view(request):
     if request.method == 'POST':
-        form = UserRegisterForm(request.POST, request.FILES)
+        form = UserRegisterForm(request.POST)
 
         if form.is_valid():
             user = form.save(commit=False)
-
-            # Block login until email verified
             user.is_active = False
             user.is_email_verified = False
+            user.save()
 
-            # Generate OTP + expiry
+            # ---------- STUDENT ----------
+            if user.role == 'student':
+                StudentProfile.objects.get_or_create(
+                    user=user,
+                    defaults={
+                        'roll_number': f'R{user.id}',
+                        'phone': form.cleaned_data.get('phone'),
+                        'date_of_birth': form.cleaned_data.get('date_of_birth'),
+                        'gender': form.cleaned_data.get('gender'),
+                        'address': form.cleaned_data.get('address'),
+                        'admission_year': form.cleaned_data.get('admission_year'),
+                    }
+                )
+
+            # ---------- FACULTY ----------
+            elif user.role == 'faculty':
+                FacultyProfile.objects.get_or_create(
+                    user=user,
+                    defaults={
+                        'department': form.cleaned_data.get('department'),
+                        'designation': form.cleaned_data.get('designation'),
+                    }
+                )
+
+            # ---------- ADMIN ----------
+            # no profile needed
+
+            # ---------- OTP ----------
             otp = generate_otp()
             user.otp = otp
             user.otp_expiry = get_otp_expiry()
-
             user.save()
 
-            # Send OTP via Gmail SMTP
             send_mail(
-                subject="OTP Verification - Student Management System",
-                message=(
-                    f"Hello {user.username},\n\n"
-                    f"Your OTP is: {otp}\n\n"
-                    f"This OTP is valid for 2 minutes.\n\n"
-                    f"Student Management System"
-                ),
-                from_email=None,   # uses DEFAULT_FROM_EMAIL
+                subject="OTP Verification",
+                message=f"Your OTP is {otp}",
+                from_email=None,
                 recipient_list=[user.email],
             )
 
-            # Store user id in session for verification
             request.session['verify_user_id'] = user.id
-
-            messages.success(request, "OTP sent to your email. Please verify.")
+            messages.success(request, "OTP sent to email")
             return redirect('verify_otp')
-
     else:
         form = UserRegisterForm()
 
@@ -120,28 +138,41 @@ def student_dashboard(request):
 
 # -------- OTP VERIFICATION VIEW--------
 def verify_otp(request):
+    user_id = request.session.get('verify_user_id')
+
+    if not user_id:
+        messages.error(request, "Session expired. Please register again.")
+        return redirect('register')
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, "Invalid user.")
+        return redirect('register')
+
     if request.method == "POST":
-        email = request.POST["email"]
-        otp = request.POST["otp"]
+        otp = request.POST.get("otp")
 
-        try:
-            user = User.objects.get(email=email)
+        if user.otp != otp:
+            messages.error(request, "Invalid OTP.")
+            return render(request, "accounts/verify_otp.html")
 
-            if user.otp == otp and user.otp_expiry > timezone.now():
-                user.is_active = True
-                user.is_email_verified = True
-                user.otp = None
-                user.otp_expiry = None
-                user.save()
+        if user.otp_expiry < timezone.now():
+            messages.error(request, "OTP expired.")
+            return redirect("register")
 
-                messages.success(request, "Email verified successfully. You can now login.")
-                return redirect("login")
+        # ✅ SUCCESS
+        user.is_active = True
+        user.is_email_verified = True
+        user.otp = None
+        user.otp_expiry = None
+        user.save()
 
-            else:
-                messages.error(request, "Invalid or expired OTP")
+        # clear session
+        del request.session['verify_user_id']
 
-        except User.DoesNotExist:
-            messages.error(request, "User not found")
+        messages.success(request, "Email verified successfully. You can now login.")
+        return redirect("login")
 
     return render(request, "accounts/verify_otp.html")
 
@@ -266,31 +297,115 @@ def faculty_dashboard(request):
     if request.user.role != 'faculty':
         return HttpResponseForbidden(render(request, '403.html'))
 
-    courses = Course.objects.filter(faculty=request.user)
+    faculty = request.user.faculty_profile
+
+    courses = Course.objects.filter(faculty=faculty)
 
     course_data = []
     for course in courses:
-        students = Enrollment.objects.filter(course=course)
+        enrollments = Enrollment.objects.filter(course=course).select_related(
+            'student__user'
+        )
         course_data.append({
             'course': course,
-            'students': students
+            'enrollments': enrollments
         })
-
+    
     return render(
         request,
         'dashboards/faculty_dashboard.html',
-        {'course_data': course_data}
+        {
+            'faculty': faculty,
+            'course_data': course_data
+        }
     )
 
 @login_required
 def student_dashboard(request):
     if request.user.role != 'student':
-        return HttpResponseForbidden(render(request, '403.html'))
+        return HttpResponseForbidden()
 
-    enrollments = Enrollment.objects.filter(student=request.user)
+    # ✅ DEFINE student FIRST
+    student = request.user.student_profile
+
+    enrollments = Enrollment.objects.filter(student=student)
+    attendance = Attendance.objects.filter(student=student)
+
+    attendance_summary = {}
+
+    for enrollment in enrollments:
+        total = Attendance.objects.filter(
+            student=student,
+            course=enrollment.course
+        ).count()
+
+        present = Attendance.objects.filter(
+            student=student,
+            course=enrollment.course,
+            status='present'
+        ).count()
+
+        percentage = round((present / total) * 100, 2) if total > 0 else 0
+        attendance_summary[enrollment.course.id] = percentage
 
     return render(
         request,
         'dashboards/student_dashboard.html',
-        {'enrollments': enrollments}
+        {
+            'student': student,
+            'enrollments': enrollments,
+            'attendance': attendance,
+            'attendance_summary': attendance_summary,
+        }
     )
+
+
+@login_required
+def mark_attendance(request, course_id):
+    if request.user.role != 'faculty':
+        return HttpResponseForbidden(render(request, '403.html'))
+
+    faculty = request.user.faculty_profile
+    course = Course.objects.get(id=course_id, faculty=faculty)
+    enrollments = Enrollment.objects.filter(course=course)
+
+    if request.method == 'POST':
+        attendance_date = request.POST.get('date')
+
+        for enrollment in enrollments:
+            status = request.POST.get(str(enrollment.student.id))
+
+            try:
+                Attendance.objects.create(
+                    student=enrollment.student,
+                    course=course,
+                    date=attendance_date,
+                    status=status
+                )
+            except IntegrityError:
+                messages.error(
+                    request,
+                    f"Attendance already marked for "
+                    f"{enrollment.student.user.username} on {attendance_date}"
+                )
+        
+        return redirect('faculty_dashboard')
+
+    attendance_date = request.GET.get('date', date.today())
+
+    existing_attendance_students = Attendance.objects.filter(
+        course=course,
+        date=attendance_date
+    ).values_list('student_id', flat=True)
+
+    return render(
+        request,
+        'dashboards/mark_attendance.html',
+        {
+            'course': course,
+            'enrollments': enrollments,
+            'attendance_date': attendance_date,
+            'existing_attendance_students': existing_attendance_students,
+        }
+    )
+

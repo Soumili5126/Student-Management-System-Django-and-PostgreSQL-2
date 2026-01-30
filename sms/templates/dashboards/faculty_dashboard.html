@@ -4,15 +4,37 @@
 
 <h2>Faculty Dashboard</h2>
 
+<div class="card mb-4">
+    <div class="card-body">
+        <p><strong>Name:</strong> {{ faculty.user.username }}</p>
+        <p><strong>Department:</strong> {{ faculty.department }}</p>
+        <p><strong>Designation:</strong> {{ faculty.designation }}</p>
+    </div>
+</div>
+
 {% for item in course_data %}
-    <h4>{{ item.course.name }}</h4>
-    <ul>
-        {% for enroll in item.students %}
-            <li>{{ enroll.student.username }}</li>
-        {% empty %}
-            <li>No students enrolled</li>
-        {% endfor %}
-    </ul>
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>{{ item.course.code }} — {{ item.course.name }}</strong>
+        </div>
+
+        <div class="card-body">
+            <a href="{% url 'mark_attendance' item.course.id %}"
+               class="btn btn-sm btn-primary mb-3">
+                Mark Attendance
+            </a>
+
+            {% if item.enrollments %}
+                <ul>
+                    {% for e in item.enrollments %}
+                        <li>{{ e.student.user.username }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No students enrolled.</p>
+            {% endif %}
+        </div>
+    </div>
 {% empty %}
     <p>No courses assigned.</p>
 {% endfor %}

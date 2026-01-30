@@ -1,15 +1,91 @@
-
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load dict_extras %}
 {% block content %}
 
-<h2>Student Dashboard</h2>
+<h2 class="mb-4">Student Dashboard</h2>
 
-<ul>
-    {% for enroll in enrollments %}
-        <li>{{ enroll.course.name }} ({{ enroll.course.code }})</li>
-    {% empty %}
-        <li>No enrollments yet</li>
-    {% endfor %}
-</ul>
+<!-- Student Profile -->
+<div class="card mb-4">
+    <div class="card-header">
+        <strong>My Profile</strong>
+    </div>
+    <div class="card-body">
+        <p><strong>Username:</strong> {{ request.user.username }}</p>
+        <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
+        <p><strong>Date of Birth:</strong> {{ student.date_of_birth }}</p>
+        <p><strong>Phone:</strong> {{ student.phone }}</p>
+        <p><strong>Gender:</strong> {{ student.gender|title }}</p>
+        <p><strong>Address:</strong> {{ student.address }}</p>
+        <p><strong>Admission Year:</strong> {{ student.admission_year }}</p>
+    </div>
+</div>
+
+<!-- Attendance -->
+<div class="card mb-4">
+    <div class="card-header">
+        <strong>Attendance</strong>
+    </div>
+    <div class="card-body">
+
+        {% if attendance %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Course</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in attendance %}
+                <tr>
+                    <td>{{ a.date }}</td>
+                    <td>{{ a.course.name }}</td>
+                    <td>
+                        {% if a.status == 'present' %}
+                            <span class="badge bg-success">Present</span>
+                        {% else %}
+                            <span class="badge bg-danger">Absent</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p class="text-muted">No attendance records available.</p>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- Enrolled Courses -->
+<div class="card">
+    <div class="card-header">
+        <strong>My Courses</strong>
+    </div>
+    <div class="card-body">
+        {% if enrollments %}
+        <ul class="list-group">
+
+            {% for enrollment in enrollments %}
+               <li class="list-group-item d-flex justify-content-between align-items-center">
+                   {{ enrollment.course.code }} — {{ enrollment.course.name }}
+
+                   <span class="badge bg-info">
+                     Attendance:
+                     {{ attendance_summary|dict_get:enrollment.course.id }}%
+                   </span>
+                </li>
+            {% endfor %}
+
+
+        </ul>
+        {% else %}
+            <p class="text-muted">You are not enrolled in any courses.</p>
+        {% endif %}
+    </div>
+</div>
+
 
 {% endblock %}
