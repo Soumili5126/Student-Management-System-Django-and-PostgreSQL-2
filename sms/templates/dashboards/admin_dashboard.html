@@ -1,12 +1,72 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h2>Admin Dashboard</h2>
+<h2 class="mb-4">Admin Dashboard</h2>
 
-<div class="row">
-    <div class="col">Students: {{ total_students }}</div>
-    <div class="col">Faculty: {{ total_faculty }}</div>
-    <div class="col">Courses: {{ total_courses }}</div>
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col">Students: <b>{{ total_students }}</b></div>
+    <div class="col">Faculty: <b>{{ total_faculty }}</b></div>
+    <div class="col">Courses: <b>{{ total_courses }}</b></div>
 </div>
 
+<hr>
+
+<!-- Course Management -->
+<h2>Courses</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Course</th>
+            <th>Faculty</th>
+            <th>Enrolled Students</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in course_data %}
+        <tr>
+            <td>{{ item.course.code }} — {{ item.course.name }}</td>
+            <td>
+                {% if item.course.faculty %}
+                    {{ item.course.faculty.user.username }}
+                {% else %}
+                    Not Assigned
+                {% endif %}
+            </td>
+            <td>
+                {% if item.enrollments %}
+                    <ul class="mb-0">
+                        {% for e in item.enrollments %}
+                            <li>
+                                {{ e.student.user.username }}
+                                |
+                                <a href="{% url 'edit_enrollment' e.id %}">Edit</a>
+                                |
+                                <a href="{% url 'delete_enrollment' e.id %}"
+                                   class="text-danger">
+                                   Remove
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <em>No students enrolled</em>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'assign_faculty' item.course.id %}"
+                   class="btn btn-sm btn-primary">
+                   Assign Faculty
+                </a>
+                <a href="{% url 'enroll_students' item.course.id %}"
+                   class="btn btn-sm btn-warning">
+                   Enroll Students
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

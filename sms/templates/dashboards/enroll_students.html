@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Enroll Students</h2>
+
+<p><b>Course:</b> {{ course.name }}</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% for student in students %}
+        <div>
+            <input type="checkbox"
+                   name="students"
+                   value="{{ student.id }}">
+            {{ student.user.username }} ({{ student.roll_number }})
+        </div>
+    {% endfor %}
+
+    <button class="btn btn-success mt-3">
+        Enroll Selected
+    </button>
+</form>
+
+{% endblock %}

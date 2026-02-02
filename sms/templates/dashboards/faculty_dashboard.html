@@ -23,6 +23,11 @@
                class="btn btn-sm btn-primary mb-3">
                 Mark Attendance
             </a>
+            <a href="{% url 'export_attendance' item.course.id %}"
+               class="btn btn-sm btn-secondary mb-3 ms-2">
+                Export Attendance
+            </a>
+
 
             {% if item.enrollments %}
                 <ul>

@@ -16,7 +16,28 @@ urlpatterns = [
     path(
     'faculty/attendance/<int:course_id>/',
     views.mark_attendance,
-    name='mark_attendance'
-),
+    name='mark_attendance'),
+    path(
+    'admin/assign-faculty/<int:course_id>/',
+    views.assign_faculty,
+    name='assign_faculty'),
+    path(
+    'admin/enroll-students/<int:course_id>/',
+    views.enroll_students,
+    name='enroll_students'),
+    path(
+    'admin/enrollment/edit/<int:enrollment_id>/',
+    views.edit_enrollment,
+    name='edit_enrollment'),
+    path(
+    'admin/enrollment/delete/<int:enrollment_id>/',
+    views.delete_enrollment,
+    name='delete_enrollment'),
+    path(
+    'faculty/course/<int:course_id>/attendance/export/',
+    views.export_attendance_csv,
+    name='export_attendance'),
 
+
+    
 ]

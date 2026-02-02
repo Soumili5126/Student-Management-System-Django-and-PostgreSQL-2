@@ -9,7 +9,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.contrib import messages
 from .models import User
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, EnrollmentEditForm
 from .utils import generate_otp, get_otp_expiry,generate_reset_token
 from django.urls import reverse
 from .decorators import admin_only, faculty_only, student_only
@@ -18,8 +18,10 @@ from django.http import HttpResponseForbidden
 from .models import User, FacultyProfile, StudentProfile
 from academics.models import Course, Enrollment,Attendance
 from datetime import date
-from academics.models import Attendance
 from django.db import IntegrityError
+from django.shortcuts import get_object_or_404
+import csv
+from django.http import HttpResponse
 
 # -------- REGISTER --------
 def register_view(request):
@@ -277,21 +279,33 @@ def faculty_dashboard(request):
 def student_dashboard(request):
     return render(request, 'dashboards/student_dashboard.html')
 
-
+# -----Admin,Faculty and Student Dashboards-----
 @login_required
 def admin_dashboard(request):
     if request.user.role != 'admin':
         return HttpResponseForbidden(render(request, '403.html'))
 
+    courses = Course.objects.all()
+
+    course_data = []
+    for course in courses:
+        enrollments = Enrollment.objects.filter(course=course).select_related(
+            'student', 'student__user'
+        )
+        course_data.append({
+            'course': course,
+            'enrollments': enrollments
+        })
+
     context = {
         'total_students': User.objects.filter(role='student').count(),
         'total_faculty': User.objects.filter(role='faculty').count(),
-        'total_courses': Course.objects.count(),
+        'total_courses': courses.count(),
+        'course_data': course_data
     }
 
     return render(request, 'dashboards/admin_dashboard.html', context)
 
-# -----Admin,Faculty and Student Dashboards-----
 @login_required
 def faculty_dashboard(request):
     if request.user.role != 'faculty':
@@ -325,7 +339,7 @@ def student_dashboard(request):
     if request.user.role != 'student':
         return HttpResponseForbidden()
 
-    # ✅ DEFINE student FIRST
+    #DEFINE student FIRST
     student = request.user.student_profile
 
     enrollments = Enrollment.objects.filter(student=student)
@@ -358,7 +372,6 @@ def student_dashboard(request):
             'attendance_summary': attendance_summary,
         }
     )
-
 
 @login_required
 def mark_attendance(request, course_id):
@@ -409,3 +422,120 @@ def mark_attendance(request, course_id):
         }
     )
 
+@login_required
+def assign_faculty(request, course_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden(render(request, '403.html'))
+
+    course = Course.objects.get(id=course_id)
+    faculties = FacultyProfile.objects.all()
+
+    if request.method == 'POST':
+        faculty_id = request.POST.get('faculty')
+        faculty = FacultyProfile.objects.get(id=faculty_id)
+        course.faculty = faculty
+        course.save()
+
+        messages.success(
+            request,
+            f"{faculty.user.username} assigned to {course.name}"
+        )
+        return redirect('admin_dashboard')
+
+    return render(
+        request,
+        'dashboards/assign_faculty.html',
+        {
+            'course': course,
+            'faculties': faculties
+        }
+    )
+@login_required
+def enroll_students(request, course_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden(render(request, '403.html'))
+
+    course = Course.objects.get(id=course_id)
+    students = StudentProfile.objects.all()
+
+    if request.method == 'POST':
+        selected_students = request.POST.getlist('students')
+
+        for student_id in selected_students:
+            student = StudentProfile.objects.get(id=student_id)
+            Enrollment.objects.get_or_create(
+                student=student,
+                course=course
+            )
+
+        messages.success(
+            request,
+            "Students enrolled successfully."
+        )
+        return redirect('admin_dashboard')
+
+    return render(
+        request,
+        'dashboards/enroll_students.html',
+        {
+            'course': course,
+            'students': students
+        }
+    )
+
+@login_required
+def edit_enrollment(request, enrollment_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden(render(request, '403.html'))
+
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id)
+
+    if request.method == 'POST':
+        form = EnrollmentEditForm(request.POST, instance=enrollment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Enrollment updated.")
+            return redirect('admin_dashboard')
+    else:
+        form = EnrollmentEditForm(instance=enrollment)
+
+    return render(
+        request,
+        'dashboards/edit_enrollment.html',
+        {'form': form, 'enrollment': enrollment}
+    )
+
+@login_required
+def delete_enrollment(request, enrollment_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden(render(request, '403.html'))
+
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id)
+
+    enrollment.delete()
+    messages.success(request, "Student removed from course.")
+
+    return redirect('admin_dashboard')
+
+@login_required
+def export_attendance_csv(request, course_id):
+    if request.user.role not in ['faculty', 'admin']:
+        return HttpResponseForbidden()
+
+    course = Course.objects.get(id=course_id)
+    attendance = Attendance.objects.filter(course=course)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{course.code}_attendance.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Student', 'Date', 'Status'])
+
+    for a in attendance:
+        writer.writerow([
+            a.student.user.username,
+            a.date,
+            a.status
+        ])
+
+    return response

@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import User
 from .models import User, StudentProfile
 from django import forms
+from academics.models import Enrollment,Course
+
 class UserRegisterForm(UserCreationForm):
 
     class Meta:
@@ -31,3 +33,8 @@ class UserRegisterForm(UserCreationForm):
 class LoginForm(AuthenticationForm):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
+
+class EnrollmentEditForm(forms.ModelForm):
+    class Meta:
+        model = Enrollment
+        fields = ['course']

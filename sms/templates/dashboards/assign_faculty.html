@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Assign Faculty</h2>
+
+<p><b>Course:</b> {{ course.name }}</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    <label>Select Faculty:</label>
+    <select name="faculty" class="form-control">
+        {% for faculty in faculties %}
+            <option value="{{ faculty.id }}">
+                {{ faculty.user.username }} — {{ faculty.department }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button class="btn btn-success mt-3">
+        Assign
+    </button>
+</form>
+
+{% endblock %}
