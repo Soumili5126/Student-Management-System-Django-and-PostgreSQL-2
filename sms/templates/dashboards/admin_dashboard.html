@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
+
 <h2 class="mb-4">Admin Dashboard</h2>
 
 <!-- Stats -->
@@ -11,6 +12,14 @@
 </div>
 
 <hr>
+<hr class="my-4">
+
+<h4>Batch Management</h4>
+
+<a href="{% url 'batch_list' %}" class="btn btn-sm btn-primary">
+    Manage Batches
+</a>
+
 
 <!-- Course Management -->
 <h2>Courses</h2>

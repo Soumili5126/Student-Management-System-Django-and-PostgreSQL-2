@@ -17,8 +17,18 @@
         <p><strong>Gender:</strong> {{ student.gender|title }}</p>
         <p><strong>Address:</strong> {{ student.address }}</p>
         <p><strong>Admission Year:</strong> {{ student.admission_year }}</p>
+        <!-- ✅ ADD HERE -->
+        <p><strong>Batch:</strong>
+        {% if student.batch %}
+            {{ student.batch.program }} - {{ student.batch.name }}
+            ({{ student.batch.academic_year }})
+        {% else %}
+            <span class="text-muted">Not assigned</span>
+        {% endif %}
+        </p>
     </div>
 </div>
+
 
 <!-- Attendance -->
 <div class="card mb-4">

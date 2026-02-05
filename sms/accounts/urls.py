@@ -37,7 +37,9 @@ urlpatterns = [
     'faculty/course/<int:course_id>/attendance/export/',
     views.export_attendance_csv,
     name='export_attendance'),
+    path(
+    'admin/student/<int:student_id>/assign-batch/',
+    views.assign_batch,
+    name='assign_batch'),
 
-
-    
 ]

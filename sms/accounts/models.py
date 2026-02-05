@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from datetime import timedelta
+
 # Create your models here.
 class User(AbstractUser):
     ROLE_CHOICES = (
@@ -35,6 +36,13 @@ class StudentProfile(models.Model):
         limit_choices_to={'role': 'student'},
         related_name='student_profile'
     )
+    batch = models.ForeignKey(
+        'academics.Batch',   # 👈 string reference
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='students'
+    )
 
     roll_number = models.CharField(max_length=20, unique=True)
 
@@ -46,8 +54,6 @@ class StudentProfile(models.Model):
 
     class Meta:
         db_table = 'academics_studentprofile'
-
-
 
 class FacultyProfile(models.Model):
     user = models.OneToOneField(

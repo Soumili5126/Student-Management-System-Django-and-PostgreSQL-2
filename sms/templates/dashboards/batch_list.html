@@ -1,0 +1,29 @@
+<h2>Batch Management</h2>
+
+<a href="{% url 'create_batch' %}" class="btn btn-success mb-3">
+    Create New Batch
+</a>
+
+<h4>Students</h4>
+
+<table class="table table-bordered">
+<tr>
+    <th>Student</th>
+    <th>Current Batch</th>
+    <th>Action</th>
+</tr>
+
+{% for s in students %}
+<tr>
+    <td>{{ s.user.username }}</td>
+    <td>
+        {% if s.batch %}{{ s.batch }}{% else %}Not Assigned{% endif %}
+    </td>
+    <td>
+        <a href="{% url 'assign_batch' s.id %}" class="btn btn-sm btn-warning">
+            Assign Batch
+        </a>
+    </td>
+</tr>
+{% endfor %}
+</table>

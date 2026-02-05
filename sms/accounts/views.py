@@ -16,12 +16,13 @@ from .decorators import admin_only, faculty_only, student_only
 from .decorators import role_required
 from django.http import HttpResponseForbidden
 from .models import User, FacultyProfile, StudentProfile
-from academics.models import Course, Enrollment,Attendance
+from academics.models import Course, Enrollment,Attendance,Batch
 from datetime import date
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 import csv
 from django.http import HttpResponse
+
 
 # -------- REGISTER --------
 def register_view(request):
@@ -318,7 +319,7 @@ def faculty_dashboard(request):
     course_data = []
     for course in courses:
         enrollments = Enrollment.objects.filter(course=course).select_related(
-            'student__user'
+            'student__user','student_batch'
         )
         course_data.append({
             'course': course,
@@ -341,6 +342,7 @@ def student_dashboard(request):
 
     #DEFINE student FIRST
     student = request.user.student_profile
+    batch = student.batch
 
     enrollments = Enrollment.objects.filter(student=student)
     attendance = Attendance.objects.filter(student=student)
@@ -367,9 +369,11 @@ def student_dashboard(request):
         'dashboards/student_dashboard.html',
         {
             'student': student,
+            'batch' : batch,
             'enrollments': enrollments,
             'attendance': attendance,
             'attendance_summary': attendance_summary,
+
         }
     )
 
@@ -539,3 +543,23 @@ def export_attendance_csv(request, course_id):
         ])
 
     return response
+
+@login_required
+def assign_batch(request, student_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    student = StudentProfile.objects.get(id=student_id)
+    batches = Batch.objects.all()
+
+    if request.method == 'POST':
+        batch_id = request.POST.get('batch')
+        student.batch = Batch.objects.get(id=batch_id)
+        student.save()
+        return redirect('admin_dashboard')
+
+    return render(
+        request,
+        'dashboards/assign_batch.html',
+        {'student': student, 'batches': batches}
+    )
