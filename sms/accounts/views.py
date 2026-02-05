@@ -319,7 +319,7 @@ def faculty_dashboard(request):
     course_data = []
     for course in courses:
         enrollments = Enrollment.objects.filter(course=course).select_related(
-            'student__user','student_batch'
+            'student__user','student__batch'
         )
         course_data.append({
             'course': course,
