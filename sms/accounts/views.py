@@ -1,14 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegisterForm, LoginForm
+from .forms import UserRegisterForm, LoginForm, AssignBatchForm
 from django.contrib.auth import authenticate
 import random
 from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib import messages
-from .models import User
+from .models import User, FacultyProfile
 from .forms import UserRegisterForm, EnrollmentEditForm
 from .utils import generate_otp, get_otp_expiry,generate_reset_token
 from django.urls import reverse
@@ -16,13 +16,19 @@ from .decorators import admin_only, faculty_only, student_only
 from .decorators import role_required
 from django.http import HttpResponseForbidden
 from .models import User, FacultyProfile, StudentProfile
-from academics.models import Course, Enrollment,Attendance,Batch
+from academics.models import Course, Enrollment,Attendance,Batch,Exam,Grade,Quiz,QuizQuestion
 from datetime import date
+from datetime import datetime
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 import csv
 from django.http import HttpResponse
-
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+from academics.models import Grade
+from django.template.loader import render_to_string
+from weasyprint import HTML
 
 # -------- REGISTER --------
 def register_view(request):
@@ -316,11 +322,15 @@ def faculty_dashboard(request):
 
     courses = Course.objects.filter(faculty=faculty)
 
+    exams = Exam.objects.filter(course__faculty=faculty)
+
+    
     course_data = []
     for course in courses:
         enrollments = Enrollment.objects.filter(course=course).select_related(
             'student__user','student__batch'
         )
+        quizzes = Quiz.objects.filter(course=course)
         course_data.append({
             'course': course,
             'enrollments': enrollments
@@ -331,14 +341,16 @@ def faculty_dashboard(request):
         'dashboards/faculty_dashboard.html',
         {
             'faculty': faculty,
-            'course_data': course_data
+            'course_data': course_data,
+            'exams':exams,
+            'quizzes': quizzes
         }
     )
 
 @login_required
 def student_dashboard(request):
     if request.user.role != 'student':
-        return HttpResponseForbidden()
+        return HttpResponseForbidden(render(request, '403.html'))
 
     #DEFINE student FIRST
     student = request.user.student_profile
@@ -346,7 +358,12 @@ def student_dashboard(request):
 
     enrollments = Enrollment.objects.filter(student=student)
     attendance = Attendance.objects.filter(student=student)
-
+    grades = Grade.objects.filter(student=student).select_related(
+        'exam',
+        'exam__course'
+    )
+    
+    
     attendance_summary = {}
 
     for enrollment in enrollments:
@@ -373,6 +390,7 @@ def student_dashboard(request):
             'enrollments': enrollments,
             'attendance': attendance,
             'attendance_summary': attendance_summary,
+            'grades': grades, 
 
         }
     )
@@ -454,6 +472,7 @@ def assign_faculty(request, course_id):
             'faculties': faculties
         }
     )
+
 @login_required
 def enroll_students(request, course_id):
     if request.user.role != 'admin':
@@ -545,21 +564,199 @@ def export_attendance_csv(request, course_id):
     return response
 
 @login_required
-def assign_batch(request, student_id):
-    if request.user.role != 'admin':
-        return HttpResponseForbidden()
+@role_required(['admin'])
+def create_batch(request):
+    if request.method == 'POST':
+        Batch.objects.create(
+            program=request.POST['program'],
+            name=request.POST['name'],
+            academic_year=request.POST['academic_year'],
+            section=request.POST.get('section')
+        )
+        messages.success(request, "Batch created successfully")
+        return redirect('batch_list')
 
-    student = StudentProfile.objects.get(id=student_id)
+    return render(request, 'dashboards/create_batch.html')
+
+@login_required
+@role_required(['admin'])
+def assign_batch(request):
+    students = StudentProfile.objects.all()
     batches = Batch.objects.all()
 
     if request.method == 'POST':
-        batch_id = request.POST.get('batch')
-        student.batch = Batch.objects.get(id=batch_id)
+        student = StudentProfile.objects.get(id=request.POST['student_id'])
+        batch = Batch.objects.get(id=request.POST['batch_id'])
+
+        student.batch = batch
         student.save()
-        return redirect('admin_dashboard')
+
+        messages.success(request, f"{student.user.username} assigned to batch")
+        return redirect('batch_list')
 
     return render(
         request,
         'dashboards/assign_batch.html',
-        {'student': student, 'batches': batches}
+        {
+            'students': students,
+            'batches': batches
+        }
+    )
+
+@login_required
+def create_exam(request, course_id):
+    if request.user.role != 'faculty':
+        return HttpResponseForbidden()
+
+    faculty = request.user.faculty_profile
+
+    # Faculty can create exam only for their own course
+    course = get_object_or_404(
+        Course,
+        id=course_id,
+        faculty=faculty
+    )
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        date = request.POST.get('date')
+        total_marks = request.POST.get('total_marks')
+
+        Exam.objects.create(
+            course=course,
+            title=title,
+            date=date,
+            total_marks=total_marks
+        )
+
+        messages.success(request, "Exam created successfully.")
+        return redirect('faculty_dashboard')
+
+    return render(
+        request,
+        'dashboards/create_exam.html',
+        {'course': course}
+    )
+
+@login_required
+def enter_grades(request, exam_id):
+    if request.user.role != 'faculty':
+        return HttpResponseForbidden()
+
+    faculty = request.user.faculty_profile
+    exam = get_object_or_404(
+        Exam,
+        id=exam_id,
+        course__faculty=faculty
+    )
+
+    enrollments = Enrollment.objects.filter(course=exam.course)
+
+    if request.method == 'POST':
+        for e in enrollments:
+            marks = request.POST.get(str(e.student.id))
+            if marks is not None:
+                Grade.objects.update_or_create(
+                    exam=exam,
+                    student=e.student,
+                    defaults={'marks_obtained': marks}
+                )
+
+        messages.success(request, "Grades saved successfully.")
+        return redirect('faculty_dashboard')
+
+    return render(
+        request,
+        'dashboards/enter_grades.html',
+        {
+            'exam': exam,
+            'enrollments': enrollments
+        }
+    )
+
+@login_required
+def export_exam_results_pdf(request):
+    student = request.user.student_profile
+    grades = Grade.objects.filter(student=student).select_related('exam', 'exam__course')
+
+    html_string = render_to_string(
+        'dashboards/exam_results_pdf.html',
+        {
+            'student': student,
+            'grades': grades
+        }
+    )
+
+    pdf = HTML(string=html_string).write_pdf()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="exam_results.pdf"'
+
+    return response
+
+@login_required
+def create_quiz(request, course_id):
+    if request.user.role != 'faculty':
+        return HttpResponseForbidden()
+
+    faculty = request.user.faculty_profile
+
+    # Ensure faculty owns the course
+    course = Course.objects.get(id=course_id, faculty=faculty)
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        total_questions = request.POST.get('total_questions')
+
+        Quiz.objects.create(
+            course=course,
+            title=title,
+            description=description,
+            total_questions=total_questions
+        )
+
+        messages.success(request, "Quiz created successfully.")
+        return redirect('faculty_dashboard')
+
+    return render(
+        request,
+        'dashboards/create_quiz.html',
+        {'course': course}
+    )
+@login_required
+def add_quiz_question(request, quiz_id):
+    if request.user.role != 'faculty':
+        return HttpResponseForbidden()
+
+    faculty = request.user.faculty_profile
+
+    quiz = Quiz.objects.get(
+        id=quiz_id,
+        course__faculty=faculty
+    )
+
+    if request.method == 'POST':
+        QuizQuestion.objects.create(
+            quiz=quiz,
+            question_text=request.POST.get('question_text'),
+            option_a=request.POST.get('option_a'),
+            option_b=request.POST.get('option_b'),
+            option_c=request.POST.get('option_c'),
+            option_d=request.POST.get('option_d'),
+            correct_option=request.POST.get('correct_option'),
+        )
+
+        messages.success(request, "Question added successfully.")
+        return redirect('add_quiz_question', quiz_id=quiz.id)
+
+    questions = quiz.questions.all()
+
+    return render(
+        request,
+        'dashboards/add_quiz_question.html',
+        {
+            'quiz': quiz,
+            'questions': questions
+        }
     )

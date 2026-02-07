@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Create Batch</h2>
+
+<form method="post" class="card p-4">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label class="form-label">Program</label>
+        <input type="text" name="program" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Batch Name</label>
+        <input type="text" name="name" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Academic Year</label>
+        <input type="text" name="academic_year" class="form-control" placeholder="2024-2028" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Section (optional)</label>
+        <input type="text" name="section" class="form-control">
+    </div>
+
+    <button class="btn btn-success">Create Batch</button>
+</form>
+
+{% endblock %}

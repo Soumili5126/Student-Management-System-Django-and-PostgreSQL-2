@@ -6,6 +6,7 @@ from django.http import HttpResponseForbidden
 from .models import Course, Enrollment, Attendance
 from django.utils import timezone
 from .models import Batch
+from django.contrib import messages
 
 # Create your views here.
 @login_required
@@ -78,6 +79,7 @@ def create_batch(request):
         return redirect('batch_list')
 
     return render(request, 'dashboards/create_batch.html')
+
 @login_required
 def assign_batch(request, student_id):
     if request.user.role != 'admin':
@@ -87,9 +89,13 @@ def assign_batch(request, student_id):
     batches = Batch.objects.all()
 
     if request.method == 'POST':
-        batch_id = request.POST.get('batch')
-        student.batch_id = batch_id
+        batch_id = request.POST.get('batch_id')
+        batch = Batch.objects.get(id=batch_id)
+
+        student.batch = batch   # ✅ THIS LINE MATTERS
         student.save()
+
+        
         return redirect('batch_list')
 
     return render(

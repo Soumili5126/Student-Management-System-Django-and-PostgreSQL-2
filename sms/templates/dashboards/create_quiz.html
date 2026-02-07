@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Create Quiz for {{ course.code }} - {{ course.name }}</h2>
+
+<form method="post" class="card p-4">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label class="form-label">Quiz Title</label>
+        <input type="text" name="title" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Total Questions</label>
+        <input type="number" name="total_questions" class="form-control" required>
+    </div>
+
+    <button class="btn btn-success">Create Quiz</button>
+</form>
+
+{% endblock %}

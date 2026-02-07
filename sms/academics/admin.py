@@ -1,6 +1,7 @@
 from django.contrib import admin
 from accounts.models import StudentProfile, FacultyProfile
-from .models import Course, Enrollment
+from .models import Course, Enrollment,Exam, ExamResult
+
 # Register your models here.
 @admin.register(StudentProfile)
 class StudentProfileAdmin(admin.ModelAdmin):
@@ -23,3 +24,11 @@ class CourseAdmin(admin.ModelAdmin):
 @admin.register(Enrollment)
 class EnrollmentAdmin(admin.ModelAdmin):
     list_display = ('student', 'course', 'enrolled_on')
+
+@admin.register(Exam)
+class ExamAdmin(admin.ModelAdmin):
+    list_display = ('title', 'course', 'date', 'total_marks')
+
+@admin.register(ExamResult)
+class ExamResultAdmin(admin.ModelAdmin):
+    list_display = ('exam', 'student', 'marks_obtained')

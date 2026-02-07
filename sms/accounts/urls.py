@@ -41,5 +41,29 @@ urlpatterns = [
     'admin/student/<int:student_id>/assign-batch/',
     views.assign_batch,
     name='assign_batch'),
+    path('admin/batches/create/', views.create_batch, name='create_batch'),
+    path('admin/batches/assign/', views.assign_batch, name='assign_batch'),
+    path(
+    'faculty/course/<int:course_id>/exam/create/',
+    views.create_exam,
+    name='create_exam'),
+    path(
+    'faculty/exam/<int:exam_id>/grades/',
+    views.enter_grades,
+    name='enter_grades'),
+    path(
+    'student/exam-results/pdf/',
+    views.export_exam_results_pdf,
+    name='export_exam_results_pdf'),
+    path(
+    'faculty/course/<int:course_id>/quiz/create/',
+    views.create_quiz,
+    name='create_quiz'),
+    path(
+    'faculty/quiz/<int:quiz_id>/add-question/',
+    views.add_quiz_question,
+    name='add_quiz_question'),
+
+
 
 ]

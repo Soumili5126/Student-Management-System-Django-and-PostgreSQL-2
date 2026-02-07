@@ -4,6 +4,8 @@ from .models import User
 from .models import User, StudentProfile
 from django import forms
 from academics.models import Enrollment,Course
+from academics.models import Batch
+
 
 class UserRegisterForm(UserCreationForm):
 
@@ -38,3 +40,13 @@ class EnrollmentEditForm(forms.ModelForm):
     class Meta:
         model = Enrollment
         fields = ['course']
+
+class AssignBatchForm(forms.Form):
+    student = forms.ModelChoiceField(
+        queryset=StudentProfile.objects.select_related('user'),
+        label="Select Student"
+    )
+    batch = forms.ModelChoiceField(
+        queryset=Batch.objects.all(),
+        label="Select Batch"
+    )
