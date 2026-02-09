@@ -16,7 +16,7 @@ from .decorators import admin_only, faculty_only, student_only
 from .decorators import role_required
 from django.http import HttpResponseForbidden
 from .models import User, FacultyProfile, StudentProfile
-from academics.models import Course, Enrollment,Attendance,Batch,Exam,Grade,Quiz,QuizQuestion
+from academics.models import Course, Enrollment,Attendance,Batch,Exam,Grade,Quiz,QuizQuestion,QuizAnswer,QuizAttempt
 from datetime import date
 from datetime import datetime
 from django.db import IntegrityError
@@ -29,6 +29,8 @@ from django.http import HttpResponse
 from academics.models import Grade
 from django.template.loader import render_to_string
 from weasyprint import HTML
+from django.conf import settings
+from django.db.models import Avg, Max
 
 # -------- REGISTER --------
 def register_view(request):
@@ -77,7 +79,7 @@ def register_view(request):
             send_mail(
                 subject="OTP Verification",
                 message=f"Your OTP is {otp}",
-                from_email=None,
+                from_email=settings.EMAIL_HOST_USER,
                 recipient_list=[user.email],
             )
 
@@ -298,6 +300,7 @@ def admin_dashboard(request):
     for course in courses:
         enrollments = Enrollment.objects.filter(course=course).select_related(
             'student', 'student__user'
+        
         )
         course_data.append({
             'course': course,
@@ -309,6 +312,7 @@ def admin_dashboard(request):
         'total_faculty': User.objects.filter(role='faculty').count(),
         'total_courses': courses.count(),
         'course_data': course_data
+         
     }
 
     return render(request, 'dashboards/admin_dashboard.html', context)
@@ -333,7 +337,8 @@ def faculty_dashboard(request):
         quizzes = Quiz.objects.filter(course=course)
         course_data.append({
             'course': course,
-            'enrollments': enrollments
+            'enrollments': enrollments,
+            'quizzes': quizzes
         })
     
     return render(
@@ -343,7 +348,7 @@ def faculty_dashboard(request):
             'faculty': faculty,
             'course_data': course_data,
             'exams':exams,
-            'quizzes': quizzes
+            
         }
     )
 
@@ -352,18 +357,18 @@ def student_dashboard(request):
     if request.user.role != 'student':
         return HttpResponseForbidden(render(request, '403.html'))
 
-    #DEFINE student FIRST
+    # ---------------- BASIC OBJECTS ----------------
     student = request.user.student_profile
     batch = student.batch
 
     enrollments = Enrollment.objects.filter(student=student)
     attendance = Attendance.objects.filter(student=student)
-    grades = Grade.objects.filter(student=student).select_related(
-        'exam',
-        'exam__course'
-    )
-    
-    
+
+    grades = Grade.objects.filter(
+        student=student
+    ).select_related('exam', 'exam__course')
+
+    # ---------------- ATTENDANCE SUMMARY ----------------
     attendance_summary = {}
 
     for enrollment in enrollments:
@@ -381,17 +386,78 @@ def student_dashboard(request):
         percentage = round((present / total) * 100, 2) if total > 0 else 0
         attendance_summary[enrollment.course.id] = percentage
 
+    # ---------------- EXAM PERFORMANCE ----------------
+    exam_grades = Grade.objects.filter(student=student)
+
+    total_exams = exam_grades.count()
+    passed_exams = 0
+    exam_percentages = []
+
+    for g in exam_grades:
+        percentage = (g.marks_obtained / g.exam.total_marks) * 100
+        exam_percentages.append(percentage)
+
+        if percentage >= 40:
+            passed_exams += 1
+
+    failed_exams = total_exams - passed_exams
+    avg_exam_percentage = (
+        sum(exam_percentages) / len(exam_percentages)
+        if exam_percentages else 0
+    )
+
+    # ---------------- QUIZZES + ATTEMPTS ----------------
+    quizzes = Quiz.objects.filter(
+        course__enrollment__student=student
+    ).distinct()
+
+    quiz_attempts = QuizAttempt.objects.filter(
+        student=student
+    ).select_related('quiz').order_by('-attempted_at')
+
+    quiz_percentages = [
+        (attempt.score / attempt.total_questions) * 100
+        for attempt in quiz_attempts
+        if attempt.total_questions > 0
+    ]
+
+    best_quiz_percentage = max(quiz_percentages) if quiz_percentages else 0
+    avg_quiz_percentage = (
+        sum(quiz_percentages) / len(quiz_percentages)
+        if quiz_percentages else 0
+    )
+    
+
+    total_quiz_attempts = quiz_attempts.count()
+    latest_quiz = quiz_attempts.first()
+
+    # ---------------- RENDER ----------------
     return render(
         request,
         'dashboards/student_dashboard.html',
         {
             'student': student,
-            'batch' : batch,
+            'batch': batch,
             'enrollments': enrollments,
             'attendance': attendance,
             'attendance_summary': attendance_summary,
-            'grades': grades, 
+            'grades': grades,
+            'total_exams': total_exams,
 
+            # Quiz data
+            'quizzes': quizzes,
+            'quiz_attempts': quiz_attempts,
+            'total_quiz_attempts': total_quiz_attempts,
+            'latest_quiz': latest_quiz,
+
+            # 📊 Exam chart data
+            'passed_exams': passed_exams,
+            'failed_exams': failed_exams,
+            'avg_exam_percentage': round(avg_exam_percentage, 2),
+
+            # 📊 Quiz chart data
+            'best_quiz_score': round(best_quiz_percentage, 2),
+            'avg_quiz_score': round(avg_quiz_percentage, 2),
         }
     )
 
@@ -760,3 +826,126 @@ def add_quiz_question(request, quiz_id):
             'questions': questions
         }
     )
+
+@login_required
+def attempt_quiz(request, quiz_id):
+    student = request.user.student_profile
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    questions = QuizQuestion.objects.filter(quiz=quiz)
+    total_questions = questions.count()
+
+    if request.method == "POST":
+
+        # ✅ create attempt first
+        attempt = QuizAttempt.objects.create(
+            quiz=quiz,
+            student=student,
+            score=0,
+            total_questions=total_questions
+        )
+
+        correct = 0
+
+        for question in questions:
+            selected = request.POST.get(f"question_{question.id}")
+
+            if not selected:
+                continue
+
+            # ✅ save student answer
+            QuizAnswer.objects.create(
+                attempt=attempt,
+                question=question,
+                selected_option=selected
+            )
+
+            # ✅ check correctness
+            if selected == question.correct_option:
+                correct += 1
+
+        # ✅ update only score
+        attempt.score = correct
+        attempt.save()
+
+        return redirect('quiz_result', attempt.id)
+
+    return render(
+        request,
+        'dashboards/attempt_quiz.html',
+        {
+            'quiz': quiz,
+            'questions': questions
+        }
+    )
+
+@login_required
+def quiz_result(request, attempt_id):
+    attempt = get_object_or_404(
+        QuizAttempt,
+        id=attempt_id,
+        student=request.user.student_profile
+    )
+
+    answers = attempt.answers.select_related('question')
+
+    return render(
+        request,
+        'dashboards/quiz_result.html',
+        {
+            'attempt': attempt,
+            'answers': answers
+        }
+    )
+@login_required
+def faculty_quiz_analytics(request, quiz_id):
+    if request.user.role != 'faculty':
+        return HttpResponseForbidden()
+
+    faculty = request.user.faculty_profile
+    quiz = get_object_or_404(
+        Quiz,
+        id=quiz_id,
+        course__faculty=faculty
+    )
+
+    attempts = (
+        QuizAttempt.objects
+        .filter(quiz=quiz)
+        .select_related('student__user')
+        .order_by('student', '-attempted_at')
+    )
+
+    student_stats = {}
+
+    for attempt in attempts:
+        student = attempt.student
+
+        if student not in student_stats:
+            student_stats[student] = {
+                'student': student,
+                'attempts': 0,
+                'best_score': attempt.score,
+                'latest_score': attempt.score,
+                'best_percentage': attempt.percentage,
+            }
+
+        student_stats[student]['attempts'] += 1
+        student_stats[student]['best_score'] = max(
+            student_stats[student]['best_score'],
+            attempt.score
+        )
+        student_stats[student]['best_percentage'] = max(
+            student_stats[student]['best_percentage'],
+            attempt.percentage
+        )
+
+    return render(
+        request,
+        'dashboards/faculty_quiz_analytics.html',
+        {
+            'quiz': quiz,
+            'student_stats': student_stats.values()
+        }
+    )
+

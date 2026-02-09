@@ -148,6 +148,9 @@ class Grade(models.Model):
         if self.exam.total_marks > 0:
             return round((self.marks_obtained / self.exam.total_marks) * 100, 2)
         return 0
+    @property
+    def is_pass(self):
+        return self.percentage >= 40
     
     @property
     def grade_letter(self):
@@ -178,6 +181,7 @@ class Quiz(models.Model):
         on_delete=models.CASCADE,
         related_name='quizzes'
     )
+    
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     total_questions = models.PositiveIntegerField()
@@ -240,7 +244,13 @@ class QuizAttempt(models.Model):
 
     def __str__(self):
         return f"{self.student.user.username} - {self.quiz.title}"
-
+    
+    @property
+    def percentage(self):
+        if self.total_questions == 0:
+            return 0
+        return round((self.score / self.total_questions) * 100, 2)
+    
 class QuizAnswer(models.Model):
     attempt = models.ForeignKey(
         QuizAttempt,
@@ -252,7 +262,11 @@ class QuizAnswer(models.Model):
         on_delete=models.CASCADE
     )
     selected_option = models.CharField(max_length=1)
+    is_correct = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'academics_quiz_answer'
         unique_together = ('attempt', 'question')
+    
+    def __str__(self):
+        return f"{self.question.text[:30]} - {self.selected_option}"

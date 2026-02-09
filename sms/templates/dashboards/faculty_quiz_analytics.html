@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>{{ quiz.title }} — Quiz Analytics</h2>
+
+<p class="text-muted">
+Course: {{ quiz.course.code }} — {{ quiz.course.name }}
+</p>
+
+<table class="table table-bordered table-striped mt-4">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Attempts</th>
+            <th>Best Score</th>
+            <th>Best Percentage</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stat in student_stats %}
+        <tr>
+            <td>{{ stat.student.user.username }}</td>
+            <td>{{ stat.attempts }}</td>
+            <td>{{ stat.best_score }}</td>
+            <td>{{ stat.best_percentage|floatformat:2 }}%</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center text-muted">
+                No attempts yet.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'faculty_dashboard' %}" class="btn btn-secondary mt-3">
+    Back to Dashboard
+</a>
+
+{% endblock %}

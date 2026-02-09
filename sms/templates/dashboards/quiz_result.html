@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">Quiz Result</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <p><strong>Quiz:</strong> {{ attempt.quiz.title }}</p>
+        <p><strong>Score:</strong> {{ attempt.score }} / {{ attempt.total_questions }}</p>
+        <p><strong>Percentage:</strong>
+            <span class="badge bg-info">
+                {{ attempt.percentage|floatformat:2 }}%
+            </span>
+        </p>
+
+        {% if attempt.percentage >= 40 %}
+            <span class="badge bg-success">PASS</span>
+        {% else %}
+            <span class="badge bg-danger">FAIL</span>
+        {% endif %}
+    </div>
+</div>
+
+<h4>Question-wise Review</h4>
+
+{% for ans in answers %}
+    <div class="card mb-2">
+        <div class="card-body">
+            <p><strong>Question:</strong> {{ ans.question.question_text }}</p>
+
+            <p>
+                <strong>Your Answer:</strong>
+                {{ ans.selected_option }}
+            </p>
+
+            {% if ans.selected_option == ans.question.correct_option %}
+                <span class="badge bg-success">Correct</span>
+            {% else %}
+                <span class="badge bg-danger">Wrong</span><br>
+                <small class="text-muted">
+                    Correct Answer:
+                    {{ ans.question.correct_option }}
+                </small>
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
+
+<a href="{% url 'student_dashboard' %}" class="btn btn-secondary mt-3">
+    Back to Dashboard
+</a>
+
+{% endblock %}

@@ -63,6 +63,17 @@ urlpatterns = [
     'faculty/quiz/<int:quiz_id>/add-question/',
     views.add_quiz_question,
     name='add_quiz_question'),
+    path(
+    'student/quiz/<int:quiz_id>/attempt/',
+    views.attempt_quiz,
+    name='attempt_quiz'),
+    path('student/quiz/attempt/<int:attempt_id>/result/',
+    views.quiz_result,
+    name='quiz_result'),
+    path(
+    'faculty/quiz/<int:quiz_id>/analytics/',
+    views.faculty_quiz_analytics,
+    name='faculty_quiz_analytics'),
 
 
 

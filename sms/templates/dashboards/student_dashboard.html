@@ -29,6 +29,29 @@
     </div>
 </div>
 
+<!-- Academic Performance Overview -->
+<div class="card mb-4">
+    <div class="card-header">
+        <strong>My Performance Overview</strong>
+    </div>
+
+    <div class="card-body row text-center">
+        <div class="col-md-3">
+            <h5>{{ total_exams }}</h5>
+            <small class="text-muted">Total Exams</small>
+        </div>
+
+        <div class="col-md-3">
+            <h5 class="text-success">{{ passed_exams }}</h5>
+            <small class="text-muted">Exams Passed</small>
+        </div>
+
+        <div class="col-md-3">
+            <h5>{{ total_quiz_attempts }}</h5>
+            <small class="text-muted">Quiz Attempts</small>
+        </div>
+    </div>
+</div>
 
 <!-- Attendance -->
 <div class="card mb-4">
@@ -96,6 +119,99 @@
         {% endif %}
     </div>
 </div>
+<!--Quizzes-->
+<div class="card mt-4">
+    <div class="card-header">
+        <strong>Available Quizzes</strong>
+    </div>
+
+    <div class="card-body">
+        {% if quizzes %}
+            <ul class="list-group">
+                {% for quiz in quizzes %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ quiz.course.code }} — {{ quiz.title }}
+
+                        <a href="{% url 'attempt_quiz' quiz.id %}"
+                           class="btn btn-sm btn-primary">
+                            Attempt Quiz
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No quizzes available.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!--Quiz Attempts-->
+<div class="card mt-4">
+    <div class="card-header">
+        <strong>Quiz Attempts</strong>
+    </div>
+
+    <div class="card-body">
+        {% if quiz_attempts %}
+            <ul class="list-group">
+                {% for attempt in quiz_attempts %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>
+                            {{ attempt.quiz.title }}<br>
+                            <small class="text-muted">
+                                {{ attempt.attempted_at|date:"M d, Y H:i" }}
+                            </small>
+                        </span>
+
+                        <span class="badge bg-info">
+                            {{ attempt.score }}/{{ attempt.total_questions }}
+                            ({{ attempt.percentage|floatformat:2 }}%)
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No quiz attempts yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quiz Performance Summary -->
+<div class="card mt-4">
+    <div class="card-header">
+        <strong>Quiz Performance Summary</strong>
+    </div>
+
+    <div class="card-body">
+        {% if total_quiz_attempts %}
+        <ul class="list-group">
+            <li class="list-group-item">
+                <strong>Average Quiz Score:</strong>
+                {{ quiz_summary.avg_score|floatformat:2 }}
+            </li>
+
+            {% if best_quiz %}
+            <li class="list-group-item text-success">
+                <strong>Best Score:</strong>
+                {{ best_quiz.score }} / {{ best_quiz.total_questions }}
+                ({{ best_quiz.quiz.title }})
+            </li>
+            {% endif %}
+
+            {% if latest_quiz %}
+            <li class="list-group-item text-info">
+                <strong>Latest Attempt:</strong>
+                {{ latest_quiz.score }} / {{ latest_quiz.total_questions }}
+                ({{ latest_quiz.quiz.title }})
+            </li>
+            {% endif %}
+        </ul>
+        {% else %}
+            <p class="text-muted">No quiz attempts yet.</p>
+        {% endif %}
+    </div>
+</div>
+
 
 <!-- Exam Results -->
 <div class="card mt-4">
@@ -150,6 +266,48 @@
     </div>
 </div>
 
+<!-- Exam Performance Chart -->
+<div class="card mt-4">
+    <div class="card-header">
+        <strong>Exam Performance Overview</strong>
+    </div>
+    <div class="card-body">
+        <div class="chart-box">
+            <canvas id="examChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const passed = {{ passed_exams|default:0 }};
+    const total = {{ total_exams|default:0 }};
+    const failed = Math.max(total - passed, 0);
+
+    const examCanvas = document.getElementById('examChart');
+    if (examCanvas) {
+        new Chart(examCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Passed', 'Failed'],
+                datasets: [{
+                    data: [passed, failed],
+                    backgroundColor: ['#28a745', '#dc3545']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+
+    });
+</script>
 
 
 {% endblock %}
