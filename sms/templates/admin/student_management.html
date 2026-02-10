@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Student Management</h2>
+
+<table class="table table-bordered table-striped table-sm">
+<thead class="table-dark">
+<tr>
+    <th>Username</th>
+    <th>Email</th>
+    <th>Roll</th>
+    <th>Gender</th>
+    <th>Phone</th>
+    <th>DOB</th>
+    <th>Address</th>
+    <th>Year</th>
+    <th>Batch</th>
+    <th>Courses</th>
+    <th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+{% for s in students %}
+<tr>
+    <td>{{ s.user.username }}</td>
+    <td>{{ s.user.email }}</td>
+    <td>{{ s.roll_number }}</td>
+    <td>{{ s.gender|title }}</td>
+    <td>{{ s.phone }}</td>
+    <td>{{ s.date_of_birth }}</td>
+    <td>{{ s.address }}</td>
+    <td>{{ s.admission_year }}</td>
+
+    <td>
+        {% if s.batch %}
+            {{ s.batch.program }} | {{ s.batch.name }}
+        {% else %}
+            <span class="text-muted">Not Assigned</span>
+        {% endif %}
+    </td>
+
+    <td>
+        {% for e in s.enrollments.all %}
+            {{ e.course.code }}{% if not forloop.last %}, {% endif %}
+        {% empty %}
+            —
+        {% endfor %}
+    </td>
+
+    <td>
+        <a href="{% url 'edit_student' s.id %}"
+           class="btn btn-sm btn-outline-primary">
+           Edit
+        </a>
+
+        <a href="{% url 'delete_student' s.id %}"
+           class="btn btn-sm btn-outline-danger"
+           onclick="return confirm('Delete this student permanently?');">
+           Delete
+        </a>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<a href="{% url 'admin_dashboard' %}"
+   class="btn btn-secondary mt-3">
+   ← Back to Admin Dashboard
+</a>
+
+{% endblock %}

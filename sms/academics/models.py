@@ -4,6 +4,7 @@ from accounts.models import StudentProfile
 class Course(models.Model):
     code = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=100)
+    department = models.CharField(max_length=100)
 
     faculty = models.ForeignKey(
         'accounts.FacultyProfile',   

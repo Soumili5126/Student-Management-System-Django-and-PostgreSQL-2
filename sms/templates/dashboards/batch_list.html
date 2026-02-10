@@ -31,6 +31,17 @@
         <a href="{% url 'assign_batch' s.id %}" class="btn btn-sm btn-warning">
             Assign Batch
         </a>
+        <a href="{% url 'assign_batch' s.id %}"
+            class="btn btn-warning btn-sm mb-1">
+            Change Batch
+        </a>
+        {% if s.batch %}
+            <a href="{% url 'remove_student_from_batch' s.id %}"
+                class="btn btn-danger btn-sm"
+                onclick="return confirm('Remove student from batch?');">
+                Remove
+            </a>
+        {% endif %}
     </td>
 </tr>
 {% endfor %}

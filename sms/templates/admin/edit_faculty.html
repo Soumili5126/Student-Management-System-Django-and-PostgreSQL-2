@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Edit Faculty</h2>
+
+<form method="post" class="card p-4">
+{% csrf_token %}
+
+<label>Username</label>
+<input name="username"
+       class="form-control mb-2"
+       value="{{ faculty.user.username }}">
+
+<label>Email</label>
+<input name="email"
+       class="form-control mb-2"
+       value="{{ faculty.user.email }}">
+
+<label>Department</label>
+<input name="department"
+       class="form-control mb-2"
+       value="{{ faculty.department }}">
+
+<label>Designation</label>
+<input name="designation"
+       class="form-control mb-3"
+       value="{{ faculty.designation }}">
+
+<button class="btn btn-success">Save Changes</button>
+<a href="{% url 'admin_faculty_management' %}"
+   class="btn btn-secondary">Cancel</a>
+
+</form>
+<hr>
+<h4>Assigned Courses</h4>
+
+<ul class="list-group mb-3">
+{% for c in assigned_courses %}
+<li class="list-group-item d-flex justify-content-between">
+    {{ c.code }} — {{ c.name }}
+    <a href="{% url 'remove_course_from_faculty' c.id %}"
+       class="btn btn-sm btn-outline-danger">
+       Remove
+    </a>
+</li>
+{% empty %}
+<li class="list-group-item text-muted">No courses assigned.</li>
+{% endfor %}
+</ul>
+<h4>Assign New Course</h4>
+
+<form method="post"
+      action="{% url 'assign_course_to_faculty' faculty.id %}">
+{% csrf_token %}
+
+<select name="course_id" class="form-select mb-2" required>
+    <option value="">-- Select Course --</option>
+    {% for c in unassigned_courses %}
+        <option value="{{ c.id }}">
+            {{ c.code }} — {{ c.name }}
+        </option>
+    {% endfor %}
+</select>
+
+<button class="btn btn-primary btn-sm">
+    Assign Course
+</button>
+</form>
+
+{% endblock %}

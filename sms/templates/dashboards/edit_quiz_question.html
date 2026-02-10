@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">Edit Question</h2>
+
+<div class="card">
+    <div class="card-header">
+        <strong>Edit Quiz Question</strong>
+    </div>
+
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">Question</label>
+                <textarea name="question_text"
+                          class="form-control"
+                          required>{{ question.question_text }}</textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <input name="option_a"
+                           class="form-control"
+                           value="{{ question.option_a }}"
+                           required>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <input name="option_b"
+                           class="form-control"
+                           value="{{ question.option_b }}"
+                           required>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <input name="option_c"
+                           class="form-control"
+                           value="{{ question.option_c }}"
+                           required>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <input name="option_d"
+                           class="form-control"
+                           value="{{ question.option_d }}"
+                           required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Correct Option</label>
+                <select name="correct_option" class="form-select" required>
+                    <option value="A" {% if question.correct_option == 'A' %}selected{% endif %}>A</option>
+                    <option value="B" {% if question.correct_option == 'B' %}selected{% endif %}>B</option>
+                    <option value="C" {% if question.correct_option == 'C' %}selected{% endif %}>C</option>
+                    <option value="D" {% if question.correct_option == 'D' %}selected{% endif %}>D</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary">Update Question</button>
+            <a href="{% url 'add_quiz_question' question.quiz.id %}"
+               class="btn btn-secondary ms-2">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

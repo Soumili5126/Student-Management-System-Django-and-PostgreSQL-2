@@ -628,7 +628,7 @@ def export_attendance_csv(request, course_id):
         ])
 
     return response
-
+#-------------Batch View----------------
 @login_required
 @role_required(['admin'])
 def create_batch(request):
@@ -668,7 +668,245 @@ def assign_batch(request):
             'batches': batches
         }
     )
+@login_required
+def remove_student_from_batch(request, student_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
 
+    student = get_object_or_404(StudentProfile, id=student_id)
+    student.batch = None
+    student.save()
+
+    messages.success(
+        request,
+        f"{student.user.username} removed from batch"
+    )
+
+    return redirect('batch_list')
+
+@login_required
+def admin_student_management(request):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    students = StudentProfile.objects.select_related(
+        'user',
+        'batch'
+    ).prefetch_related(
+        'enrollments__course'
+    )
+
+    return render(
+        request,
+        'admin/student_management.html',
+        {'students': students}
+    )
+
+@login_required
+def edit_student(request, student_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    student = get_object_or_404(StudentProfile, id=student_id)
+    user = student.user
+
+    if request.method == 'POST':
+        user.username = request.POST['username']
+        user.email = request.POST['email']
+
+        student.roll_number = request.POST['roll_number']
+        student.gender = request.POST['gender']
+        student.phone = request.POST['phone']
+        student.date_of_birth = request.POST['date_of_birth']
+        student.address = request.POST['address']
+        student.admission_year = request.POST['admission_year']
+        student.batch_id = request.POST.get('batch')
+
+        user.save()
+        student.save()
+
+        return redirect('admin_student_management')
+
+    batches = Batch.objects.all()
+
+    return render(
+        request,
+        'admin/edit_student.html',
+        {
+            'student': student,
+            'batches': batches
+        }
+    )
+
+@login_required
+def delete_student(request, student_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    student = get_object_or_404(StudentProfile, id=student_id)
+    student.user.delete()  # cascades student profile
+
+    return redirect('admin_student_management')
+
+@login_required
+def admin_faculty_management(request):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    faculty_list = FacultyProfile.objects.select_related(
+        'user'
+    ).prefetch_related(
+        'courses'
+    )
+
+    return render(
+        request,
+        'admin/faculty_management.html',
+        {
+            'faculty_list': faculty_list
+        }
+    )
+
+@login_required
+def edit_faculty(request, faculty_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    faculty = get_object_or_404(FacultyProfile, id=faculty_id)
+    user = faculty.user
+
+    assigned_courses = Course.objects.filter(faculty=faculty)
+    unassigned_courses = Course.objects.filter(faculty__isnull=True)
+
+    if request.method == 'POST':
+        user.username = request.POST['username']
+        user.email = request.POST['email']
+        faculty.department = request.POST['department']
+        faculty.designation = request.POST['designation']
+
+        user.save()
+        faculty.save()
+
+        return redirect('admin_faculty_management')
+
+    return render(
+        request,
+        'admin/edit_faculty.html',
+        {
+            'faculty': faculty,
+            'assigned_courses': assigned_courses,
+            'unassigned_courses': unassigned_courses
+        }
+    )
+
+@login_required
+def delete_faculty(request, faculty_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    faculty = get_object_or_404(FacultyProfile, id=faculty_id)
+    faculty.user.delete()  # cascades profile + courses remain unassigned
+
+    return redirect('admin_faculty_management')
+
+@login_required
+def assign_course_to_faculty(request, faculty_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    faculty = get_object_or_404(FacultyProfile, id=faculty_id)
+
+    if request.method == 'POST':
+        course_id = request.POST.get('course_id')
+        course = get_object_or_404(Course, id=course_id)
+
+        course.faculty = faculty
+        course.save()
+
+    return redirect('edit_faculty', faculty_id=faculty.id)
+
+@login_required
+def remove_course_from_faculty(request, course_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    course = get_object_or_404(Course, id=course_id)
+    faculty_id = course.faculty.id
+
+    course.faculty = None
+    course.save()
+
+    return redirect('edit_faculty', faculty_id=faculty_id)
+
+@login_required
+def course_management(request):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    courses = Course.objects.select_related('faculty').all()
+
+    return render(
+        request,
+        'admin/course_management.html',
+        {'courses': courses}
+    )
+
+@login_required
+def add_course(request):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    if request.method == 'POST':
+        Course.objects.create(
+            code=request.POST['code'],
+            name=request.POST['name'],
+            department=request.POST['department']
+        )
+        return redirect('course_management')
+
+    return render(request, 'admin/add_course.html')
+
+@login_required
+def edit_course(request, course_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.method == 'POST':
+        course.code = request.POST['code']
+        course.name = request.POST['name']
+        course.department = request.POST['department']
+        course.save()
+
+        return redirect('course_management')
+
+    return render(
+        request,
+        'admin/edit_course.html',
+        {'course': course}
+    )
+
+@login_required
+def delete_course(request, course_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    course = get_object_or_404(Course, id=course_id)
+
+    if Enrollment.objects.filter(course=course).exists():
+        messages.error(
+            request,
+            "Cannot delete course with enrolled students."
+        )
+        return redirect('course_management')
+
+    course.delete()
+    return redirect('course_management')
+
+
+
+#-------Exam View--------
 @login_required
 def create_exam(request, course_id):
     if request.user.role != 'faculty':
@@ -760,6 +998,7 @@ def export_exam_results_pdf(request):
 
     return response
 
+#---------Quiz View---------------
 @login_required
 def create_quiz(request, course_id):
     if request.user.role != 'faculty':
@@ -790,17 +1029,15 @@ def create_quiz(request, course_id):
         'dashboards/create_quiz.html',
         {'course': course}
     )
+
 @login_required
 def add_quiz_question(request, quiz_id):
     if request.user.role != 'faculty':
         return HttpResponseForbidden()
 
-    faculty = request.user.faculty_profile
+    quiz = get_object_or_404(Quiz, id=quiz_id)
 
-    quiz = Quiz.objects.get(
-        id=quiz_id,
-        course__faculty=faculty
-    )
+    questions = QuizQuestion.objects.filter(quiz=quiz)
 
     if request.method == 'POST':
         QuizQuestion.objects.create(
@@ -812,11 +1049,7 @@ def add_quiz_question(request, quiz_id):
             option_d=request.POST.get('option_d'),
             correct_option=request.POST.get('correct_option'),
         )
-
-        messages.success(request, "Question added successfully.")
         return redirect('add_quiz_question', quiz_id=quiz.id)
-
-    questions = quiz.questions.all()
 
     return render(
         request,
@@ -828,6 +1061,35 @@ def add_quiz_question(request, quiz_id):
     )
 
 @login_required
+def edit_quiz_question(request, question_id):
+    question = get_object_or_404(QuizQuestion, id=question_id)
+
+    if request.method == 'POST':
+        question.question_text = request.POST.get('question_text')
+        question.option_a = request.POST.get('option_a')
+        question.option_b = request.POST.get('option_b')
+        question.option_c = request.POST.get('option_c')
+        question.option_d = request.POST.get('option_d')
+        question.correct_option = request.POST.get('correct_option')
+        question.save()
+
+        return redirect('add_quiz_question', quiz_id=question.quiz.id)
+
+    return render(
+        request,
+        'dashboards/edit_quiz_question.html',
+        {'question': question}
+    )
+
+@login_required
+def delete_quiz_question(request, question_id):
+    question = get_object_or_404(QuizQuestion, id=question_id)
+    quiz_id = question.quiz.id
+
+    question.delete()
+    return redirect('add_quiz_question', quiz_id=quiz_id)
+
+@login_required
 def attempt_quiz(request, quiz_id):
     student = request.user.student_profile
     quiz = get_object_or_404(Quiz, id=quiz_id)
@@ -837,7 +1099,7 @@ def attempt_quiz(request, quiz_id):
 
     if request.method == "POST":
 
-        # ✅ create attempt first
+        # create attempt first
         attempt = QuizAttempt.objects.create(
             quiz=quiz,
             student=student,
@@ -853,18 +1115,18 @@ def attempt_quiz(request, quiz_id):
             if not selected:
                 continue
 
-            # ✅ save student answer
+            # save student answer
             QuizAnswer.objects.create(
                 attempt=attempt,
                 question=question,
                 selected_option=selected
             )
 
-            # ✅ check correctness
+            # check correctness
             if selected == question.correct_option:
                 correct += 1
 
-        # ✅ update only score
+        # update only score
         attempt.score = correct
         attempt.save()
 

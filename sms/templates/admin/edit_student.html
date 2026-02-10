@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Edit Student</h2>
+
+<form method="post" class="card p-4">
+{% csrf_token %}
+
+<label>Username</label>
+<input name="username" value="{{ student.user.username }}" class="form-control mb-2">
+
+<label>Email</label>
+<input name="email" value="{{ student.user.email }}" class="form-control mb-2">
+
+<label>Roll Number</label>
+<input name="roll_number" value="{{ student.roll_number }}" class="form-control mb-2">
+
+<label>Gender</label>
+<select name="gender" class="form-control mb-2">
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+    <option value="other">Other</option>
+</select>
+
+<label>Phone</label>
+<input name="phone" value="{{ student.phone }}" class="form-control mb-2">
+
+<label>Date of Birth</label>
+<input type="date" name="date_of_birth"
+       value="{{ student.date_of_birth|date:'Y-m-d' }}"
+       class="form-control mb-2">
+
+<label>Address</label>
+<textarea name="address" class="form-control mb-2">{{ student.address }}</textarea>
+
+<label>Admission Year</label>
+<input name="admission_year" value="{{ student.admission_year }}" class="form-control mb-2">
+
+<label>Batch</label>
+<select name="batch" class="form-control mb-3">
+    <option value="">-- No Batch --</option>
+    {% for b in batches %}
+        <option value="{{ b.id }}"
+        {% if student.batch_id == b.id %}selected{% endif %}>
+            {{ b.program }} | {{ b.name }}
+        </option>
+    {% endfor %}
+</select>
+
+<button class="btn btn-success">Save Changes</button>
+<a href="{% url 'admin_student_management' %}"
+   class="btn btn-secondary">Cancel</a>
+
+</form>
+
+{% endblock %}

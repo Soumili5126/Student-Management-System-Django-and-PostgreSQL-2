@@ -1,27 +1,48 @@
 {% extends 'base.html' %}
 {% block content %}
 
-
 <h2 class="mb-4">Admin Dashboard</h2>
 
-<!-- Stats -->
+<!-- Stats (boxed) -->
 <div class="row mb-4">
-    <div class="col">Students: <b>{{ total_students }}</b></div>
-    <div class="col">Faculty: <b>{{ total_faculty }}</b></div>
-    <div class="col">Courses: <b>{{ total_courses }}</b></div>
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Total Students</h6>
+                <h2 class="fw-bold">{{ total_students }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Total Faculty</h6>
+                <h2 class="fw-bold">{{ total_faculty }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Total Courses</h6>
+                <h2 class="fw-bold">{{ total_courses }}</h2>
+            </div>
+        </div>
+    </div>
 </div>
 
-<hr>
-<hr class="my-4">
-
-<h4>Batch Management</h4>
-
-<a href="{% url 'batch_list' %}" class="btn btn-sm btn-primary">
-    Manage Batches
-</a>
+<!-- Batch Management -->
+<div class="d-flex align-items-center gap-2 mb-2">
+    <h4 class="mb-0">Batch Management</h4>
+    <a href="{% url 'batch_list' %}" class="btn btn-primary">
+        Manage Batches
+    </a>
+</div>
 
 <!-- Course Management -->
-<h2>Courses</h2>
+<h4>Courses</h4>
 
 <table class="table table-bordered">
     <thead>
@@ -45,15 +66,18 @@
             </td>
             <td>
                 {% if item.enrollments %}
-                    <ul class="mb-0">
+                    <ul class="mb-0 list-unstyled">
                         {% for e in item.enrollments %}
-                            <li>
-                                {{ e.student.user.username }}
-                                |
-                                <a href="{% url 'edit_enrollment' e.id %}">Edit</a>
-                                |
+                            <li class="d-flex align-items-center gap-2 mb-1">
+                                <span>{{ e.student.user.username }}</span>
+
+                                <a href="{% url 'edit_enrollment' e.id %}"
+                                   class="btn btn-sm btn-warning">
+                                   Edit
+                                </a>
+
                                 <a href="{% url 'delete_enrollment' e.id %}"
-                                   class="text-danger">
+                                   class="btn btn-sm btn-danger">
                                    Remove
                                 </a>
                             </li>
@@ -77,4 +101,32 @@
         {% endfor %}
     </tbody>
 </table>
+
+<!-- Student Management -->
+<div class="d-flex align-items-center gap-2 mb-2">
+    <h4 class="mb-0">Student Management</h4>
+    <a href="{% url 'admin_student_management' %}" class="btn btn-primary">
+        Manage Students
+    </a>
+</div>
+
+<!-- Faculty Management -->
+<div class="d-flex align-items-center gap-2 mb-2">
+    <h4 class="mb-0">Faculty Management</h4>
+    <a href="{% url 'admin_faculty_management' %}" class="btn btn-primary">
+        Manage Faculty
+    </a>
+</div>
+
+<!-- Course Management -->
+<div class="d-flex align-items-center gap-2 mb-2">
+    <h4 class="mb-0">Course Management</h4>
+    <a href="{% url 'course_management' %}" class="btn btn-primary">
+        Manage Courses
+    </a>
+</div>
+
 {% endblock %}
+
+
+

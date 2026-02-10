@@ -16,7 +16,7 @@
         <label class="form-label">Select Batch</label>
         <select name="batch_id" class="form-select" required>
             {% for b in batches %}
-                <option value="{{ b.id }}">
+                <option value="{{ b.id }}" {% if student.batch and student.batch.id == b.id %}selected{% endif %}>>
                     {{ b.program }} - {{ b.name }} ({{ b.academic_year }})
                 </option>
             {% endfor %}

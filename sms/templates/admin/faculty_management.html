@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Faculty Management</h2>
+
+<table class="table table-bordered table-striped table-sm">
+<thead class="table-dark">
+<tr>
+    <th>Username</th>
+    <th>Email</th>
+    <th>Department</th>
+    <th>Designation</th>
+    <th>Courses Assigned</th>
+    <th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+{% for f in faculty_list %}
+<tr>
+    <td>{{ f.user.username }}</td>
+    <td>{{ f.user.email }}</td>
+    <td>{{ f.department }}</td>
+    <td>{{ f.designation }}</td>
+
+    <td>
+        {% for c in f.courses.all %}
+            {{ c.code }} — {{ c.name }}<br>
+        {% empty %}
+            <span class="text-muted">No courses</span>
+        {% endfor %}
+    </td>
+
+    <td>
+        <a href="{% url 'edit_faculty' f.id %}"
+           class="btn btn-sm btn-outline-primary">
+           Edit
+        </a>
+
+        <a href="{% url 'delete_faculty' f.id %}"
+           class="btn btn-sm btn-outline-danger"
+           onclick="return confirm('Delete this faculty permanently?');">
+           Delete
+        </a>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<a href="{% url 'admin_dashboard' %}"
+   class="btn btn-secondary mt-3">
+   ← Back to Admin Dashboard
+</a>
+
+{% endblock %}
