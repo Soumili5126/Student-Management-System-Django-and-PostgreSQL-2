@@ -1,10 +1,27 @@
 from django.db import models
 from accounts.models import StudentProfile
 # Create your models here.
+class Department(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    code = models.CharField(max_length=20, unique=True)
+
+    class Meta:
+        db_table = 'academics_department'
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+
 class Course(models.Model):
     code = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=100)
-    department = models.CharField(max_length=100)
+    # department = models.CharField(max_length=100)
+    department = models.ForeignKey(
+    'Department',
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name='courses')
+
 
     faculty = models.ForeignKey(
         'accounts.FacultyProfile',   

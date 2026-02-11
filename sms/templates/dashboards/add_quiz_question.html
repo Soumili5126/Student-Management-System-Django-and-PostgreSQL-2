@@ -5,6 +5,7 @@
 <h2 class="mb-4">
     Add Questions — {{ quiz.title }}
 </h2>
+
 <p class="text-muted">Course: {{ quiz.course.code }} - {{ quiz.course.name }}</p>
 
 <!-- ================= ADD QUESTION FORM ================= -->
@@ -107,5 +108,7 @@
         </table>
     </div>
 </div>
-
+<a href="{% url 'faculty_dashboard' %}" class="btn btn-secondary mt-3">
+    ← Back to faculty Dashboard
+</a>
 {% endblock %}

@@ -16,7 +16,7 @@ from .decorators import admin_only, faculty_only, student_only
 from .decorators import role_required
 from django.http import HttpResponseForbidden
 from .models import User, FacultyProfile, StudentProfile
-from academics.models import Course, Enrollment,Attendance,Batch,Exam,Grade,Quiz,QuizQuestion,QuizAnswer,QuizAttempt
+from academics.models import Course, Enrollment,Attendance,Batch,Exam,Grade,Quiz,QuizQuestion,QuizAnswer,QuizAttempt,Department
 from datetime import date
 from datetime import datetime
 from django.db import IntegrityError
@@ -31,6 +31,7 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.conf import settings
 from django.db.models import Avg, Max
+from django.contrib.auth.hashers import make_password
 
 # -------- REGISTER --------
 def register_view(request):
@@ -628,7 +629,9 @@ def export_attendance_csv(request, course_id):
         ])
 
     return response
-#-------------Batch View----------------
+
+#-------------Batch Management CRUD----------------
+
 @login_required
 @role_required(['admin'])
 def create_batch(request):
@@ -684,6 +687,8 @@ def remove_student_from_batch(request, student_id):
 
     return redirect('batch_list')
 
+# -----------Student Management CRUD--------------
+
 @login_required
 def admin_student_management(request):
     if request.user.role != 'admin':
@@ -700,6 +705,56 @@ def admin_student_management(request):
         request,
         'admin/student_management.html',
         {'students': students}
+    )
+@login_required
+def add_student(request):
+
+    batches = Batch.objects.all()
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        roll_number = request.POST.get("roll_number")
+        phone = request.POST.get("phone")
+        dob = request.POST.get("date_of_birth")
+        gender = request.POST.get("gender")
+        address = request.POST.get("address")
+        admission_year = request.POST.get("admission_year")
+        batch_id = request.POST.get("batch")
+
+        # Create User first
+        user = User.objects.create(
+            username=username,
+            email=email,
+            password=make_password(password),
+            role='student'
+        )
+
+        batch = None
+        if batch_id:
+            batch = Batch.objects.get(id=batch_id)
+
+        # Create Student Profile
+        StudentProfile.objects.create(
+            user=user,
+            roll_number=roll_number,
+            phone=phone,
+            date_of_birth=dob,
+            gender=gender,
+            address=address,
+            admission_year=admission_year,
+            batch=batch
+        )
+
+        return redirect('admin_student_management')
+
+    return render(
+        request,
+        'admin/add_student.html',
+        {'batches': batches}
     )
 
 @login_required
@@ -748,6 +803,8 @@ def delete_student(request, student_id):
 
     return redirect('admin_student_management')
 
+# -----------Faculty Management CRUD--------------
+
 @login_required
 def admin_faculty_management(request):
     if request.user.role != 'admin':
@@ -764,6 +821,58 @@ def admin_faculty_management(request):
         'admin/faculty_management.html',
         {
             'faculty_list': faculty_list
+        }
+    )
+
+@login_required
+def add_faculty(request):
+
+    departments = Department.objects.all()
+    courses = Course.objects.all()
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        department_id = request.POST.get("department")
+        designation = request.POST.get("designation")
+        selected_courses = request.POST.getlist("courses")
+
+        # Create user
+        user = User.objects.create(
+            username=username,
+            email=email,
+            password=make_password(password),
+            role="faculty"
+        )
+
+        department = None
+        if department_id:
+            department = Department.objects.get(id=department_id)
+
+        # Create faculty profile
+        faculty = FacultyProfile.objects.create(
+            user=user,
+            department=department,
+            designation=designation
+        )
+
+        # Assign courses
+        for course_id in selected_courses:
+            course = Course.objects.get(id=course_id)
+            course.faculty = faculty
+            course.save()
+
+        return redirect("admin_faculty_management")
+
+    return render(
+        request,
+        "admin/add_faculty.html",
+        {
+            "departments": departments,
+            "courses": courses
         }
     )
 
@@ -838,53 +947,71 @@ def remove_course_from_faculty(request, course_id):
 
     return redirect('edit_faculty', faculty_id=faculty_id)
 
+# -----------Course Management CRUD--------------
+
 @login_required
 def course_management(request):
     if request.user.role != 'admin':
         return HttpResponseForbidden()
 
     courses = Course.objects.select_related('faculty').all()
+    departments = Department.objects.all()
 
     return render(
         request,
         'admin/course_management.html',
-        {'courses': courses}
+        {'courses': courses, "departments": departments}
     )
 
 @login_required
 def add_course(request):
-    if request.user.role != 'admin':
-        return HttpResponseForbidden()
 
-    if request.method == 'POST':
+    departments = Department.objects.all()
+
+    if request.method == "POST":
+        code = request.POST.get("code")
+        name = request.POST.get("name")
+        department_id = request.POST.get("department")
+
+        department = Department.objects.get(id=department_id)
+
         Course.objects.create(
-            code=request.POST['code'],
-            name=request.POST['name'],
-            department=request.POST['department']
+            code=code,
+            name=name,
+            department=department  # ✅ correct
         )
-        return redirect('course_management')
 
-    return render(request, 'admin/add_course.html')
-
-@login_required
-def edit_course(request, course_id):
-    if request.user.role != 'admin':
-        return HttpResponseForbidden()
-
-    course = get_object_or_404(Course, id=course_id)
-
-    if request.method == 'POST':
-        course.code = request.POST['code']
-        course.name = request.POST['name']
-        course.department = request.POST['department']
-        course.save()
-
-        return redirect('course_management')
+        return redirect("course_management")
 
     return render(
         request,
-        'admin/edit_course.html',
-        {'course': course}
+        "admin/add_course.html",
+        {
+            "departments": departments
+        }
+    )
+def edit_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    departments = Department.objects.all()
+
+    if request.method == "POST":
+        course.code = request.POST.get("code")
+        course.name = request.POST.get("name")
+
+        department_id = request.POST.get("department")
+        course.department = Department.objects.get(id=department_id)
+
+        course.save()
+
+        return redirect("course_management")
+
+    return render(
+        request,
+        "admin/edit_course.html",
+        {
+            "course": course,
+            "departments": departments,
+        },
     )
 
 @login_required
@@ -904,9 +1031,7 @@ def delete_course(request, course_id):
     course.delete()
     return redirect('course_management')
 
-
-
-#-------Exam View--------
+# -----------Exam CRUD--------------
 @login_required
 def create_exam(request, course_id):
     if request.user.role != 'faculty':

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Add Faculty</h2>
+
+<form method="post" class="card p-4">
+    {% csrf_token %}
+
+    <h5>Account Info</h5>
+
+    <div class="mb-3">
+        <label>Username</label>
+        <input type="text" name="username" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Password</label>
+        <input type="password" name="password" class="form-control" required>
+    </div>
+
+    <hr>
+
+    <h5>Faculty Details</h5>
+
+    <div class="mb-3">
+        <label>Department</label>
+        <select name="department" class="form-select">
+            <option value="">-- Select Department --</option>
+            {% for dept in departments %}
+                <option value="{{ dept.id }}">{{ dept.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Designation</label>
+        <input type="text" name="designation" class="form-control">
+    </div>
+
+    <div class="mb-3">
+        <label>Assign Courses</label>
+        {% for course in courses %}
+            <div class="form-check">
+                <input type="checkbox"
+                       name="courses"
+                       value="{{ course.id }}"
+                       class="form-check-input"
+                       id="course{{ course.id }}">
+
+                <label class="form-check-label" for="course{{ course.id }}">
+                    {{ course.code }} — {{ course.name }}
+                </label>
+            </div>
+        {% endfor %}
+    </div>
+
+    <button class="btn btn-success">Create Faculty</button>
+    <a href="{% url 'admin_faculty_management' %}" class="btn btn-secondary">Cancel</a>
+
+</form>
+
+{% endblock %}

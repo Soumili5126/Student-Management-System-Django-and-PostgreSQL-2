@@ -54,9 +54,10 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'accounts.User'
 
 # Login URLs
-LOGIN_URL = 'login'
-# LOGIN_REDIRECT_URL = 'dashboard'
-# LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
+
 
 # CRISPY FORMS SETTINGS
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"

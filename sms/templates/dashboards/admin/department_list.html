@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Department Management</h2>
+        
+</div>
+
+
+
+<a href="{% url 'create_department' %}" 
+   class="btn btn-success mb-3">
+   Add New Department
+</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Department Name</th>
+            
+            <th>Courses</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for department in departments %}
+        <tr>
+            <td>{{ department.name }}</td>
+           
+            <td>
+                {% for course in department.courses.all %}
+                    {{ course.code }} - {{ course.name }}<br>
+                {% empty %}
+                    <span class="text-muted">No courses</span>
+                {% endfor %}
+            </td>
+            <td>
+                <a href="{% url 'edit_department' department.id %}" 
+                   class="btn btn-sm btn-warning">
+                   Edit
+                </a>
+                <a href="{% url 'delete_department' department.id %}" 
+                   class="btn btn-sm btn-danger">
+                   Delete
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'admin_dashboard' %}"
+    class="btn btn-secondary mt-3">
+    ← Go to Admin Dashboard
+</a>
+{% endblock %}

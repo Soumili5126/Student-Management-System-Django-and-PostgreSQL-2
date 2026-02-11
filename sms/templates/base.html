@@ -14,40 +14,50 @@
 <nav class="navbar navbar-dark bg-dark px-4">
     <span class="navbar-brand">Student Management System</span>
 
-    {% if user.is_authenticated %}
+    <div>
 
-        <span class="text-white me-3">
-            {{ user.username }} ({{ user.role }})
-        </span>
+        {% if request.user.is_authenticated %}
 
-        {% if user.role == 'admin' %}
-            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-light me-2">
-                Admin Dashboard
+            <span class="text-white me-3">
+                {{ user.username }} ({{ user.role }})
+            </span>
+
+            {% if user.role == 'admin' %}
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-primary">
+                    Admin Dashboard
+                </a>
+
+            {% elif user.role == 'faculty' %}
+                <a href="{% url 'faculty_dashboard' %}" class="btn btn-primary">
+                    Faculty Dashboard
+                </a>
+
+            {% elif user.role == 'student' %}
+                <a href="{% url 'student_dashboard' %}" class="btn btn-primary">
+                    Student Dashboard
+                </a>
+            {% endif %}
+
+            <a href="{% url 'logout' %}" class="btn btn-danger">
+                Logout
             </a>
-            
-        {% elif user.role == 'faculty' %}
-            <a href="{% url 'faculty_dashboard' %}" class="btn btn-outline-light me-2">
-                Faculty Dashboard
+
+        {% else %}
+
+            <a href="{% url 'login' %}" class="btn btn-info me-2">
+                Login
             </a>
-            <a href="{% url 'faculty_dashboard' %}" class="btn btn-outline-info me-2">
-                My Teaching
+
+            <a href="{% url 'register' %}" class="btn btn-success">
+                Register
             </a>
-        {% elif user.role == 'student' %}
-            <a href="{% url 'student_dashboard' %}" class="btn btn-outline-light me-2">
-                Student Dashboard
-            </a>
-            <a href="{% url 'student_courses' %}" class="btn btn-outline-info me-2">
-                My Courses
-            </a>
+
         {% endif %}
 
-        <a href="{% url 'logout' %}" class="btn btn-danger">
-            Logout
-        </a>
-
-    {% endif %}
+    </div>
 </nav>
 
+{% block page_wrapper %}
 <div class="container mt-4">
 
     {% if messages %}
@@ -60,6 +70,8 @@
 
     {% block content %}{% endblock %}
 </div>
+{% endblock %}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

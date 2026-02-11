@@ -3,9 +3,10 @@ from django.contrib.auth.decorators import login_required
 from accounts.decorators import role_required
 from accounts.models import StudentProfile
 from django.http import HttpResponseForbidden
-from .models import Course, Enrollment, Attendance
+from .models import Course, Enrollment, Attendance, Department
 from django.utils import timezone
 from .models import Batch
+from .forms import DepartmentForm
 from django.contrib import messages
 
 # Create your views here.
@@ -106,3 +107,56 @@ def assign_batch(request, student_id):
             'batches': batches
         }
     )
+@login_required
+def department_list(request):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    departments = Department.objects.prefetch_related('courses')
+
+    return render(
+        request,
+        'dashboards/admin/department_list.html',
+        {'departments': departments}
+    )
+@login_required
+def create_department(request):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    form = DepartmentForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        return redirect('department_list')
+
+    return render(
+        request,
+        'dashboards/admin/department_form.html',
+        {'form': form, 'title': 'Create Department'}
+    )
+@login_required
+def edit_department(request, pk):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    department = get_object_or_404(Department, pk=pk)
+    form = DepartmentForm(request.POST or None, instance=department)
+
+    if form.is_valid():
+        form.save()
+        return redirect('department_list')
+
+    return render(
+        request,
+        'dashboards/admin/department_form.html',
+        {'form': form, 'title': 'Edit Department'}
+    )
+@login_required
+def delete_department(request, pk):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    department = get_object_or_404(Department, pk=pk)
+    department.delete()
+    return redirect('department_list')

@@ -22,9 +22,16 @@
 
     <div class="mb-3">
         <label>Department</label>
-        <input type="text" name="department"
-               value="{{ course.department }}"
-               class="form-control" required>
+        <select name="department" class="form-select" required>
+            {% for department in departments %}
+                <option value="{{ department.id }}"
+                    {% if department.id == course.department.id %}
+                        selected
+                    {% endif %}>
+                {{ department.name }}
+                </option>
+            {% endfor %}
+        </select>
     </div>
 
     <button class="btn btn-success">Save Changes</button>

@@ -3,6 +3,9 @@
 
 <h2>Student Management</h2>
 
+<a href="{% url 'add_student' %}" class="btn btn-success mb-3">
+    + Add New Student
+</a>
 <table class="table table-bordered table-striped table-sm">
 <thead class="table-dark">
 <tr>
@@ -50,12 +53,12 @@
 
     <td>
         <a href="{% url 'edit_student' s.id %}"
-           class="btn btn-sm btn-outline-primary">
+           class="btn btn-primary btn-sm">
            Edit
         </a>
 
         <a href="{% url 'delete_student' s.id %}"
-           class="btn btn-sm btn-outline-danger"
+           class="btn btn-danger btn-sm"
            onclick="return confirm('Delete this student permanently?');">
            Delete
         </a>

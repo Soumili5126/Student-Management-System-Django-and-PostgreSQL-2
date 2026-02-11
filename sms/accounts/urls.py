@@ -47,6 +47,7 @@ urlpatterns = [
     'admin/students/',
     views.admin_student_management,
     name='admin_student_management'),
+    path('admin/students/add/', views.add_student, name='add_student'),
     path(
     'admin/student/<int:student_id>/edit/',
     views.edit_student,
@@ -59,6 +60,7 @@ urlpatterns = [
     'admin/faculty/',
     views.admin_faculty_management,
     name='admin_faculty_management'),
+    path('admin/faculty/add/', views.add_faculty, name='add_faculty'),
     path(
     'admin/faculty/<int:faculty_id>/edit/',
     views.edit_faculty,

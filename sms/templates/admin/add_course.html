@@ -18,7 +18,17 @@
 
     <div class="mb-3">
         <label>Department</label>
-        <input type="text" name="department" class="form-control" required>
+
+        <select name="department" class="form-select" required>
+            <option value="">-- Select Department --</option>
+
+            {% for department in departments %}
+                <option value="{{ department.id }}">
+                    {{ department.name }}
+                </option>
+            {% endfor %}
+        </select>
+
     </div>
 
     <button class="btn btn-success">Create Course</button>
