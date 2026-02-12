@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from accounts.decorators import role_required
-from accounts.models import StudentProfile
+from accounts.models import StudentProfile,FacultyProfile
 from django.http import HttpResponseForbidden
 from .models import Course, Enrollment, Attendance, Department
 from django.utils import timezone
-from .models import Batch
+from .models import Batch,Timetable
 from .forms import DepartmentForm
+from django.forms import modelformset_factory
 from django.contrib import messages
 
 # Create your views here.
@@ -135,23 +136,47 @@ def create_department(request):
         'dashboards/admin/department_form.html',
         {'form': form, 'title': 'Create Department'}
     )
-@login_required
 def edit_department(request, pk):
-    if request.user.role != 'admin':
-        return HttpResponseForbidden()
-
     department = get_object_or_404(Department, pk=pk)
-    form = DepartmentForm(request.POST or None, instance=department)
 
-    if form.is_valid():
-        form.save()
-        return redirect('department_list')
-
-    return render(
-        request,
-        'dashboards/admin/department_form.html',
-        {'form': form, 'title': 'Edit Department'}
+    CourseFormSet = modelformset_factory(
+        Course,
+        fields=('code', 'name'),
+        extra=1,
+        can_delete=True
     )
+
+    queryset = Course.objects.filter(department=department)
+
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST, instance=department)
+        formset = CourseFormSet(request.POST, queryset=queryset,prefix='courses')
+
+        if form.is_valid() and formset.is_valid():
+            form.save()
+
+            instances = formset.save(commit=False)
+
+            for instance in instances:
+                instance.department = department
+                instance.save()
+
+            # delete marked objects
+            for obj in formset.deleted_objects:
+                obj.delete()
+
+            return redirect('department_list')
+
+    else:
+        form = DepartmentForm(instance=department)
+        formset = CourseFormSet(queryset=queryset,prefix='courses')
+
+    return render(request, 'dashboards/admin/edit_department.html', {
+        'form': form,
+        'formset': formset,
+        'department': department
+    })
+
 @login_required
 def delete_department(request, pk):
     if request.user.role != 'admin':
@@ -160,3 +185,100 @@ def delete_department(request, pk):
     department = get_object_or_404(Department, pk=pk)
     department.delete()
     return redirect('department_list')
+
+@login_required
+def faculty_timetable(request):
+    faculty = request.user.faculty_profile
+
+    # Only show courses assigned to this faculty
+    courses = Course.objects.filter(faculty=faculty)
+
+    batches = Batch.objects.all()
+
+    if request.method == "POST":
+
+        Timetable.objects.create(
+            batch_id=request.POST.get("batch"),
+            course_id=request.POST.get("course"),
+            faculty=faculty,
+            day=request.POST.get("day"),
+            start_time=request.POST.get("start_time"),
+            end_time=request.POST.get("end_time"),
+        )
+
+        return redirect("faculty_timetable")
+
+    timetables = Timetable.objects.filter(faculty=faculty).order_by('day', 'start_time')
+
+    return render(request, "dashboards/faculty/timetable.html", {
+        "courses": courses,
+        "batches": batches,
+        "timetables": timetables
+    })
+@login_required
+def admin_timetable(request):
+
+    if request.user.role != 'admin':
+        return redirect('dashboard')
+
+    timetables = Timetable.objects.select_related(
+        'batch',
+        'course',
+        'faculty'
+    ).order_by('batch', 'day', 'start_time')
+
+    batches = Batch.objects.all()
+    courses = Course.objects.all()
+    faculties = FacultyProfile.objects.all()
+
+    if request.method == "POST":
+
+        Timetable.objects.create(
+            batch_id=request.POST.get("batch"),
+            course_id=request.POST.get("course"),
+            faculty_id=request.POST.get("faculty"),
+            day=request.POST.get("day"),
+            start_time=request.POST.get("start_time"),
+            end_time=request.POST.get("end_time"),
+        )
+
+        return redirect('admin_timetable')
+
+    return render(request, 'dashboards/admin/timetable.html', {
+        'timetables': timetables,
+        'batches': batches,
+        'courses': courses,
+        'faculties': faculties,
+    })
+@login_required
+def edit_timetable(request, pk):
+
+    timetable = get_object_or_404(Timetable, pk=pk)
+
+    batches = Batch.objects.all()
+    courses = Course.objects.all()
+    faculties = FacultyProfile.objects.all()
+
+    if request.method == "POST":
+        timetable.batch_id = request.POST.get("batch")
+        timetable.course_id = request.POST.get("course")
+        timetable.faculty_id = request.POST.get("faculty")
+        timetable.day = request.POST.get("day")
+        timetable.start_time = request.POST.get("start_time")
+        timetable.end_time = request.POST.get("end_time")
+        timetable.save()
+
+        return redirect('admin_timetable')
+
+    return render(request, "dashboards/admin/edit_timetable.html", {
+        "timetable": timetable,
+        "batches": batches,
+        "courses": courses,
+        "faculties": faculties,
+        'day_choices': Timetable.DAYS,
+    })
+@login_required
+def delete_timetable(request, pk):
+    timetable = get_object_or_404(Timetable, pk=pk)
+    timetable.delete()
+    return redirect('admin_timetable')

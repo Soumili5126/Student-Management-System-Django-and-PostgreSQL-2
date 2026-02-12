@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Edit Timetable</h2>
+
+<div class="card p-4">
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="row">
+
+            <div class="col-md-4 mb-3">
+                <label>Batch</label>
+                <select name="batch" class="form-control">
+                    {% for batch in batches %}
+                        <option value="{{ batch.id }}"
+                            {% if batch.id == timetable.batch.id %}selected{% endif %}>
+                            {{ batch.program }} | {{ batch.section }} | {{ batch.academic_year }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label>Course</label>
+                <select name="course" class="form-control">
+                    {% for course in courses %}
+                        <option value="{{ course.id }}"
+                            {% if course.id == timetable.course.id %}selected{% endif %}>
+                            {{ course.code }} - {{ course.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label>Faculty</label>
+                <select name="faculty" class="form-control">
+                    {% for faculty in faculties %}
+                        <option value="{{ faculty.id }}"
+                            {% if faculty.id == timetable.faculty.id %}selected{% endif %}>
+                            {{ faculty.user.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label>Day</label>
+                <select name="day" class="form-control">
+                    {%for value,label in day_choices %}
+                        <option value="{{ value }}"
+                            {% if value == timetable.day %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label>Start Time</label>
+                <input type="time" name="start_time"
+                       value="{{ timetable.start_time }}"
+                       class="form-control">
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label>End Time</label>
+                <input type="time" name="end_time"
+                       value="{{ timetable.end_time }}"
+                       class="form-control">
+            </div>
+
+        </div>
+
+        <button class="btn btn-success mt-3">Save Changes</button>
+        <a href="{% url 'admin_timetable' %}" class="btn btn-secondary mt-3">Cancel</a>
+
+    </form>
+</div>
+<a href="{% url 'admin_timetable' %}"
+       class="btn btn-secondary mt-3">
+       ← Go Back
+</a>
+{% endblock %}

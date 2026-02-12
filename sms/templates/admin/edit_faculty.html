@@ -26,9 +26,15 @@
        class="form-control mb-3"
        value="{{ faculty.designation }}">
 
-<button class="btn btn-success">Save Changes</button>
-<a href="{% url 'admin_faculty_management' %}"
-   class="btn btn-secondary">Cancel</a>
+<div class="mt-3">
+        <button type="submit" class="btn btn-success">
+            Save
+        </button>
+
+        <a href="{% url 'course_management' %}" class="btn btn-secondary">
+            Cancel
+        </a>
+</div>
 
 </form>
 <hr>
@@ -53,11 +59,11 @@
       action="{% url 'assign_course_to_faculty' faculty.id %}">
 {% csrf_token %}
 
-<select name="course_id" class="form-select mb-2" required>
+<select name="course_id" class="form-select">
     <option value="">-- Select Course --</option>
-    {% for c in unassigned_courses %}
-        <option value="{{ c.id }}">
-            {{ c.code }} — {{ c.name }}
+    {% for course in available_courses %}
+        <option value="{{ course.id }}">
+            {{ course.code }} — {{ course.name }}
         </option>
     {% endfor %}
 </select>
@@ -66,5 +72,8 @@
     Assign Course
 </button>
 </form>
-
+<a href="{% url 'admin_faculty_management' %}"
+       class="btn btn-secondary mt-3">
+       ← Go Back
+</a>
 {% endblock %}

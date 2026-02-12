@@ -10,5 +10,10 @@ urlpatterns = [
     path('admin/departments/create/', views.create_department, name='create_department'),
     path('admin/departments/<int:pk>/edit/', views.edit_department, name='edit_department'),
     path('admin/departments/<int:pk>/delete/', views.delete_department, name='delete_department'),
+    path('faculty/timetable/', views.faculty_timetable, name='faculty_timetable'),
+    path('admin/timetable/', views.admin_timetable, name='admin_timetable'),
+    path('admin/timetable/<int:pk>/edit/', views.edit_timetable, name='edit_timetable'),
+    path('admin/timetable/<int:pk>/delete/', views.delete_timetable, name='delete_timetable'),
+
 ]
 

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Admin Timetable Management</h2>
+
+<div class="card p-4 mb-4">
+    <h5>Add New Schedule</h5>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col">
+                <label>Batch</label>
+                <select name="batch" class="form-control">
+                    {% for batch in batches %}
+                        <option value="{{ batch.id }}">
+                            {{ batch.program }} | {{ batch.section }} | {{ batch.academic_year }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Course</label>
+                <select name="course" class="form-control">
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">
+                            {{ course.code }} - {{ course.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Faculty</label>
+                <select name="faculty" class="form-control">
+                    {% for faculty in faculties %}
+                        <option value="{{ faculty.id }}">
+                            {{ faculty.user.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Day</label>
+                <select name="day" class="form-control">
+                    <option value="Mon">Mon</option>
+                    <option value="Tue">Tue</option>
+                    <option value="Wed">Wed</option>
+                    <option value="Thu">Thu</option>
+                    <option value="Fri">Fri</option>
+                    <option value="Sat">Sat</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label>Start</label>
+                <input type="time" name="start_time" class="form-control">
+            </div>
+
+            <div class="col">
+                <label>End</label>
+                <input type="time" name="end_time" class="form-control">
+            </div>
+        </div>
+
+        <button class="btn btn-success mt-3">Add</button>
+    </form>
+</div>
+
+
+<div class="card p-4">
+    <h5>All Schedules</h5>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Batch</th>
+                <th>Course</th>
+                <th>Faculty</th>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        {% for t in timetables %}
+        <tr>
+            <td>{{ t.batch.program }} | {{ t.batch.section }}</td>
+            <td>{{ t.course.code }}</td>
+            <td>{{ t.faculty.user.username }}</td>
+            <td>{{ t.get_day_display }}</td>
+            <td>{{ t.start_time }} - {{ t.end_time }}</td>
+            <td>
+                <a href="{% url 'edit_timetable' t.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'delete_timetable' t.id %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+<a href="{% url 'admin_dashboard' %}"
+   class="btn btn-secondary mt-3">
+   ← Back to Admin Dashboard
+</a>
+{% endblock %}

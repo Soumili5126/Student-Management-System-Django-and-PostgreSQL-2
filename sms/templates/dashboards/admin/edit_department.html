@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Edit Department</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="card mb-4 p-3">
+        <h5>Department Details</h5>
+        {{ form.as_p }}
+    </div>
+
+    <div class="card p-3">
+        <h5>Courses Under This Department</h5>
+
+        {{ formset.management_form }}
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                <tr>
+                    {{ form.id }} 
+                    <td>{{ form.code }}</td>
+                    <td>{{ form.name }}</td>
+                    <td>{{ form.DELETE }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <button type="submit" class="btn btn-success mt-3">
+        Save Changes
+    </button>
+
+</form>
+<a href="{% url 'department_list' %}"
+       class="btn btn-secondary mt-3">
+       ← Go Back
+</a>
+{% endblock %}

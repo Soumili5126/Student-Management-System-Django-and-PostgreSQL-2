@@ -66,6 +66,11 @@ class FacultyProfile(models.Model):
     designation = models.CharField(max_length=100)  # keep it
     class Meta:
         db_table = 'academics_facultyprofile'
+    def __str__(self):
+        return f"{self.user.username} - {self.designation}"
+
+
+
       
 
 

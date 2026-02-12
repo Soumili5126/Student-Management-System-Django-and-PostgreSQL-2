@@ -28,6 +28,32 @@
         </p>
     </div>
 </div>
+<div class="card mt-4 p-3">
+    <h5>My Timetable</h5>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Course</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for t in timetable %}
+            <tr>
+                <td>{{ t.get_day_display }}</td>
+                <td>{{ t.course.code }}</td>
+                <td>{{ t.start_time }} - {{ t.end_time }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3">No schedule assigned.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 <!-- Academic Performance Overview -->
 <div class="card mb-4">

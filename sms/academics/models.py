@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import StudentProfile
+from django.utils import timezone
 # Create your models here.
 class Department(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -288,3 +289,42 @@ class QuizAnswer(models.Model):
     
     def __str__(self):
         return f"{self.question.text[:30]} - {self.selected_option}"
+
+
+class Timetable(models.Model):
+
+    DAYS = [
+        ('Mon', 'Monday'),
+        ('Tue', 'Tuesday'),
+        ('Wed', 'Wednesday'),
+        ('Thu', 'Thursday'),
+        ('Fri', 'Friday'),
+        ('Sat', 'Saturday'),
+    ]
+
+    batch = models.ForeignKey(
+        Batch,
+        on_delete=models.CASCADE,
+        related_name='timetables'
+    )
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE
+    )
+
+    faculty = models.ForeignKey(
+        'accounts.FacultyProfile',
+        on_delete=models.CASCADE
+    )
+
+    day = models.CharField(max_length=10, choices=DAYS)
+
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    class Meta:
+        unique_together = ('batch', 'day', 'start_time')
+
+    def __str__(self):
+        return f"{self.batch} - {self.course} - {self.day}"

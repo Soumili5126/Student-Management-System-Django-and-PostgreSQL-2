@@ -4,19 +4,20 @@ from django.contrib.auth.decorators import login_required
 from .forms import UserRegisterForm, LoginForm, AssignBatchForm
 from django.contrib.auth import authenticate
 import random
+from django import forms
 from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib import messages
 from .models import User, FacultyProfile
-from .forms import UserRegisterForm, EnrollmentEditForm
+from .forms import UserRegisterForm, EnrollmentEditForm,CourseForm
 from .utils import generate_otp, get_otp_expiry,generate_reset_token
 from django.urls import reverse
 from .decorators import admin_only, faculty_only, student_only
 from .decorators import role_required
 from django.http import HttpResponseForbidden
 from .models import User, FacultyProfile, StudentProfile
-from academics.models import Course, Enrollment,Attendance,Batch,Exam,Grade,Quiz,QuizQuestion,QuizAnswer,QuizAttempt,Department
+from academics.models import Course, Enrollment,Attendance,Batch,Exam,Grade,Quiz,QuizQuestion,QuizAnswer,QuizAttempt,Department,Timetable
 from datetime import date
 from datetime import datetime
 from django.db import IntegrityError
@@ -369,6 +370,11 @@ def student_dashboard(request):
         student=student
     ).select_related('exam', 'exam__course')
 
+    timetable = Timetable.objects.filter(
+        batch=student.batch
+    ).order_by('day', 'start_time')
+
+
     # ---------------- ATTENDANCE SUMMARY ----------------
     attendance_summary = {}
 
@@ -444,6 +450,7 @@ def student_dashboard(request):
             'attendance_summary': attendance_summary,
             'grades': grades,
             'total_exams': total_exams,
+            'timetable': timetable,
 
             # Quiz data
             'quizzes': quizzes,
@@ -885,7 +892,7 @@ def edit_faculty(request, faculty_id):
     user = faculty.user
 
     assigned_courses = Course.objects.filter(faculty=faculty)
-    unassigned_courses = Course.objects.filter(faculty__isnull=True)
+    available_courses = Course.objects.all()
 
     if request.method == 'POST':
         user.username = request.POST['username']
@@ -904,7 +911,7 @@ def edit_faculty(request, faculty_id):
         {
             'faculty': faculty,
             'assigned_courses': assigned_courses,
-            'unassigned_courses': unassigned_courses
+            'available_courses': available_courses
         }
     )
 
@@ -990,29 +997,43 @@ def add_course(request):
             "departments": departments
         }
     )
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['code', 'name', 'department', 'faculty']
+
+
 def edit_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
+
     departments = Department.objects.all()
+    faculty_list = FacultyProfile.objects.all()
 
     if request.method == "POST":
         course.code = request.POST.get("code")
         course.name = request.POST.get("name")
 
-        department_id = request.POST.get("department")
-        course.department = Department.objects.get(id=department_id)
+        # Get department instance
+        dept_id = request.POST.get("department")
+        if dept_id:
+            course.department = Department.objects.get(id=dept_id)
+
+        # Get faculty instance
+        faculty_id = request.POST.get("faculty")
+        if faculty_id:
+            course.faculty = FacultyProfile.objects.get(id=faculty_id)
+        else:
+            course.faculty = None
 
         course.save()
 
         return redirect("course_management")
 
-    return render(
-        request,
-        "admin/edit_course.html",
-        {
-            "course": course,
-            "departments": departments,
-        },
-    )
+    return render(request, "admin/edit_course.html", {
+        "course": course,
+        "departments": departments,
+        "faculty_list": faculty_list,
+    })
 
 @login_required
 def delete_course(request, course_id):

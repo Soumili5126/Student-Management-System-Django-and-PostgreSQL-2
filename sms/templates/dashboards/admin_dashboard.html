@@ -3,7 +3,7 @@
 
 <h2 class="mb-4">Welcome to admin dashboard!</h2>
 
-<!-- Stats (boxed) -->
+<!-- Stats -->
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="card text-center shadow-sm">
@@ -33,57 +33,9 @@
     </div>
 </div>
 
-<!-- Batch Management -->
-<div class="card shadow-sm mb-3">
-    <div class="card-body d-flex align-items-center justify-content-between">
-        <h4 class="mb-0">Batch Management</h4>
-        <a href="{% url 'batch_list' %}" class="btn btn-primary">
-            Manage Batches
-        </a>
-    </div>
-</div>
-<!-- Student Management -->
-<div class="card shadow-sm mb-3">
-    <div class="card-body d-flex align-items-center justify-content-between">
-        <h4 class="mb-0">Student Management</h4>
-        <a href="{% url 'admin_student_management' %}" class="btn btn-primary">
-            Manage Students
-        </a>
-    </div>
-</div>
+<hr>
 
-<!-- Faculty Management -->
-<div class="card shadow-sm mb-3">
-    <div class="card-body d-flex align-items-center justify-content-between">
-        <h4 class="mb-0">Faculty Management</h4>
-        <a href="{% url 'admin_faculty_management' %}" class="btn btn-primary">
-            Manage Faculty
-        </a>
-    </div>
-</div>
-
-<!-- Course Management -->
-<div class="card shadow-sm mb-3">
-    <div class="card-body d-flex align-items-center justify-content-between">
-        <h4 class="mb-0">Course Management</h4>
-        <a href="{% url 'course_management' %}" class="btn btn-primary">
-            Manage Courses
-        </a>
-    </div>
-</div>
-
-<!-- Department Management -->
-<div class="card shadow-sm mb-3">
-    <div class="card-body d-flex align-items-center justify-content-between">
-        <h4 class="mb-0">Department Management</h4>
-        <a href="{% url 'department_list' %}" class="btn btn-primary">
-            Manage Departments
-        </a>
-    </div>
-</div>
-
-<!-- Course Management Table -->
-<h4>Enrollment Table:</h4>
+<h4 class="mb-3">Enrollment Overview</h4>
 
 <table class="table table-bordered">
     <thead>
@@ -109,19 +61,7 @@
                 {% if item.enrollments %}
                     <ul class="mb-0 list-unstyled">
                         {% for e in item.enrollments %}
-                            <li class="d-flex align-items-center gap-2 mb-1">
-                                <span>{{ e.student.user.username }}</span>
-
-                                <a href="{% url 'edit_enrollment' e.id %}"
-                                   class="btn btn-sm btn-warning">
-                                   Edit
-                                </a>
-
-                                <a href="{% url 'delete_enrollment' e.id %}"
-                                   class="btn btn-sm btn-danger">
-                                   Remove
-                                </a>
-                            </li>
+                            <li>{{ e.student.user.username }}</li>
                         {% endfor %}
                     </ul>
                 {% else %}

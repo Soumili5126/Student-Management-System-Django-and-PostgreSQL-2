@@ -1,10 +1,10 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import User
-from .models import User, StudentProfile
+from .models import User, StudentProfile,FacultyProfile
 from django import forms
-from academics.models import Enrollment,Course
-from academics.models import Batch
+from academics.models import Enrollment,Course,Batch
+
 
 
 class UserRegisterForm(UserCreationForm):
@@ -29,9 +29,8 @@ class UserRegisterForm(UserCreationForm):
     # -------- Faculty-only fields --------
     department = forms.CharField(required=False)
     designation = forms.CharField(required=False)
-# ==========================
-# LOGIN FORM (ADD THIS PART)
-# ==========================
+
+# LOGIN FORM 
 class LoginForm(AuthenticationForm):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
@@ -50,3 +49,14 @@ class AssignBatchForm(forms.Form):
         queryset=Batch.objects.all(),
         label="Select Batch"
     )
+
+class CourseForm(forms.ModelForm):
+    faculty = forms.ModelChoiceField(
+        queryset=FacultyProfile.objects.select_related('user'),
+        required=False,
+        empty_label="Select Faculty"
+    )
+
+    class Meta:
+        model = Course
+        fields = ['code', 'name', 'department', 'faculty']
