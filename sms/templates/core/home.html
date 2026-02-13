@@ -1,35 +1,68 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block page_wrapper %}
+{% block content %}
 
 <style>
+
+/* Remove padding from base layout only on home */
+#page-content-wrapper {
+    padding: 0 !important;
+}
+
+/* HERO */
 .hero {
-    height: 90vh;
+    height: 100vh;
     background: url("{% static 'images/hero.jpg' %}") no-repeat center center;
     background-size: cover;
     display: flex;
     align-items: center;
-    justify-conten: center;
+    justify-content: center;
     text-align: center;
-    color: black;
+    color: white;
+    position: relative;
 }
 
+/* Dark overlay */
+.hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+/* Text above overlay */
 .hero h1 {
-    font-size: 3rem;
+    position: relative;
+    font-size: 3.5rem;
     font-weight: bold;
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.7);
+    z-index: 2;
+    text-shadow: 2px 2px 20px rgba(0,0,0,0.8);
 }
 
+/* INFO SECTION */
 .info-section {
     background-color: #111;
     color: white;
     padding: 60px 10%;
 }
+
+.info-section h4 {
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.info-section p {
+    margin: 5px 0;
+}
+
 </style>
 
 <div class="hero">
-    <h1>WELCOME TO MY <br>STUDENT MANAGEMENT SYSTEM</h1>
+    <h1>WELCOME TO MY<br>STUDENT MANAGEMENT SYSTEM</h1>
 </div>
 
 <section class="info-section">
@@ -42,11 +75,12 @@
         </div>
 
         <div class="col-md-6">
-            <h4>ABOUT PROJECT</h4>
+            <h4>ABOUT ME</h4>
             <p>
                 This Student Management System is a Django-based web application 
                 designed to manage students, faculty, courses, and departments efficiently.
-                It demonstrates database modeling, role-based access, and dashboard design.
+                It demonstrates database modeling, role-based access control,
+                and interactive dashboard design.
             </p>
         </div>
     </div>

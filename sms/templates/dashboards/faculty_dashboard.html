@@ -1,117 +1,170 @@
-
 {% extends 'base.html' %}
 {% block content %}
 
-<h2>Faculty Dashboard</h2>
+<h2 class="mb-4">Faculty Dashboard</h2>
 
-<div class="card mb-4">
-    <div class="card-body">
-        <p><strong>Name:</strong> {{ faculty.user.username }}</p>
-        <p><strong>Department:</strong> {{ faculty.department }}</p>
-        <p><strong>Designation:</strong> {{ faculty.designation }}</p>
-    </div>
-</div>
-<h3 class="mt-4">Exams</h3>
+<!-- NAV TABS -->
+<ul class="nav nav-tabs mb-4" id="facultyTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="profile-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#profile"
+                type="button" role="tab">
+            Profile
+        </button>
+    </li>
 
-{% if exams %}
-    <ul class="list-group">
-        {% for exam in exams %}
-            <li class="list-group-item d-flex justify-content-between">
-                <span>
-                    {{ exam.course.code }} — {{ exam.name }}
-                </span>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="exams-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#exams"
+                type="button" role="tab">
+            Exams
+        </button>
+    </li>
 
-                <a href="{% url 'enter_grades' exam.id %}"
-                   class="btn btn-sm btn-outline-primary">
-                   Enter Grades
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p class="text-muted">No exams created yet.</p>
-{% endif %}
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="subjects-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#subjects"
+                type="button" role="tab">
+            Subjects
+        </button>
+    </li>
+</ul>
 
+<!-- TAB CONTENT -->
+<div class="tab-content">
 
-{% for item in course_data %}
-    <div class="card mb-4">
-        <div class="card-header">
-            <strong>{{ item.course.code }} — {{ item.course.name }}</strong>
-        </div>
-
-        <div class="card-body">
-            <a href="{% url 'mark_attendance' item.course.id %}"
-               class="btn btn-sm btn-primary mb-3">
-                Mark Attendance
-            </a>
-            <a href="{% url 'create_quiz' item.course.id %}"
-               class="btn btn-sm btn-outline-success mb-2">
-                Create Quiz
-            </a>
-            <!-- ADD THIS BLOCK HERE -->
-            <div class="mt-3">
-                <h6>Quizzes</h6>
-
-                {% for quiz in item.quizzes %}
-                    <div class="mb-2">
-                        <span>{{ quiz.title }}</span>
-
-                        <a href="{% url 'add_quiz_question' quiz.id %}"
-                            class="btn btn-sm btn-outline-secondary">
-                            Add Questions
-                        </a>
-                        <a href="{% url 'faculty_quiz_analytics' quiz.id %}"
-                            class="btn btn-sm btn-outline-info">
-                            View Quiz Analytics
-                        </a>
-
-                    </div>
-                {% empty %}
-                    <p class="text-muted">No quizzes created yet.</p>
-                {% endfor %}
+    <!-- PROFILE TAB -->
+    <div class="tab-pane fade show active" id="profile" role="tabpanel">
+        <div class="card">
+            <div class="card-body">
+                <p><strong>Name:</strong> {{ faculty.user.username }}</p>
+                <p><strong>Department:</strong> {{ faculty.department }}</p>
+                <p><strong>Designation:</strong> {{ faculty.designation }}</p>
             </div>
-
-            <a href="{% url 'create_exam' item.course.id %}"
-                class="btn btn-sm btn-success mb-3">
-                Create Exam
-            </a>
-            
-
-            <a href="{% url 'export_attendance' item.course.id %}"
-               class="btn btn-sm btn-secondary mb-3 ms-2">
-                Export Attendance
-            </a>
-            <a href="{% url 'faculty_timetable' %}" class="btn btn-warning">
-                Manage Timetable
-            </a>
-
-
-            {% if item.enrollments %}
-                <ul>
-                    {% for e in item.enrollments %}
-                        <li>
-                            {{ e.student.user.username }}
-                            <br>
-                            <small class="text-muted">
-                                Batch:
-                                {% if e.student.batch %}
-                                    {{ e.student.batch.program }} -
-                                    {{ e.student.batch.name }}
-                                    ({{ e.student.batch.academic_year }})
-                                {% else %}
-                                    Not Assigned
-                                {% endif %}
-                            </small>
-                        </li>
-                    {% endfor %}
-
-                </ul>
-            
-            {% endif %}
         </div>
     </div>
-{% empty %}
-    <p>No courses assigned.</p>
-{% endfor %}
+
+    <!-- EXAMS TAB -->
+    <div class="tab-pane fade" id="exams" role="tabpanel">
+        <h4 class="mt-3">Exams</h4>
+
+        {% if exams %}
+            <ul class="list-group">
+                {% for exam in exams %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>
+                            {{ exam.course.code }} — {{ exam.name }}
+                        </span>
+
+                        <a href="{% url 'enter_grades' exam.id %}"
+                           class="btn btn-sm btn-outline-primary">
+                           Enter Grades
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No exams created yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- SUBJECTS TAB -->
+    <div class="tab-pane fade" id="subjects" role="tabpanel">
+
+        {% for item in course_data %}
+            <div class="card mb-4 mt-3">
+                <div class="card-header">
+                    <strong>{{ item.course.code }} — {{ item.course.name }}</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <a href="{% url 'mark_attendance' item.course.id %}"
+                       class="btn btn-sm btn-primary mb-3">
+                        Mark Attendance
+                    </a>
+
+                    <a href="{% url 'create_quiz' item.course.id %}"
+                       class="btn btn-sm btn-success mb-3">
+                        Create Quiz
+                    </a>
+
+                    <a href="{% url 'create_exam' item.course.id %}"
+                        class="btn btn-sm btn-success mb-3">
+                        Create Exam
+                    </a>
+
+                    <a href="{% url 'export_attendance' item.course.id %}"
+                       class="btn btn-sm btn-secondary mb-3 ms-2">
+                        Export Attendance
+                    </a>
+
+                    <a href="{% url 'faculty_timetable' %}"
+                       class="btn btn-sm btn-warning mb-3">
+                        Manage Timetable
+                    </a>
+
+                    <!-- QUIZZES -->
+                    <div class="mt-3">
+                        <h6>Quizzes</h6>
+
+                        {% for quiz in item.quizzes %}
+                            <div class="mb-2">
+                                <span>{{ quiz.title }}</span>
+
+                                <a href="{% url 'add_quiz_question' quiz.id %}"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    Add Questions
+                                </a>
+
+                                <a href="{% url 'faculty_quiz_analytics' quiz.id %}"
+                                   class="btn btn-sm btn-outline-info">
+                                    View Analytics
+                                </a>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted">No quizzes created yet.</p>
+                        {% endfor %}
+                    </div>
+
+                    {% if item.enrollments %}
+                        <ul class="mt-3">
+                            {% for e in item.enrollments %}
+                                <li>
+                                    {{ e.student.user.username }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                </div>
+            </div>
+        {% empty %}
+            <p>No courses assigned.</p>
+        {% endfor %}
+
+    </div>
+
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    var hash = window.location.hash;
+
+    if (hash) {
+        var triggerEl = document.querySelector('[data-bs-target="' + hash + '"]');
+
+        if (triggerEl) {
+            var tab = new bootstrap.Tab(triggerEl);
+            tab.show();
+        }
+    }
+
+});
+</script>
 
 {% endblock %}
+

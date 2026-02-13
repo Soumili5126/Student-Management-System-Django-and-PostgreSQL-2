@@ -2,35 +2,146 @@
 {% load dict_extras %}
 {% block content %}
 
-<h2 class="mb-4">Student Dashboard</h2>
+<h2 class="mb-4">Welcome!</h2>
 
-<!-- Student Profile -->
-<div class="card mb-4">
+<!-- TABS -->
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <button class="nav-link active"
+                data-bs-toggle="tab"
+                data-bs-target="#dashboard">
+            Dashboard
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#profile">
+            My Profile
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#timetable">
+            My Time Table
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#performance">
+            Performance
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#attendance">
+            Attendance
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#courses">
+            Courses
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#quizzes">
+            Quizzes
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button class="nav-link"
+                data-bs-toggle="tab"
+                data-bs-target="#attempts">
+            Quiz Attempts
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+
+<!-- ================= DASHBOARD SUMMARY ================= -->
+<div class="tab-pane fade show active" id="dashboard">
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm text-center">
+                <h6>Quiz Performance Summary</h6>
+                <h5>{{ quiz_summary.avg_score|floatformat:2|default:"0" }}%</h5>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm text-center">
+                <h6>Total Exams</h6>
+                <h5>{{ total_exams }}</h5>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm text-center">
+                <h6>Passed Exams</h6>
+                <h5 class="text-success">{{ passed_exams }}</h5>
+            </div>
+        </div>
+    </div>
+<!-- Chart -->
+<div class="card mt-4">
     <div class="card-header">
-        <strong>My Profile</strong>
+        <strong>Exam Performance Overview</strong>
     </div>
     <div class="card-body">
-        <p><strong>Username:</strong> {{ request.user.username }}</p>
+        <div style="height:300px;">
+            <canvas id="examChart"></canvas>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- ================= PROFILE ================= -->
+<div class="tab-pane fade" id="profile">
+
+<div class="card mb-4">
+    <div class="card-header"><strong>My Profile</strong></div>
+    <div class="card-body">
+        <p><strong>Name:</strong> {{ request.user.username }}</p>
         <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
         <p><strong>Date of Birth:</strong> {{ student.date_of_birth }}</p>
         <p><strong>Phone:</strong> {{ student.phone }}</p>
         <p><strong>Gender:</strong> {{ student.gender|title }}</p>
         <p><strong>Address:</strong> {{ student.address }}</p>
         <p><strong>Admission Year:</strong> {{ student.admission_year }}</p>
-        <!-- ✅ ADD HERE -->
+
         <p><strong>Batch:</strong>
-        {% if student.batch %}
-            {{ student.batch.program }} - {{ student.batch.name }}
-            ({{ student.batch.academic_year }})
-        {% else %}
-            <span class="text-muted">Not assigned</span>
-        {% endif %}
+            {% if student.batch %}
+                {{ student.batch.program }} - {{ student.batch.name }}
+                ({{ student.batch.academic_year }})
+            {% else %}
+                <span class="text-muted">Not assigned</span>
+            {% endif %}
         </p>
     </div>
 </div>
+
+</div>
+
+<!-- ================= TIMETABLE ================= -->
+<div class="tab-pane fade" id="timetable">
 <div class="card mt-4 p-3">
     <h5>My Timetable</h5>
-
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -47,45 +158,80 @@
                 <td>{{ t.start_time }} - {{ t.end_time }}</td>
             </tr>
         {% empty %}
-            <tr>
-                <td colspan="3">No schedule assigned.</td>
-            </tr>
+            <tr><td colspan="3">No schedule assigned.</td></tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
+</div>
 
-<!-- Academic Performance Overview -->
-<div class="card mb-4">
-    <div class="card-header">
-        <strong>My Performance Overview</strong>
+<!-- ================= PERFORMANCE ================= -->
+<div class="tab-pane fade" id="performance">
+
+<!-- Keep your full exam results section exactly as you wrote -->
+<!-- (Copied directly from your original code) -->
+
+<!-- Exam Results -->
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Exam Results</strong>
+        <a href="{% url 'export_exam_results_pdf' %}"
+           class="btn btn-sm btn-outline-danger">Export PDF</a>
     </div>
 
-    <div class="card-body row text-center">
-        <div class="col-md-3">
-            <h5>{{ total_exams }}</h5>
-            <small class="text-muted">Total Exams</small>
-        </div>
-
-        <div class="col-md-3">
-            <h5 class="text-success">{{ passed_exams }}</h5>
-            <small class="text-muted">Exams Passed</small>
-        </div>
-
-        <div class="col-md-3">
-            <h5>{{ total_quiz_attempts }}</h5>
-            <small class="text-muted">Quiz Attempts</small>
-        </div>
+    <div class="card-body">
+        {% if grades %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Course</th>
+                    <th>Exam</th>
+                    <th>Marks</th>
+                    <th>Total</th>
+                    <th>Percentage</th>
+                    <th>Grade</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in grades %}
+                <tr>
+                    <td>{{ g.exam.course.code }}</td>
+                    <td>{{ g.exam.title }}</td>
+                    <td>{{ g.marks_obtained }}</td>
+                    <td>{{ g.exam.total_marks }}</td>
+                    <td>{{ g.percentage|floatformat:2 }}</td>
+                    <td><span class="badge bg-secondary">{{ g.grade_letter }}</span></td>
+                    <td>
+                        {% if g.is_pass %}
+                        <span class="badge bg-success">Pass</span>
+                        {% else %}
+                        <span class="badge bg-danger">Fail</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p class="text-muted">No exam results available yet.</p>
+        {% endif %}
     </div>
 </div>
 
-<!-- Attendance -->
+
+
+</div>
+
+
+<div class="tab-pane fade" id="attendance">
+
 <div class="card mb-4">
     <div class="card-header">
         <strong>Attendance</strong>
     </div>
-    <div class="card-body">
 
+    <div class="card-body">
         {% if attendance %}
         <table class="table table-bordered">
             <thead>
@@ -114,38 +260,40 @@
         {% else %}
             <p class="text-muted">No attendance records available.</p>
         {% endif %}
-
     </div>
 </div>
 
-<!-- Enrolled Courses -->
+</div>
+<div class="tab-pane fade" id="courses">
+
 <div class="card">
     <div class="card-header">
         <strong>My Courses</strong>
     </div>
+
     <div class="card-body">
         {% if enrollments %}
         <ul class="list-group">
-
             {% for enrollment in enrollments %}
                <li class="list-group-item d-flex justify-content-between align-items-center">
                    {{ enrollment.course.code }} — {{ enrollment.course.name }}
 
                    <span class="badge bg-info">
-                     Attendance:
-                     {{ attendance_summary|dict_get:enrollment.course.id }}%
+                       Attendance:
+                       {{ attendance_summary|dict_get:enrollment.course.id }}%
                    </span>
-                </li>
+               </li>
             {% endfor %}
-
-
         </ul>
         {% else %}
             <p class="text-muted">You are not enrolled in any courses.</p>
         {% endif %}
     </div>
 </div>
-<!--Quizzes-->
+
+</div>
+<div class="tab-pane fade" id="quizzes">
+
 <div class="card mt-4">
     <div class="card-header">
         <strong>Available Quizzes</strong>
@@ -171,7 +319,9 @@
     </div>
 </div>
 
-<!--Quiz Attempts-->
+</div>
+<div class="tab-pane fade" id="attempts">
+
 <div class="card mt-4">
     <div class="card-header">
         <strong>Quiz Attempts</strong>
@@ -179,144 +329,111 @@
 
     <div class="card-body">
         {% if quiz_attempts %}
-            <ul class="list-group">
+
+        <table class="table table-bordered table-striped mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Quiz</th>
+                    <th>Date</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>Status</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+
+            <tbody>
                 {% for attempt in quiz_attempts %}
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>
-                            {{ attempt.quiz.title }}<br>
-                            <small class="text-muted">
-                                {{ attempt.attempted_at|date:"M d, Y H:i" }}
-                            </small>
-                        </span>
+                <tr>
+                    <td>{{ attempt.quiz.title }}</td>
 
-                        <span class="badge bg-info">
-                            {{ attempt.score }}/{{ attempt.total_questions }}
-                            ({{ attempt.percentage|floatformat:2 }}%)
-                        </span>
-                    </li>
+                    <td>
+                        {{ attempt.attempted_at|date:"M d, Y H:i" }}
+                    </td>
+
+                    <td>
+                        {{ attempt.score }}/{{ attempt.total_questions }}
+                    </td>
+
+                    <td>
+                        {% if attempt.total_questions > 0 %}
+                            {{ attempt.percentage }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if attempt.percentage >= 40 %}
+                            <span class="badge bg-success">
+                                PASS
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                FAIL
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a href="{% url 'quiz_result' attempt.id %}" 
+                           class="btn btn-sm btn-primary">
+                            View Result
+                        </a>
+                    </td>
+                </tr>
                 {% endfor %}
-            </ul>
+            </tbody>
+        </table>
+
         {% else %}
             <p class="text-muted">No quiz attempts yet.</p>
         {% endif %}
     </div>
 </div>
 
-<!-- Quiz Performance Summary -->
-<div class="card mt-4">
-    <div class="card-header">
-        <strong>Quiz Performance Summary</strong>
-    </div>
-
-    <div class="card-body">
-        {% if total_quiz_attempts %}
-        <ul class="list-group">
-            <li class="list-group-item">
-                <strong>Average Quiz Score:</strong>
-                {{ quiz_summary.avg_score|floatformat:2 }}
-            </li>
-
-            {% if best_quiz %}
-            <li class="list-group-item text-success">
-                <strong>Best Score:</strong>
-                {{ best_quiz.score }} / {{ best_quiz.total_questions }}
-                ({{ best_quiz.quiz.title }})
-            </li>
-            {% endif %}
-
-            {% if latest_quiz %}
-            <li class="list-group-item text-info">
-                <strong>Latest Attempt:</strong>
-                {{ latest_quiz.score }} / {{ latest_quiz.total_questions }}
-                ({{ latest_quiz.quiz.title }})
-            </li>
-            {% endif %}
-        </ul>
-        {% else %}
-            <p class="text-muted">No quiz attempts yet.</p>
-        {% endif %}
-    </div>
 </div>
 
 
-<!-- Exam Results -->
-<div class="card mt-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <strong>Exam Results</strong>
-        <!-- ✅ PDF EXPORT BUTTON -->
-        <a href="{% url 'export_exam_results_pdf' %}"
-           class="btn btn-sm btn-outline-danger">
-            Export PDF
-        </a>
-    </div>
 
-    <div class="card-body">
-        {% if grades %}
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Course</th>
-                        <th>Exam</th>
-                        <th>Marks</th>
-                        <th>Total</th>
-                        <th>Percentage</th>
-                        <th>Grade</th>
-                        <th>Result</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for g in grades %}
-                    <tr>
-                        <td>{{ g.exam.course.code }}</td>
-                        <td>{{ g.exam.title }}</td>
-                        <td>{{ g.marks_obtained }}</td>
-                        <td>{{ g.exam.total_marks }}</td>
-                        <td>{{ g.percentage|floatformat:2 }}</td>
-                        <td> <span class="badge bg-secondary"> {{ g.grade_letter }} </span></td>
-
-                        <td>
-                            {% if g.is_pass %}
-                            <span class="badge bg-success">Pass</span>
-                            {% else %}
-                            <span class="badge bg-danger">Fail</span>
-                            {% endif %}
-                        </td>
-
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p class="text-muted">No exam results available yet.</p>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Exam Performance Chart -->
-<div class="card mt-4">
-    <div class="card-header">
-        <strong>Exam Performance Overview</strong>
-    </div>
-    <div class="card-body">
-        <div class="chart-box">
-            <canvas id="examChart"></canvas>
-        </div>
-    </div>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    const passed = {{ passed_exams|default:0 }};
-    const total = {{ total_exams|default:0 }};
+    // =============================
+    // ACTIVATE TAB FROM ?tab= PARAM
+    // =============================
+
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get("tab");
+
+    if (tabParam) {
+        const triggerEl = document.querySelector(
+            'button[data-bs-target="#' + tabParam + '"]'
+        );
+
+        if (triggerEl) {
+            new bootstrap.Tab(triggerEl).show();
+        }
+    }
+
+
+    // =============================
+    // CHART FIX
+    // =============================
+
+    const passed = Number("{{ passed_exams|default:0 }}");
+    const total = Number("{{ total_exams|default:0 }}");
     const failed = Math.max(total - passed, 0);
 
-    const examCanvas = document.getElementById('examChart');
-    if (examCanvas) {
-        new Chart(examCanvas, {
-            type: 'doughnut',
+    const ctx = document.getElementById("examChart");
+
+    if (ctx && total > 0) {
+        new Chart(ctx, {
+            type: "doughnut",
             data: {
-                labels: ['Passed', 'Failed'],
+                labels: ["Passed", "Failed"],
                 datasets: [{
                     data: [passed, failed],
                     backgroundColor: ['#28a745', '#dc3545']
@@ -324,16 +441,13 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
+                maintainAspectRatio: false
             }
         });
     }
 
-    });
+});
 </script>
 
-
 {% endblock %}
+

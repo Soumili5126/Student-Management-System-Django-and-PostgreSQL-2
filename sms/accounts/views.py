@@ -33,7 +33,9 @@ from weasyprint import HTML
 from django.conf import settings
 from django.db.models import Avg, Max
 from django.contrib.auth.hashers import make_password
-
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 # -------- REGISTER --------
 def register_view(request):
     if request.method == 'POST':
@@ -41,6 +43,8 @@ def register_view(request):
 
         if form.is_valid():
             user = form.save(commit=False)
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
             user.is_active = False
             user.is_email_verified = False
             user.save()
@@ -78,12 +82,24 @@ def register_view(request):
             user.otp_expiry = get_otp_expiry()
             user.save()
 
-            send_mail(
-                subject="OTP Verification",
-                message=f"Your OTP is {otp}",
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[user.email],
+            subject = "Verify Your Email - Student Management System"
+
+            html_content = render_to_string(
+                "emails/otp_email.html",
+                {"otp": otp}
             )
+
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject,
+                text_content,
+                settings.EMAIL_HOST_USER,
+                [user.email]
+            ) 
+
+            email.attach_alternative(html_content, "text/html")
+            email.send()
 
             request.session['verify_user_id'] = user.id
             messages.success(request, "OTP sent to email")
@@ -102,7 +118,14 @@ def login_view(request):
             user = form.get_user()
 
             print("LOGGED USER:", user.username, user.role)   
+            if not user.is_email_verified:
+                messages.error(request, "Please verify your email first.")
+                return redirect('login')
 
+            if not user.is_approved:
+                messages.error(request, "Your account is pending admin approval.")
+                return redirect('login')
+            
             login(request, user)
             return redirect('dashboard')
 
@@ -207,20 +230,26 @@ def forgot_password(request):
 )
 
 
-            send_mail(
-                subject="Password Reset - Student Management System",
-                message=f"""
-                Hello {user.username},
+            subject = "Password Reset - Student Management System"
 
-                Click the link below to reset your password:
+            html_content = render_to_string('emails/password_reset_email.html', {
+                'user': user,
+                'reset_link': reset_link,
+                'current_year': datetime.now().year,
+            })
 
-                {reset_link}
+            text_content = strip_tags(html_content)  # fallback version
 
-                This link is valid for 15 minutes.
-                """,
-                from_email=None,
-                recipient_list=[user.email],
+            email = EmailMultiAlternatives(
+                subject,
+                text_content,
+                settings.EMAIL_HOST_USER,
+                [user.email]
             )
+
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
 
             messages.success(request, "Password reset link sent to your email.")
 
@@ -253,6 +282,26 @@ def reset_password(request, token):
             user.reset_token = None
             user.reset_token_expiry = None
             user.save()
+            # -------- SEND SUCCESS EMAIL --------
+            subject = "Your Password Was Successfully Updated"
+
+            html_content = render_to_string('emails/password_reset_success.html', {
+                'user': user,
+                'current_year': datetime.now().year,
+            })
+
+            text_content = strip_tags(html_content)
+
+            email = EmailMultiAlternatives(
+                subject,
+                text_content,
+                settings.EMAIL_HOST_USER,
+                [user.email],
+            )
+
+            email.attach_alternative(html_content, "text/html")
+            email.send()
+
 
             messages.success(request, "Password reset successful. Please login.")
             return redirect('login')
@@ -291,13 +340,19 @@ def student_dashboard(request):
     return render(request, 'dashboards/student_dashboard.html')
 
 # -----Admin,Faculty and Student Dashboards-----
+def approve_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user.is_approved = True
+    user.is_active = True
+    user.save()
+    return redirect('admin_dashboard')
 @login_required
 def admin_dashboard(request):
     if request.user.role != 'admin':
         return HttpResponseForbidden(render(request, '403.html'))
 
     courses = Course.objects.all()
-
+    pending_users = User.objects.filter(is_approved=False, role='faculty')
     course_data = []
     for course in courses:
         enrollments = Enrollment.objects.filter(course=course).select_related(
@@ -313,7 +368,8 @@ def admin_dashboard(request):
         'total_students': User.objects.filter(role='student').count(),
         'total_faculty': User.objects.filter(role='faculty').count(),
         'total_courses': courses.count(),
-        'course_data': course_data
+        'course_data': course_data,
+        'pending_users':pending_users
          
     }
 

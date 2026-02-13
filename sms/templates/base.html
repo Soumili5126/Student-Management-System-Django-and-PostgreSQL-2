@@ -16,7 +16,7 @@
     <div>
         {% if request.user.is_authenticated %}
             <span class="text-white me-3">
-                {{ user.username }} ({{ user.role }})
+                {{ user.first_name }} {{ user.last_name }} ({{ user.role }})
             </span>
 
             <a href="{% url 'logout' %}" class="btn btn-danger">
@@ -58,8 +58,70 @@
             </a>
         </div>
     </div>
-    {% endif %}
     
+    {% elif request.user.is_authenticated and user.role == "faculty" %}
+        <div class="bg-dark border-end" id="sidebar-wrapper">
+            <div class="list-group list-group-flush">
+                <a href="{% url 'faculty_dashboard' %}" class="list-group-item bg-dark text-white">
+                    Dashboard
+                </a>
+                
+                <a href="{% url 'faculty_dashboard' %}?tab=profile"
+                    class="list-group-item bg-dark text-white">
+                    My Profile
+                </a>
+                <a href="{% url 'faculty_dashboard' %}#subjects" 
+                    class="list-group-item bg-dark text-white">
+                    Manage Subjects
+                </a>
+               
+            </div>
+        </div>
+    {% elif request.user.is_authenticated and user.role == "student" %}
+        <div class="bg-dark border-end" id="sidebar-wrapper">
+            <div class="list-group list-group-flush">
+
+                <a href="{% url 'student_dashboard' %}"
+                class="list-group-item bg-dark text-white">
+                    Dashboard
+                </a>
+
+                
+
+                <a href="{% url 'student_dashboard' %}?tab=timetable"
+                class="list-group-item bg-dark text-white">
+                    My Time Table
+                </a>
+
+                <a href="{% url 'student_dashboard' %}?tab=performance"
+                class="list-group-item bg-dark text-white">
+                    My Performance Overview
+                </a>
+
+                <a href="{% url 'student_dashboard' %}?tab=attendance"
+                class="list-group-item bg-dark text-white">
+                    My Attendance
+                </a>
+
+                <a href="{% url 'student_dashboard' %}?tab=courses"
+                class="list-group-item bg-dark text-white">
+                    My Courses
+                </a>
+
+                <a href="{% url 'student_dashboard' %}?tab=quizzes"
+                class="list-group-item bg-dark text-white">
+                    Available Quizzes
+                </a>
+
+                <a href="{% url 'student_dashboard' %}?tab=attempts"
+                class="list-group-item bg-dark text-white">
+                    Quiz Attempts
+                </a>
+
+            </div>
+        </div>
+
+    {% endif %}
     <!-- Page Content -->
     <div id="page-content-wrapper" class="p-4 w-100">
 
@@ -84,19 +146,31 @@ document.getElementById("menu-toggle").addEventListener("click", function() {
 </script>
 
 <style>
+html, body {
+    height: 100%;
+}
+
 #wrapper {
-    overflow-x: hidden;
+    min-height: 100vh;   /* full screen height */
+    display: flex;
 }
 
 #sidebar-wrapper {
     width: 250px;
+    min-height: 100vh;   /* sidebar always full height */
     transition: all 0.3s;
 }
 
 #wrapper.toggled #sidebar-wrapper {
     margin-left: -250px;
 }
+
+#page-content-wrapper {
+    flex: 1;
+}
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

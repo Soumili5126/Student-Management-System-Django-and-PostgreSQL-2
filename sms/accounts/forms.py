@@ -11,9 +11,11 @@ class UserRegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'role', 'password1', 'password2']
+        fields = ['first_name', 'last_name','username', 'email', 'role', 'password1', 'password2']
 
     # -------- Student-only fields --------
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
     phone = forms.CharField(required=False)
     date_of_birth = forms.DateField(
         required=False,

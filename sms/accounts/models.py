@@ -13,6 +13,7 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     is_email_verified = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
 
     otp = models.CharField(max_length=6, blank=True, null=True)
