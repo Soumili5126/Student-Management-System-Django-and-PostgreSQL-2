@@ -41,7 +41,7 @@ def mark_attendance(request, course_id):
                 student=e.student,
                 course=course,
                 date=today,
-                defaults={'status': status}
+                defaults={'status': status,}
             )
         return redirect('faculty_dashboard')
 

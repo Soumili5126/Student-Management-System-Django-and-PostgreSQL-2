@@ -524,6 +524,46 @@ def student_dashboard(request):
             'avg_quiz_score': round(avg_quiz_percentage, 2),
         }
     )
+@login_required
+def edit_student_profile(request):
+    if request.user.role != 'student':
+        return HttpResponseForbidden()
+
+    student = request.user.student_profile
+    user = request.user
+
+    if request.method == "POST":
+
+        new_username = request.POST.get('username')
+
+        # Optional: Prevent empty username
+        if not new_username:
+            messages.error(request, "Username cannot be empty.")
+            return redirect('edit_student_profile')
+
+        # Optional: Prevent duplicate username
+        if User.objects.exclude(pk=user.pk).filter(username=new_username).exists():
+            messages.error(request, "Username already taken.")
+            return redirect('edit_student_profile')
+
+        # Update User model
+        user.username = new_username
+        user.save()
+
+        # Update StudentProfile model
+        student.date_of_birth = request.POST.get('date_of_birth')
+        student.phone = request.POST.get('phone')
+        student.gender = request.POST.get('gender')
+        student.address = request.POST.get('address')
+        student.save()
+
+        messages.success(request, "Profile updated successfully.")
+        return redirect('student_dashboard')
+
+    return render(request, 'dashboards/student/edit_profile.html', {
+        'student': student,
+        'user': user
+    })
 
 @login_required
 def mark_attendance(request, course_id):

@@ -91,6 +91,12 @@ class Attendance(models.Model):
     )
     date = models.DateField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    marked_by = models.ForeignKey(
+        'accounts.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         db_table = 'academics_attendance'

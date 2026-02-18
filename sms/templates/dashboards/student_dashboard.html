@@ -30,13 +30,6 @@
         </button>
     </li>
 
-    <li class="nav-item">
-        <button class="nav-link"
-                data-bs-toggle="tab"
-                data-bs-target="#performance">
-            Performance
-        </button>
-    </li>
 
     <li class="nav-item">
         <button class="nav-link"
@@ -73,7 +66,7 @@
 
 <div class="tab-content">
 
-<!-- ================= DASHBOARD SUMMARY ================= -->
+<!-- ================= DASHBOARD ================= -->
 <div class="tab-pane fade show active" id="dashboard">
 
     <div class="row mb-4">
@@ -98,18 +91,54 @@
             </div>
         </div>
     </div>
-<!-- Chart -->
-<div class="card mt-4">
-    <div class="card-header">
-        <strong>Exam Performance Overview</strong>
-    </div>
-    <div class="card-body">
-        <div style="height:300px;">
-            <canvas id="examChart"></canvas>
+
+    <!-- Exam Chart -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <strong>Exam Performance Overview</strong>
+        </div>
+        <div class="card-body">
+            <div style="height:220px; display:flex; justify-content:center; align-items:center;">
+                <canvas id="examChart" style="max-width:200px; max-height:200px;"></canvas>
+            </div>
         </div>
     </div>
-</div>
-</div>
+
+    <!-- Attendance & Quiz Charts (NOW INSIDE DASHBOARD) -->
+    <div class="row mt-4">
+
+        <!-- Attendance Chart -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <strong>Attendance Overview</strong>
+                </div>
+                <div class="card-body">
+                    <div style="height:200px; display:flex; justify-content:center; align-items:center;">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Performance Chart -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <strong>Quiz Performance</strong>
+                </div>
+                <div class="card-body">
+                    <div style="height:200px; display:flex; justify-content:center; align-items:center;">
+                        <canvas id="quizChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div> <!-- END DASHBOARD TAB -->
+
 
 <!-- ================= PROFILE ================= -->
 <div class="tab-pane fade" id="profile">
@@ -135,6 +164,10 @@
         </p>
     </div>
 </div>
+<a href="{% url 'edit_student_profile' %}"
+   class="btn btn-primary mt-3">
+   Edit Profile
+</a>
 
 </div>
 
@@ -394,60 +427,160 @@
 
 </div>
 
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    // =============================
-    // ACTIVATE TAB FROM ?tab= PARAM
-    // =============================
+    const centerTextPlugin = {
+        id: 'centerText',
+        beforeDraw(chart) {
+            const { width, height } = chart;
+            const ctx = chart.ctx;
 
-    const params = new URLSearchParams(window.location.search);
-    const tabParam = params.get("tab");
+            ctx.restore();
+            const fontSize = (height / 150).toFixed(2);
+            ctx.font = fontSize + "em sans-serif";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#333";
 
-    if (tabParam) {
-        const triggerEl = document.querySelector(
-            'button[data-bs-target="#' + tabParam + '"]'
-        );
+            const text = chart.config.data.datasets[0].percentageText || "";
+            const textX = Math.round((width - ctx.measureText(text).width) / 2);
+            const textY = height / 2;
 
-        if (triggerEl) {
-            new bootstrap.Tab(triggerEl).show();
+            ctx.fillText(text, textX, textY);
+            ctx.save();
         }
-    }
+    };
 
+    Chart.register(centerTextPlugin);
+
+    const legendStyle = {
+        display: true,
+        position: "bottom",
+        labels: {
+            usePointStyle: true,
+            pointStyle: "circle",
+            padding: 15,
+            boxWidth: 8,
+            color: "#666",
+            font: { size: 12 }
+        }
+    };
 
     // =============================
-    // CHART FIX
+    // EXAM CHART
     // =============================
 
     const passed = Number("{{ passed_exams|default:0 }}");
     const total = Number("{{ total_exams|default:0 }}");
     const failed = Math.max(total - passed, 0);
 
-    const ctx = document.getElementById("examChart");
+    const examCtx = document.getElementById("examChart");
 
-    if (ctx && total > 0) {
-        new Chart(ctx, {
+    if (examCtx && total > 0) {
+        const examPercent = Math.round((passed / total) * 100);
+
+        new Chart(examCtx, {
             type: "doughnut",
             data: {
                 labels: ["Passed", "Failed"],
                 datasets: [{
                     data: [passed, failed],
-                    backgroundColor: ['#28a745', '#dc3545']
+                    backgroundColor: ["#6f42c1", "#e9ecef"],
+                    borderWidth: 0,
+                    percentageText: examPercent + "%"
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false
+                cutout: "85%",
+                plugins: { legend: legendStyle }
+            }
+        });
+    }
+
+    // =============================
+    // ATTENDANCE CHART
+    // =============================
+
+    const totalAttendance = Number("{{ attendance|length|default:0 }}");
+    let presentCount = 0;
+
+    {% for a in attendance %}
+        {% if a.status == "present" %}
+            presentCount += 1;
+        {% endif %}
+    {% endfor %}
+
+    const absentCount = totalAttendance - presentCount;
+    const attendanceCtx = document.getElementById("attendanceChart");
+
+    if (attendanceCtx && totalAttendance > 0) {
+        const attendancePercent = Math.round((presentCount / totalAttendance) * 100);
+
+        new Chart(attendanceCtx, {
+            type: "doughnut",
+            data: {
+                labels: ["Present", "Absent"],
+                datasets: [{
+                    data: [presentCount, absentCount],
+                    backgroundColor: ["#6f42c1", "#e9ecef"],
+                    borderWidth: 0,
+                    percentageText: attendancePercent + "%"
+                }]
+            },
+            options: {
+                cutout: "85%",
+                plugins: { legend: legendStyle }
+            }
+        });
+    }
+
+    // =============================
+    // QUIZ CHART
+    // =============================
+
+    const totalAttempts = Number("{{ quiz_attempts|length|default:0 }}");
+    let quizPassed = 0;
+
+    {% for attempt in quiz_attempts %}
+        {% if attempt.percentage >= 40 %}
+            quizPassed += 1;
+        {% endif %}
+    {% endfor %}
+
+    const quizFailed = totalAttempts - quizPassed;
+    const quizCtx = document.getElementById("quizChart");
+
+    if (quizCtx && totalAttempts > 0) {
+        const quizPercent = Math.round((quizPassed / totalAttempts) * 100);
+
+        new Chart(quizCtx, {
+            type: "doughnut",
+            data: {
+                labels: ["Passed", "Failed"],
+                datasets: [{
+                    data: [quizPassed, quizFailed],
+                    backgroundColor: ["#6f42c1", "#e9ecef"],
+                    borderWidth: 0,
+                    percentageText: quizPercent + "%"
+                }]
+            },
+            options: {
+                cutout: "85%",
+                plugins: { legend: legendStyle }
             }
         });
     }
 
 });
 </script>
+
+
+
+
 
 {% endblock %}
 
