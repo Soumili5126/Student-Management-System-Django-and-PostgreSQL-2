@@ -3,15 +3,29 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from datetime import timedelta
 
+class Role(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    # dynamic permissions
+    can_manage_students = models.BooleanField(default=False)
+    can_manage_faculty = models.BooleanField(default=False)
+    can_manage_courses = models.BooleanField(default=False)
+    can_manage_attendance = models.BooleanField(default=False)
+    can_view_reports = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
 # Create your models here.
 class User(AbstractUser):
-    ROLE_CHOICES = (
-        ('admin', 'Admin'),
-        ('faculty', 'Faculty'),
-        ('student', 'Student'),
+    
+    role = models.ForeignKey(                       # add THIS
+        Role,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='users'
     )
-
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     is_email_verified = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
@@ -34,7 +48,6 @@ class StudentProfile(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        limit_choices_to={'role': 'student'},
         related_name='student_profile'
     )
     batch = models.ForeignKey(
@@ -60,7 +73,6 @@ class FacultyProfile(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        limit_choices_to={'role': 'faculty'},
         related_name='faculty_profile'
     )
     department = models.CharField(max_length=100)

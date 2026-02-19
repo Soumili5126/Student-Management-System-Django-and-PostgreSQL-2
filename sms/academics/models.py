@@ -192,9 +192,7 @@ class Grade(models.Model):
             return 'F'
 
    
-    @property
-    def is_pass(self):
-        return self.percentage >= 40
+
 
 
     def __str__(self):

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from accounts.decorators import role_required
 from accounts.models import StudentProfile,FacultyProfile
 from django.http import HttpResponseForbidden
-from .models import Course, Enrollment, Attendance, Department
+from .models import Course, Enrollment, Attendance, Department,Exam,Grade
 from django.utils import timezone
 from .models import Batch,Timetable
 from .forms import DepartmentForm
@@ -50,6 +50,161 @@ def mark_attendance(request, course_id):
         'academics/mark_attendance.html',
         {'course': course, 'enrollments': enrollments}
     )
+@login_required
+def admin_attendance_management(request, course_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    course = get_object_or_404(Course, id=course_id)
+    enrollments = Enrollment.objects.filter(course=course)
+    selected_date = request.GET.get('date')
+
+    if selected_date:
+        date = selected_date
+    else:
+        date = timezone.now().date()
+
+    if request.method == 'POST':
+        for e in enrollments:
+            status = request.POST.get(str(e.student.id))
+            Attendance.objects.update_or_create(
+                student=e.student,
+                course=course,
+                date=date,
+                defaults={
+                    'status': status,
+                    'marked_by': request.user
+                }
+            )
+        return redirect('admin_dashboard')
+
+    attendance_records = Attendance.objects.filter(
+        course=course,
+        date=date
+    )
+
+    return render(request, 'academics/admin_attendance.html', {
+        'course': course,
+        'enrollments': enrollments,
+        'attendance_records': attendance_records,
+        'selected_date': date
+    })
+
+@login_required
+def admin_exam_list(request):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    exams = Exam.objects.select_related('course').all().order_by('-date')
+
+    return render(
+        request,
+        'dashboards/admin/exam_list.html',
+        {'exams': exams}
+    )
+@login_required
+def admin_manage_grades(request, exam_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    exam = get_object_or_404(Exam, id=exam_id)
+
+    # All students enrolled in that course
+    enrollments = Enrollment.objects.filter(
+        course=exam.course
+    ).select_related('student__user')
+
+    if request.method == "POST":
+
+        for enrollment in enrollments:
+            student = enrollment.student
+            mark_value = request.POST.get(f"marks_{student.id}")
+
+            if mark_value:
+                mark_value = int(mark_value)
+
+                Grade.objects.update_or_create(
+                    exam=exam,
+                    student=student,
+                    defaults={'marks_obtained': mark_value}
+                )
+
+        return redirect('admin_manage_grades', exam.id)
+
+    grades = Grade.objects.filter(exam=exam)
+
+    return render(request, 'dashboards/admin/manage_grades.html', {
+        'exam': exam,
+        'enrollments': enrollments,
+        'grades': grades,
+    })
+
+@login_required
+def add_exam(request):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    courses = Course.objects.all()
+
+    if request.method == "POST":
+        course_id = request.POST.get('course_id')
+        title = request.POST.get('title')
+        date = request.POST.get('date')
+        total_marks = request.POST.get('total_marks')
+
+        course = get_object_or_404(Course, id=course_id)
+
+        Exam.objects.create(
+            course=course,
+            title=title,
+            date=date,
+            total_marks=total_marks
+        )
+
+        return redirect('admin_exam_list')
+
+    return render(
+        request,
+        'dashboards/admin/add_exam.html',
+        {'courses': courses}
+    )
+@login_required
+def edit_exam(request, exam_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    courses = Course.objects.all()
+
+    if request.method == "POST":
+        course_id = request.POST.get('course_id')
+        exam.title = request.POST.get('title')
+        exam.date = request.POST.get('date')
+        exam.total_marks = request.POST.get('total_marks')
+
+        exam.course = get_object_or_404(Course, id=course_id)
+        exam.save()
+
+        return redirect('admin_exam_list')
+
+    return render(
+        request,
+        'dashboards/admin/edit_exam.html',
+        {
+            'exam': exam,
+            'courses': courses
+        }
+    )
+@login_required
+def delete_exam(request, exam_id):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden()
+
+    exam = get_object_or_404(Exam, id=exam_id)
+    exam.delete()
+
+    return redirect('admin_exam_list')
+
 @login_required
 def batch_list(request):
     if request.user.role != 'admin':

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Manage Marks</h2>
+
+<div class="card mb-4 p-3">
+    <h5>Exam: {{ exam.title }}</h5>
+    <p>Course: {{ exam.course.code }} — {{ exam.course.name }}</p>
+    <p>Total Marks: {{ exam.total_marks }}</p>
+</div>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Marks</th>
+                <th>Percentage</th>
+                <th>Grade</th>
+                <th>Result</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for enrollment in enrollments %}
+            {% with student=enrollment.student %}
+                {% with grade=student.grades.all|dictsortreversed:"id"|first %}
+                <tr>
+                    <td>{{ student.user.username }}</td>
+
+                    <td>
+                        <input type="number"
+                               name="marks_{{ student.id }}"
+                               class="form-control"
+                               min="0"
+                               max="{{ exam.total_marks }}"
+                               value="{% for g in grades %}{% if g.student.id == student.id %}{{ g.marks_obtained }}{% endif %}{% endfor %}">
+                    </td>
+
+                    <td>
+                        {% for g in grades %}
+                            {% if g.student.id == student.id %}
+                                {{ g.percentage }}%
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+
+                    <td>
+                        {% for g in grades %}
+                            {% if g.student.id == student.id %}
+                                {{ g.grade_letter }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+
+                    <td>
+                        {% for g in grades %}
+                            {% if g.student.id == student.id %}
+                                {% if g.is_pass %}
+                                    <span class="badge bg-success">Pass</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Fail</span>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+
+                </tr>
+                {% endwith %}
+            {% endwith %}
+        {% endfor %}
+        </tbody>
+
+    </table>
+
+    <button type="submit" class="btn btn-success">
+        Save All Marks
+    </button>
+
+</form>
+
+{% endblock %}

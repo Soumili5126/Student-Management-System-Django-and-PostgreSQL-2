@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Exam Management</h2>
+
+<a href="{% url 'add_exam' %}" class="btn btn-success mb-3">
+    Add Exam
+</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Course</th>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Total Marks</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for exam in exams %}
+        <tr>
+            <td>{{ exam.course.code }} - {{ exam.course.name }}</td>
+            <td>{{ exam.title }}</td>
+            <td>{{ exam.date }}</td>
+            <td>{{ exam.total_marks }}</td>
+            <td>
+                <a href="{% url 'edit_exam' exam.id %}"
+                   class="btn btn-sm btn-primary">Edit</a>
+
+                <a href="{% url 'delete_exam' exam.id %}"
+                   class="btn btn-sm btn-danger">Delete</a>
+                <a href="{% url 'admin_manage_grades' exam.id %}"
+                    class="btn btn-sm btn-warning">
+                    Manage Marks
+                </a>
+
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-muted">No exams found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

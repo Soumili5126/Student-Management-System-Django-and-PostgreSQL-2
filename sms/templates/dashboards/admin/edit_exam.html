@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Edit Exam</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label>Course</label>
+        <select name="course_id" class="form-select">
+            {% for c in courses %}
+                <option value="{{ c.id }}"
+                    {% if c.id == exam.course.id %}selected{% endif %}>
+                    {{ c.code }} - {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Title</label>
+        <input type="text"
+               name="title"
+               value="{{ exam.title }}"
+               class="form-control">
+    </div>
+
+    <div class="mb-3">
+        <label>Date</label>
+        <input type="date"
+               name="date"
+               value="{{ exam.date|date:'Y-m-d' }}"
+               class="form-control">
+    </div>
+
+    <div class="mb-3">
+        <label>Total Marks</label>
+        <input type="number"
+               name="total_marks"
+               value="{{ exam.total_marks }}"
+               class="form-control">
+    </div>
+
+    <button class="btn btn-success">Save Changes</button>
+</form>
+
+{% endblock %}

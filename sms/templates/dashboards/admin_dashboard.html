@@ -77,6 +77,14 @@
                    class="btn btn-sm btn-warning">
                    Enroll Students
                 </a>
+                <a href="{% url 'admin_attendance_management' item.course.id %}"
+                    class="btn btn-sm btn-secondary">
+                    Manage Attendance
+                </a>
+                <a href="{% url 'admin_exam_list' %}"
+                    class="btn btn-sm btn-dark">
+                    Arrange Exams
+                </a>
             </td>
         </tr>
         {% endfor %}

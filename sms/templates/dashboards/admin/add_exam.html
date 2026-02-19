@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Add Exam</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <label>Course</label>
+        <select name="course_id" class="form-select" required>
+            {% for c in courses %}
+                <option value="{{ c.id }}">
+                    {{ c.code }} - {{ c.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Title</label>
+        <input type="text" name="title" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Date</label>
+        <input type="date" name="date" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Total Marks</label>
+        <input type="number" name="total_marks" class="form-control" required>
+    </div>
+
+    <button class="btn btn-success">Create Exam</button>
+</form>
+
+{% endblock %}
