@@ -2,49 +2,194 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<h2>Register</h2>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <script>
+<style>
+
+/* Center the register card */
+.auth-wrapper {
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff; ;
+}
+
+/* Main card */
+.auth-card {
+    width: 100%;
+    max-width: 900px;
+    background: #f5d7b5;
+    border-radius: 18px;
+    padding: 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+/* Layout split */
+.auth-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Left form section */
+.auth-form {
+    width: 48%;
+}
+
+/* Right design section */
+.auth-design {
+    width: 48%;
+    text-align: center;
+}
+
+/* Title */
+.auth-title {
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* Tabs styling */
+.auth-tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.auth-tabs a {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-tabs .active-tab {
+    background: #0f766e;
+    color: white;
+}
+
+.auth-tabs .inactive-tab {
+    background: white;
+    color: black;
+    border: 1px solid #0f766e;
+}
+
+/* Button styling */
+.btn-register {
+    width: 100%;
+    background: #ef4444;
+    border: none;
+    padding: 10px;
+    border-radius: 25px;
+    color: white;
+    font-weight: 500;
+}
+
+.btn-register:hover {
+    opacity: 0.9;
+}
+
+/* Social buttons */
+.social-buttons button {
+    border-radius: 25px;
+    padding: 6px 16px;
+    border: 1px solid #000;
+    background: transparent;
+    margin-right: 8px;
+}
+
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+
+        <div class="auth-inner">
+
+            <!-- LEFT SIDE (FORM) -->
+            <div class="auth-form">
+
+                <h4 class="auth-title">Create an account</h4>
+
+                <!-- Tabs -->
+                
+
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+
+                    <button class="btn btn-register mt-2">
+                        Register
+                    </button>
+                </form>
+
+                <p class="text-center mt-3" style="font-size:14px;">
+                    Already have an account?
+                    <a href="{% url 'login' %}">Login →</a>
+                </p>
+
+                <div class="text-center mt-3">
+                    <a href="{% url 'home' %}" 
+                       class="btn btn-sm btn-outline-dark">
+                        ← Go to Home Page
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- RIGHT SIDE DESIGN -->
+            <div class="auth-design">
+                <!-- You can replace this with an image if you want -->
+                <img src="https://via.placeholder.com/350x350"
+                     class="img-fluid rounded"
+                     alt="Design">
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
     const roleField = document.getElementById("id_role");
 
     const studentFields = [
-    "id_phone", "id_date_of_birth", "id_gender",
-    "id_address", "id_admission_year"
+        "id_phone", "id_date_of_birth", "id_gender",
+        "id_address", "id_admission_year"
     ];
 
     const facultyFields = [
-    "id_department", "id_designation"
+        "id_department", "id_designation"
     ];
 
     function toggleFields() {
-    const role = roleField.value;
 
-    studentFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.closest("div").style.display =
-            role === "student" ? "block" : "none";
-    });
+        const selectedText =
+            roleField.options[roleField.selectedIndex]
+            .text.toLowerCase();
 
-    facultyFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.closest("div").style.display =
-            role === "faculty" ? "block" : "none";
-    });
+        studentFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.closest(".form-group, .mb-3, div").style.display =
+                    selectedText === "student" ? "block" : "none";
+            }
+        });
+
+        facultyFields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.closest(".form-group, .mb-3, div").style.display =
+                    selectedText === "faculty" ? "block" : "none";
+            }
+        });
     }
 
     roleField.addEventListener("change", toggleFields);
-    window.onload = toggleFields;
-    </script>
-    <button class="btn btn-primary">Register</button>
-</form>
+    toggleFields();
 
-<p class="mt-3">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+});
+</script>
 
-<a href="{% url 'home' %}"
-   class="btn btn-secondary mt-3">
-   ← Go to Home Page
-</a>
 {% endblock %}

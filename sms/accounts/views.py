@@ -709,18 +709,26 @@ def assign_faculty(request, course_id):
     )
 
 @login_required
+@role_required(['admin'])
 def enroll_students(request, course_id):
-    if request.user.role != 'admin':
-        return HttpResponseForbidden(render(request, '403.html'))
 
-    course = Course.objects.get(id=course_id)
-    students = StudentProfile.objects.all()
+    course = get_object_or_404(
+        Course,
+        id=course_id
+    )
+
+    students = StudentProfile.objects.select_related('user')
 
     if request.method == 'POST':
         selected_students = request.POST.getlist('students')
 
         for student_id in selected_students:
-            student = StudentProfile.objects.get(id=student_id)
+
+            student = get_object_or_404(
+                StudentProfile,
+                id=student_id
+            )
+
             Enrollment.objects.get_or_create(
                 student=student,
                 course=course
@@ -730,6 +738,7 @@ def enroll_students(request, course_id):
             request,
             "Students enrolled successfully."
         )
+
         return redirect('admin_dashboard')
 
     return render(
@@ -1422,13 +1431,15 @@ def delete_course(request, course_id):
 
 # -----------Exam CRUD--------------
 @login_required
+@role_required(['faculty'])
 def create_exam(request, course_id):
-    if request.user.role != 'faculty':
+
+    try:
+        faculty = request.user.faculty_profile
+    except FacultyProfile.DoesNotExist:
         return HttpResponseForbidden()
 
-    faculty = request.user.faculty_profile
-
-    # Faculty can create exam only for their own course
+    # Ensure faculty owns the course
     course = get_object_or_404(
         Course,
         id=course_id,
@@ -1436,14 +1447,15 @@ def create_exam(request, course_id):
     )
 
     if request.method == 'POST':
+
         title = request.POST.get('title')
-        date = request.POST.get('date')
+        exam_date = request.POST.get('date')
         total_marks = request.POST.get('total_marks')
 
         Exam.objects.create(
             course=course,
             title=title,
-            date=date,
+            date=exam_date,
             total_marks=total_marks
         )
 
@@ -1457,27 +1469,37 @@ def create_exam(request, course_id):
     )
 
 @login_required
+@role_required(['faculty'])
 def enter_grades(request, exam_id):
-    if request.user.role != 'faculty':
+
+    try:
+        faculty = request.user.faculty_profile
+    except FacultyProfile.DoesNotExist:
         return HttpResponseForbidden()
 
-    faculty = request.user.faculty_profile
+    # Ensure faculty owns the exam
     exam = get_object_or_404(
         Exam,
         id=exam_id,
         course__faculty=faculty
     )
 
-    enrollments = Enrollment.objects.filter(course=exam.course)
+    enrollments = Enrollment.objects.filter(
+        course=exam.course
+    )
 
     if request.method == 'POST':
-        for e in enrollments:
-            marks = request.POST.get(str(e.student.id))
+
+        for enrollment in enrollments:
+            marks = request.POST.get(str(enrollment.student.id))
+
             if marks is not None:
                 Grade.objects.update_or_create(
                     exam=exam,
-                    student=e.student,
-                    defaults={'marks_obtained': marks}
+                    student=enrollment.student,
+                    defaults={
+                        'marks_obtained': marks
+                    }
                 )
 
         messages.success(request, "Grades saved successfully.")
@@ -1493,9 +1515,20 @@ def enter_grades(request, exam_id):
     )
 
 @login_required
+@role_required(['student'])
 def export_exam_results_pdf(request):
-    student = request.user.student_profile
-    grades = Grade.objects.filter(student=student).select_related('exam', 'exam__course')
+
+    try:
+        student = request.user.student_profile
+    except StudentProfile.DoesNotExist:
+        return HttpResponseForbidden()
+
+    grades = Grade.objects.filter(
+        student=student
+    ).select_related(
+        'exam',
+        'exam__course'
+    )
 
     html_string = render_to_string(
         'dashboards/exam_results_pdf.html',
@@ -1507,23 +1540,35 @@ def export_exam_results_pdf(request):
 
     pdf = HTML(string=html_string).write_pdf()
 
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="exam_results.pdf"'
+    response = HttpResponse(
+        pdf,
+        content_type='application/pdf'
+    )
+
+    response['Content-Disposition'] = \
+        'inline; filename="exam_results.pdf"'
 
     return response
 
 #---------Quiz View---------------
 @login_required
+@role_required(['faculty'])
 def create_quiz(request, course_id):
-    if request.user.role != 'faculty':
+
+    try:
+        faculty = request.user.faculty_profile
+    except FacultyProfile.DoesNotExist:
         return HttpResponseForbidden()
 
-    faculty = request.user.faculty_profile
-
     # Ensure faculty owns the course
-    course = Course.objects.get(id=course_id, faculty=faculty)
+    course = get_object_or_404(
+        Course,
+        id=course_id,
+        faculty=faculty
+    )
 
     if request.method == 'POST':
+
         title = request.POST.get('title')
         description = request.POST.get('description')
         total_questions = request.POST.get('total_questions')
@@ -1543,17 +1588,28 @@ def create_quiz(request, course_id):
         'dashboards/create_quiz.html',
         {'course': course}
     )
-
 @login_required
+@role_required(['faculty'])
 def add_quiz_question(request, quiz_id):
-    if request.user.role != 'faculty':
+
+    try:
+        faculty = request.user.faculty_profile
+    except FacultyProfile.DoesNotExist:
         return HttpResponseForbidden()
 
-    quiz = get_object_or_404(Quiz, id=quiz_id)
+    # Ensure faculty owns this quiz via course
+    quiz = get_object_or_404(
+        Quiz,
+        id=quiz_id,
+        course__faculty=faculty
+    )
 
-    questions = QuizQuestion.objects.filter(quiz=quiz)
+    questions = QuizQuestion.objects.filter(
+        quiz=quiz
+    )
 
     if request.method == 'POST':
+
         QuizQuestion.objects.create(
             quiz=quiz,
             question_text=request.POST.get('question_text'),
@@ -1563,7 +1619,11 @@ def add_quiz_question(request, quiz_id):
             option_d=request.POST.get('option_d'),
             correct_option=request.POST.get('correct_option'),
         )
-        return redirect('add_quiz_question', quiz_id=quiz.id)
+
+        return redirect(
+            'add_quiz_question',
+            quiz_id=quiz.id
+        )
 
     return render(
         request,
@@ -1573,21 +1633,37 @@ def add_quiz_question(request, quiz_id):
             'questions': questions
         }
     )
-
 @login_required
+@role_required(['faculty'])
 def edit_quiz_question(request, question_id):
-    question = get_object_or_404(QuizQuestion, id=question_id)
+
+    try:
+        faculty = request.user.faculty_profile
+    except FacultyProfile.DoesNotExist:
+        return HttpResponseForbidden()
+
+    # Ensure faculty owns the question via quiz → course
+    question = get_object_or_404(
+        QuizQuestion,
+        id=question_id,
+        quiz__course__faculty=faculty
+    )
 
     if request.method == 'POST':
+
         question.question_text = request.POST.get('question_text')
         question.option_a = request.POST.get('option_a')
         question.option_b = request.POST.get('option_b')
         question.option_c = request.POST.get('option_c')
         question.option_d = request.POST.get('option_d')
         question.correct_option = request.POST.get('correct_option')
+
         question.save()
 
-        return redirect('add_quiz_question', quiz_id=question.quiz.id)
+        return redirect(
+            'add_quiz_question',
+            quiz_id=question.quiz.id
+        )
 
     return render(
         request,
@@ -1596,24 +1672,52 @@ def edit_quiz_question(request, question_id):
     )
 
 @login_required
+@role_required(['faculty'])
 def delete_quiz_question(request, question_id):
-    question = get_object_or_404(QuizQuestion, id=question_id)
+
+    try:
+        faculty = request.user.faculty_profile
+    except FacultyProfile.DoesNotExist:
+        return HttpResponseForbidden()
+
+    # Ensure question belongs to this faculty
+    question = get_object_or_404(
+        QuizQuestion,
+        id=question_id,
+        quiz__course__faculty=faculty
+    )
+
     quiz_id = question.quiz.id
-
     question.delete()
-    return redirect('add_quiz_question', quiz_id=quiz_id)
 
+    messages.success(request, "Question deleted successfully.")
+
+    return redirect(
+        'add_quiz_question',
+        quiz_id=quiz_id
+    )
 @login_required
+@role_required(['student'])
 def attempt_quiz(request, quiz_id):
-    student = request.user.student_profile
-    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    try:
+        student = request.user.student_profile
+    except StudentProfile.DoesNotExist:
+        return HttpResponseForbidden()
+
+    # 🔐 Ensure quiz belongs to a course student is enrolled in
+    quiz = get_object_or_404(
+        Quiz,
+        id=quiz_id,
+        course__enrollment__student=student
+    )
 
     questions = QuizQuestion.objects.filter(quiz=quiz)
     total_questions = questions.count()
 
     if request.method == "POST":
 
-        # create attempt first
+        # Create attempt
         attempt = QuizAttempt.objects.create(
             quiz=quiz,
             student=student,
@@ -1624,23 +1728,23 @@ def attempt_quiz(request, quiz_id):
         correct = 0
 
         for question in questions:
-            selected = request.POST.get(f"question_{question.id}")
+
+            selected = request.POST.get(
+                f"question_{question.id}"
+            )
 
             if not selected:
                 continue
 
-            # save student answer
             QuizAnswer.objects.create(
                 attempt=attempt,
                 question=question,
                 selected_option=selected
             )
 
-            # check correctness
             if selected == question.correct_option:
                 correct += 1
 
-        # update only score
         attempt.score = correct
         attempt.save()
 
@@ -1654,13 +1758,19 @@ def attempt_quiz(request, quiz_id):
             'questions': questions
         }
     )
-
 @login_required
+@role_required(['student'])
 def quiz_result(request, attempt_id):
+
+    try:
+        student = request.user.student_profile
+    except StudentProfile.DoesNotExist:
+        return HttpResponseForbidden()
+
     attempt = get_object_or_404(
         QuizAttempt,
         id=attempt_id,
-        student=request.user.student_profile
+        student=student   # 🔐 Only own attempt
     )
 
     answers = attempt.answers.select_related('question')
@@ -1674,11 +1784,15 @@ def quiz_result(request, attempt_id):
         }
     )
 @login_required
+@role_required(['faculty'])
 def faculty_quiz_analytics(request, quiz_id):
-    if request.user.role != 'faculty':
+
+    try:
+        faculty = request.user.faculty_profile
+    except FacultyProfile.DoesNotExist:
         return HttpResponseForbidden()
 
-    faculty = request.user.faculty_profile
+    # 🔐 Ensure quiz belongs to this faculty
     quiz = get_object_or_404(
         Quiz,
         id=quiz_id,
@@ -1695,6 +1809,7 @@ def faculty_quiz_analytics(request, quiz_id):
     student_stats = {}
 
     for attempt in attempts:
+
         student = attempt.student
 
         if student not in student_stats:
@@ -1707,10 +1822,12 @@ def faculty_quiz_analytics(request, quiz_id):
             }
 
         student_stats[student]['attempts'] += 1
+
         student_stats[student]['best_score'] = max(
             student_stats[student]['best_score'],
             attempt.score
         )
+
         student_stats[student]['best_percentage'] = max(
             student_stats[student]['best_percentage'],
             attempt.percentage
@@ -1724,4 +1841,3 @@ def faculty_quiz_analytics(request, quiz_id):
             'student_stats': student_stats.values()
         }
     )
-

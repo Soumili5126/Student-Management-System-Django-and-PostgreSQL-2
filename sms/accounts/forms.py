@@ -1,37 +1,52 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import User
-from .models import User, StudentProfile,FacultyProfile
+from .models import User, StudentProfile,FacultyProfile,Role,User
 from django import forms
 from academics.models import Enrollment,Course,Batch
 
-
-
 class UserRegisterForm(UserCreationForm):
+
+    role = forms.ModelChoiceField(
+        queryset=Role.objects.all(),   # ✅ include Admin too
+        empty_label="Select Role"
+    )
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name','username', 'email', 'password1', 'password2']
+        fields = [
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'password1',
+            'password2',
+            'role',   # ✅ MUST be included
+        ]
 
     # -------- Student-only fields --------
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
     phone = forms.CharField(required=False)
+
     date_of_birth = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={'type': 'date'})
     )
+
     gender = forms.ChoiceField(
         choices=StudentProfile.GENDER_CHOICES,
         required=False
     )
-    address = forms.CharField(required=False, widget=forms.Textarea)
+
+    address = forms.CharField(
+        required=False,
+        widget=forms.Textarea
+    )
+
     admission_year = forms.IntegerField(required=False)
 
     # -------- Faculty-only fields --------
     department = forms.CharField(required=False)
     designation = forms.CharField(required=False)
-
 # LOGIN FORM 
 class LoginForm(AuthenticationForm):
     username = forms.CharField()

@@ -9,14 +9,16 @@
 <body>
 
 <nav class="navbar navbar-dark bg-dark px-4">
-    <button class="btn btn-outline-light me-3" id="menu-toggle">☰</button>
+    {% if request.user.is_authenticated %}
+        <button class="btn btn-outline-light me-3" id="menu-toggle">☰</button>
+    {% endif %}
 
     <span class="navbar-brand">Student Management System</span>
 
     <div>
         {% if request.user.is_authenticated %}
             <span class="text-white me-3">
-                {{ user.first_name }} {{ user.last_name }} ({{ user.role }})
+                {{ user.first_name }} {{ user.last_name }} ({{ user.role.name }})
             </span>
 
             <a href="{% url 'logout' %}" class="btn btn-danger">
@@ -32,7 +34,7 @@
 <div class="d-flex" id="wrapper">
 
     <!-- Sidebar -->
-    {% if request.user.is_authenticated and user.role == "admin" %}
+    {% if request.user.is_authenticated and user.role and user.role.name|lower == "admin" %}
     <div class="bg-dark border-end" id="sidebar-wrapper">
         <div class="list-group list-group-flush">
             <a href="{% url 'admin_dashboard' %}" class="list-group-item bg-dark text-white">
@@ -59,7 +61,7 @@
         </div>
     </div>
     
-    {% elif request.user.is_authenticated and user.role == "faculty" %}
+    {% elif request.user.is_authenticated and user.role and user.role.name|lower == "faculty" %}
         <div class="bg-dark border-end" id="sidebar-wrapper">
             <div class="list-group list-group-flush">
                 <a href="{% url 'faculty_dashboard' %}" class="list-group-item bg-dark text-white">
@@ -77,7 +79,7 @@
                
             </div>
         </div>
-    {% elif request.user.is_authenticated and user.role == "student" %}
+    {% elif request.user.is_authenticated and user.role and user.role.name|lower == "student" %}
         <div class="bg-dark border-end" id="sidebar-wrapper">
             <div class="list-group list-group-flush">
 

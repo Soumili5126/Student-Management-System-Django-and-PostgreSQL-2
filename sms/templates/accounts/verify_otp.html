@@ -1,13 +1,147 @@
-<h2>Verify OTP</h2>
+{% extends "base.html" %}
+{% block content %}
 
-<form method="post">
-    {% csrf_token %}
-    <label>Enter OTP</label>
-    <input type="text" name="otp" class="form-control" required>
-    <button type="submit" class="btn btn-primary mt-3">Verify</button>
-</form>
+<style>
+
+/* Center wrapper */
+.otp-wrapper {
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f6fa;
+}
+
+/* Card */
+.otp-card {
+    width: 100%;
+    max-width: 400px;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* Title */
+.otp-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.otp-subtitle {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 25px;
+}
+
+/* OTP input boxes */
+.otp-inputs {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.otp-inputs input {
+    width: 55px;
+    height: 55px;
+    text-align: center;
+    font-size: 20px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.otp-inputs input:focus {
+    border-color: #4f6df5;
+    outline: none;
+}
+
+/* Button */
+.btn-verify {
+    background: linear-gradient(90deg, #4f6df5, #5f7cff);
+    border: none;
+    color: white;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.btn-verify:hover {
+    opacity: 0.9;
+}
+
+/* Resend */
+.resend {
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+</style>
 
 
-{% for message in messages %}
-<p>{{ message }}</p>
-{% endfor %}
+<div class="otp-wrapper">
+    <div class="otp-card">
+
+        <h4 class="otp-title">Verify OTP</h4>
+        <div class="otp-subtitle">
+            Enter the security code sent to your email
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="otp-inputs">
+                <input type="text" maxlength="1" required>
+                <input type="text" maxlength="1" required>
+                <input type="text" maxlength="1" required>
+                <input type="text" maxlength="1" required>
+            </div>
+
+            <!-- Hidden real field -->
+            <input type="hidden" name="otp" id="finalOtp">
+
+            <button type="submit" class="btn btn-verify">
+                Verify
+            </button>
+        </form>
+
+        <div class="resend">
+            Didn’t receive code?
+            <a href="#">Resend</a>
+        </div>
+
+        {% for message in messages %}
+            <p class="text-danger mt-2">{{ message }}</p>
+        {% endfor %}
+
+    </div>
+</div>
+
+
+<script>
+/* Auto move between OTP boxes */
+const inputs = document.querySelectorAll(".otp-inputs input");
+const finalOtp = document.getElementById("finalOtp");
+
+inputs.forEach((input, index) => {
+    input.addEventListener("input", () => {
+        if (input.value.length === 1 && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+        }
+
+        let otpValue = "";
+        inputs.forEach(i => otpValue += i.value);
+        finalOtp.value = otpValue;
+    });
+
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !input.value && index > 0) {
+            inputs[index - 1].focus();
+        }
+    });
+});
+</script>
+
+{% endblock %}
