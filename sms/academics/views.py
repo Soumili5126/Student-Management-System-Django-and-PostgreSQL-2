@@ -3,12 +3,13 @@ from django.contrib.auth.decorators import login_required
 from accounts.decorators import role_required
 from accounts.models import StudentProfile,FacultyProfile
 from django.http import HttpResponseForbidden
-from .models import Course, Enrollment, Attendance, Department,Exam,Grade
+from .models import Course, Enrollment, Attendance, Department,Exam,Grade,Batch
 from django.utils import timezone
 from .models import Batch,Timetable
 from .forms import DepartmentForm
 from django.forms import modelformset_factory
 from django.contrib import messages
+from accounts.decorators import permission_required
 
 # Create your views here.
 @login_required
@@ -281,7 +282,8 @@ def delete_exam(request, exam_id):
     return redirect('admin_exam_list')
 
 @login_required
-@role_required(['admin'])
+@login_required
+@permission_required('manage_batches')
 def batch_list(request):
 
     batches = Batch.objects.all()
@@ -299,8 +301,9 @@ def batch_list(request):
             'students': students
         }
     )
+
 @login_required
-@role_required(['admin'])
+@permission_required('manage_batches')
 def create_batch(request):
 
     if request.method == 'POST':
@@ -320,7 +323,7 @@ def create_batch(request):
     )
 
 @login_required
-@role_required(['admin'])
+@permission_required('manage_batches')
 def assign_batch(request, student_id):
 
     student = get_object_or_404(
@@ -352,6 +355,30 @@ def assign_batch(request, student_id):
             'batches': batches
         }
     )
+
+@login_required
+@permission_required('manage_batches')
+def edit_batch(request, batch_id):
+
+    batch = Batch.objects.filter(id=batch_id).first()
+
+    if not batch:
+        messages.error(request, "Batch not found.")
+        return redirect('batch_list')
+
+    if request.method == 'POST':
+        batch.program = request.POST.get('program')
+        batch.name = request.POST.get('name')
+        batch.academic_year = request.POST.get('academic_year')
+        batch.section = request.POST.get('section')
+        batch.save()
+
+        messages.success(request, "Batch updated successfully.")
+        return redirect('batch_list')
+
+    return render(request, 'dashboards/edit_batch.html', {
+        'batch': batch
+    })
 @login_required
 @role_required(['admin'])
 def department_list(request):

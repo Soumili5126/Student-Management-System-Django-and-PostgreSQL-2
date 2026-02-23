@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Faculty Permission Management</h2>
+
+<table class="table">
+<tr>
+    <th>Faculty</th>
+    <th>Action</th>
+</tr>
+
+{% for f in faculties %}
+<tr>
+    <td>{{ f.username }}</td>
+    <td>
+        <a href="{% url 'assign_faculty_permissions' f.id %}" class="btn btn-primary">
+            Manage Permissions
+        </a>
+    </td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

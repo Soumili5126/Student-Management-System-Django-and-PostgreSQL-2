@@ -16,7 +16,7 @@ from django.urls import reverse
 from .decorators import admin_only, faculty_only, student_only
 from .decorators import role_required
 from django.http import HttpResponseForbidden
-from .models import User, FacultyProfile, StudentProfile,Role
+from .models import User, FacultyProfile, StudentProfile,Role, Permission
 from academics.models import Course, Enrollment,Attendance,Batch,Exam,Grade,Quiz,QuizQuestion,QuizAnswer,QuizAttempt,Department,Timetable
 from datetime import date
 from datetime import datetime
@@ -398,39 +398,44 @@ def admin_dashboard(request):
 
 @login_required
 def faculty_dashboard(request):
+
+    # Proper role check
     if not request.user.role or request.user.role.name.lower() != 'faculty':
-        return HttpResponseForbidden(render(request, '403.html'))
+        return render(request, '403.html', status=403)
 
     try:
         faculty = request.user.faculty_profile
     except FacultyProfile.DoesNotExist:
-        return HttpResponseForbidden(render(request, '403.html'))
+        return render(request, '403.html', status=403)
 
     courses = Course.objects.filter(faculty=faculty)
-
     exams = Exam.objects.filter(course__faculty=faculty)
 
-    
     course_data = []
+
     for course in courses:
-        enrollments = Enrollment.objects.filter(course=course).select_related(
-            'student__user','student__batch'
+        enrollments = Enrollment.objects.filter(
+            course=course
+        ).select_related(
+            'student__user',
+            'student__batch'
         )
+
         quizzes = Quiz.objects.filter(course=course)
+
         course_data.append({
             'course': course,
             'enrollments': enrollments,
             'quizzes': quizzes
         })
-    
+
     return render(
         request,
         'dashboards/faculty_dashboard.html',
         {
             'faculty': faculty,
             'course_data': course_data,
-            'exams':exams,
-            
+            'exams': exams,
         }
     )
 
@@ -929,8 +934,15 @@ def remove_student_from_batch(request, student_id):
 # -----------Student Management CRUD--------------
 
 @login_required
-@role_required(['admin'])
 def admin_student_management(request):
+
+    # Admin bypass
+    if request.user.role and request.user.role.name.lower() == 'admin':
+        pass
+
+    # Faculty permission check
+    elif not request.user.permissions.filter(code="manage_students").exists():
+        return render(request, "403.html", status=403)
 
     students = StudentProfile.objects.select_related(
         'user',
@@ -942,11 +954,8 @@ def admin_student_management(request):
     return render(
         request,
         'admin/student_management.html',
-        {
-            'students': students
-        }
+        {'students': students}
     )
-
 @login_required
 @role_required(['admin'])
 def add_student(request):
@@ -1080,7 +1089,36 @@ def delete_student(request, student_id):
 
 
 # -----------Faculty Management CRUD--------------
+@login_required
+def faculty_permission_list(request):
 
+    if not request.user.role or request.user.role.name.lower() != 'admin':
+        return HttpResponseForbidden()
+
+    faculties = User.objects.filter(role__name__iexact='Faculty')
+
+    return render(request, 'admin/faculty_permission_list.html', {
+        'faculties': faculties
+    })
+
+@login_required
+def assign_faculty_permissions(request, user_id):
+
+    if not request.user.role or request.user.role.name.lower() != 'admin':
+        return HttpResponseForbidden()
+
+    faculty = get_object_or_404(User, id=user_id)
+    permissions = Permission.objects.all()
+
+    if request.method == "POST":
+        selected_permissions = request.POST.getlist("permissions")
+        faculty.permissions.set(selected_permissions)
+        return redirect('faculty_permission_list')
+
+    return render(request, 'admin/assign_permissions.html', {
+        'faculty': faculty,
+        'permissions': permissions
+    })
 @login_required
 @role_required(['admin'])
 def admin_faculty_management(request):

@@ -16,6 +16,16 @@ class Role(models.Model):
     def __str__(self):
         return self.name
 
+class Permission(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        db_table = 'accounts_permission'
+
+    def __str__(self):
+        return self.name
+    
 # Create your models here.
 class User(AbstractUser):
     
@@ -26,9 +36,14 @@ class User(AbstractUser):
         blank=True,
         related_name='users'
     )
+    permissions = models.ManyToManyField(
+    'Permission',
+    blank=True,
+    related_name='users')
     is_email_verified = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
+   
 
     otp = models.CharField(max_length=6, blank=True, null=True)
     otp_expiry = models.DateTimeField(blank=True, null=True)

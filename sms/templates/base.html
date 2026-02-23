@@ -1,3 +1,4 @@
+{% load permission_tags %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -58,27 +59,94 @@
             <a href="{% url 'admin_timetable' %}" class="list-group-item bg-dark text-white">
                 Manage Time table
             </a>
+            <a href="{% url 'faculty_permission_list' %}" class="list-group-item bg-dark text-white">
+                    Manage Faculty Permissions
+            </a>
         </div>
     </div>
     
     {% elif request.user.is_authenticated and user.role and user.role.name|lower == "faculty" %}
-        <div class="bg-dark border-end" id="sidebar-wrapper">
-            <div class="list-group list-group-flush">
-                <a href="{% url 'faculty_dashboard' %}" class="list-group-item bg-dark text-white">
-                    Dashboard
-                </a>
-                
-                <a href="{% url 'faculty_dashboard' %}?tab=profile"
-                    class="list-group-item bg-dark text-white">
-                    My Profile
-                </a>
-                <a href="{% url 'faculty_dashboard' %}#subjects" 
-                    class="list-group-item bg-dark text-white">
-                    Manage Subjects
-                </a>
-               
+
+    <div class="bg-dark border-end" id="sidebar-wrapper">
+        <div class="list-group list-group-flush">
+
+            <a href="{% url 'faculty_dashboard' %}"
+            class="list-group-item bg-dark text-white">
+                Dashboard
+            </a>
+
+            {% if user|has_permission:"manage_batches" %}
+            <a href="{% url 'batch_list' %}"
+            class="list-group-item bg-dark text-white">
+                Manage Batches
+            </a>
+            {% endif %}
+
+            {% if user|has_permission:"manage_students" %}
+            <a href="{% url 'admin_student_management' %}"
+            class="list-group-item bg-dark text-white">
+                Manage Students
+            </a>
+            {% endif %}
+
+            {% if faculty_courses %}
+            <a class="list-group-item bg-dark text-white"
+            data-bs-toggle="collapse"
+            href="#subjectsMenu"
+            role="button">
+                Subjects ▼
+            </a>
+
+            <div class="collapse" id="subjectsMenu">
+
+                {% for course in faculty_courses %}
+
+                    <!-- Course Header -->
+                    <a class="list-group-item bg-secondary text-white"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#course{{ course.id }}"
+                    aria-expanded="false"
+                    role="button">
+                        {{ course.code }} – {{ course.name }} ▼
+                    </a>
+
+                    <!-- Collapsible Options -->
+                    <div class="collapse" id="course{{ course.id }}">
+
+                        <div class="list-group-item bg-dark ps-5">
+
+                            <a href="{% url 'mark_attendance' course.id %}"
+                            class="d-block text-white mb-1">
+                                Mark Attendance
+                            </a>
+
+                            <a href="{% url 'create_quiz' course.id %}"
+                            class="d-block text-white mb-1">
+                                Create Quiz
+                            </a>
+
+                            <a href="{% url 'create_exam' course.id %}"
+                            class="d-block text-white mb-1">
+                                Create Exam
+                            </a>
+
+                            <a href="{% url 'faculty_timetable' %}"
+                            class="d-block text-white mb-1">
+                                Manage Timetable
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
             </div>
+            {% endif %}
+
         </div>
+    </div>
+    
     {% elif request.user.is_authenticated and user.role and user.role.name|lower == "student" %}
         <div class="bg-dark border-end" id="sidebar-wrapper">
             <div class="list-group list-group-flush">
@@ -112,7 +180,7 @@
                 class="list-group-item bg-dark text-white">
                     Quiz Attempts
                 </a>
-
+                
             </div>
         </div>
 

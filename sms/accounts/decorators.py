@@ -44,5 +44,27 @@ def faculty_only(view_func):
 def student_only(view_func):
     return role_required(['student'])(view_func)
 
+from django.http import HttpResponseForbidden
+from functools import wraps
 
+
+def permission_required(permission_code):
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+
+            if not request.user.is_authenticated:
+                return HttpResponseForbidden()
+
+            # Admin bypass (full access)
+            if request.user.role and request.user.role.name.lower() == 'admin':
+                return view_func(request, *args, **kwargs)
+
+            if request.user.permissions.filter(code=permission_code).exists():
+                return view_func(request, *args, **kwargs)
+
+            return HttpResponseForbidden()
+
+        return wrapper
+    return decorator
 

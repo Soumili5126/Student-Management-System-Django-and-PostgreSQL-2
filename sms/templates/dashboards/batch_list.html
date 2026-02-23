@@ -29,10 +29,6 @@
         <a href="{% url 'assign_batch' s.id %}" class="btn btn-sm btn-warning">
             Assign Batch
         </a>
-        <a href="{% url 'assign_batch' s.id %}"
-            class="btn btn-warning btn-sm mb-1">
-            Change Batch
-        </a>
         {% if s.batch %}
             <a href="{% url 'remove_student_from_batch' s.id %}"
                 class="btn btn-danger btn-sm"
@@ -44,7 +40,39 @@
 </tr>
 {% endfor %}
 </table>
+<hr class="my-5">
 
+<h4>Available Batches</h4>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Program</th>
+        <th>Name</th>
+        <th>Academic Year</th>
+        <th>Section</th>
+        <th>Total Students</th>
+    </tr>
+
+    {% for batch in batches %}
+    <tr>
+        <td>{{ batch.program }}</td>
+        <td>{{ batch.name }}</td>
+        <td>{{ batch.academic_year }}</td>
+        <td>{{ batch.section }}</td>
+        <td>{{ batch.students.count }}</td>
+        <td>
+            <a href="{% url 'edit_batch' batch.id %}"
+               class="btn btn-sm btn-warning">
+               Edit
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5">No batches available.</td>
+    </tr>
+    {% endfor %}
+</table>
 <a href="{% url 'admin_dashboard' %}"
        class="btn btn-secondary mt-3">
        ← Go to Admin Dashboard
