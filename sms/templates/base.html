@@ -116,22 +116,22 @@
                         <div class="list-group-item bg-dark ps-5">
 
                             <a href="{% url 'mark_attendance' course.id %}"
-                            class="d-block text-white mb-1">
+                            class="d-block text-white text-decoration-none mb-1">
                                 Mark Attendance
                             </a>
 
                             <a href="{% url 'create_quiz' course.id %}"
-                            class="d-block text-white mb-1">
+                            class="d-block text-white text-decoration-none mb-1">
                                 Create Quiz
                             </a>
 
                             <a href="{% url 'create_exam' course.id %}"
-                            class="d-block text-white mb-1">
+                            class="d-block text-white text-decoration-none mb-1">
                                 Create Exam
                             </a>
 
                             <a href="{% url 'faculty_timetable' %}"
-                            class="d-block text-white mb-1">
+                            class="d-block text-white text-decoration-none mb-1">
                                 Manage Timetable
                             </a>
 
@@ -151,33 +151,38 @@
         <div class="bg-dark border-end" id="sidebar-wrapper">
             <div class="list-group list-group-flush">
 
-                <a href="{% url 'student_dashboard' %}"
-                class="list-group-item bg-dark text-white">
+                <a href="{% url 'student_dashboard' %}?tab=dashboard"
+                    class="list-group-item bg-dark text-white">
                     Dashboard
                 </a>
 
-                <a href="{% url 'student_dashboard' %}?tab=performance"
-                class="list-group-item bg-dark text-white">
-                    My Exam overview
-                </a>
-
-                <a href="{% url 'student_dashboard' %}?tab=attendance"
-                class="list-group-item bg-dark text-white">
-                    My Attendance
+                <a href="{% url 'student_dashboard' %}?tab=profile"
+                    class="list-group-item bg-dark text-white">
+                    My Profile
                 </a>
 
                 <a href="{% url 'student_dashboard' %}?tab=courses"
-                class="list-group-item bg-dark text-white">
+                    class="list-group-item bg-dark text-white">
                     My Courses
                 </a>
 
+                <a href="{% url 'student_dashboard' %}?tab=timetable"
+                    class="list-group-item bg-dark text-white">
+                    My Time Table
+                </a>
+
+
+                <a href="{% url 'student_dashboard' %}?tab=attendance"
+                    class="list-group-item bg-dark text-white">
+                    Attendance
+                </a>
                 <a href="{% url 'student_dashboard' %}?tab=quizzes"
-                class="list-group-item bg-dark text-white">
+                    class="list-group-item bg-dark text-white">
                     Available Quizzes
                 </a>
 
                 <a href="{% url 'student_dashboard' %}?tab=attempts"
-                class="list-group-item bg-dark text-white">
+                    class="list-group-item bg-dark text-white">
                     Quiz Attempts
                 </a>
                 
@@ -211,25 +216,98 @@ document.getElementById("menu-toggle").addEventListener("click", function() {
 <style>
 html, body {
     height: 100%;
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 #wrapper {
-    min-height: 100vh;   /* full screen height */
+    min-height: 100vh;
     display: flex;
 }
 
+/* ===== SIDEBAR ===== */
 #sidebar-wrapper {
-    width: 250px;
-    min-height: 100vh;   /* sidebar always full height */
+    width: 260px;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #1f2a37, #111827);
+    box-shadow: 2px 0 15px rgba(0,0,0,0.2);
     transition: all 0.3s;
 }
 
-#wrapper.toggled #sidebar-wrapper {
-    margin-left: -250px;
+#sidebar-wrapper .list-group-item {
+    background: transparent !important;
+    border: none;
+    padding: 12px 20px;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease-in-out;
 }
 
+#sidebar-wrapper .list-group-item:hover {
+    background-color: rgba(255,255,255,0.08) !important;
+    padding-left: 25px;
+}
+
+#sidebar-wrapper .bg-secondary {
+    background-color: rgba(255,255,255,0.1) !important;
+}
+
+/* Remove underline */
+#sidebar-wrapper a {
+    text-decoration: none !important;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* ===== CONTENT ===== */
 #page-content-wrapper {
     flex: 1;
+    padding: 30px !important;
+}
+
+/* ===== CARDS ===== */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+    border-radius: 15px 15px 0 0 !important;
+}
+
+/* ===== NAV TABS ===== */
+.nav-tabs .nav-link {
+    border: none;
+    color: #555;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+    border-radius: 8px;
+}
+
+.btn-sm {
+    padding: 5px 10px;
 }
 </style>
 

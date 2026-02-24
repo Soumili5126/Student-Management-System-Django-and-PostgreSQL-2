@@ -5,10 +5,10 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-
     path('dashboard/', views.dashboard, name='dashboard'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('faculty-dashboard/', views.faculty_dashboard, name='faculty_dashboard'),
+    path('faculty/profile/edit/', views.edit_faculty_profile, name='edit_faculty_profile'),
     path('student-dashboard/', views.student_dashboard, name='student_dashboard'),
     path('student/profile/edit/', views.edit_student_profile, name='edit_student_profile'),
     path('faculty-permissions/', views.faculty_permission_list, name='faculty_permission_list'),
@@ -45,8 +45,6 @@ urlpatterns = [
     views.assign_batch,
     name='assign_batch'),
     path('admin/batches/create/', views.create_batch, name='create_batch'),
-   
-    
     path(
     'admin/students/',
     views.admin_student_management,
@@ -128,7 +126,4 @@ urlpatterns = [
     'faculty/quiz/<int:quiz_id>/analytics/',
     views.faculty_quiz_analytics,
     name='faculty_quiz_analytics'),
-
-
-
 ]

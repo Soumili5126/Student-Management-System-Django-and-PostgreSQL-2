@@ -42,6 +42,7 @@ class User(AbstractUser):
     related_name='users')
     is_email_verified = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
+    
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
    
 

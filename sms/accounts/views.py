@@ -440,6 +440,57 @@ def faculty_dashboard(request):
     )
 
 @login_required
+def edit_faculty_profile(request):
+
+    if not request.user.role or request.user.role.name.lower() != "faculty":
+        return render(request, "403.html", status=403)
+
+    faculty = request.user.faculty_profile
+    user = request.user
+
+    if request.method == "POST":
+
+        new_username = request.POST.get("username")
+
+        # Prevent empty username
+        if not new_username:
+            messages.error(request, "Username cannot be empty.")
+            return redirect("edit_faculty_profile")
+
+        # Prevent duplicate username
+        if User.objects.exclude(pk=user.pk).filter(username=new_username).exists():
+            messages.error(request, "Username already taken.")
+            return redirect("edit_faculty_profile")
+
+        user.username = new_username
+
+        # Update User fields
+        user.first_name = request.POST.get("first_name")
+        user.last_name = request.POST.get("last_name")
+
+        # 🔥 PROFILE IMAGE SAVE (NEW)
+        if request.FILES.get("profile_image"):
+            user.profile_image = request.FILES["profile_image"]
+
+        user.save()
+
+        # Update FacultyProfile
+        faculty.department = request.POST.get("department")
+        faculty.designation = request.POST.get("designation")
+        faculty.save()
+
+        messages.success(request, "Profile updated successfully.")
+        return redirect("faculty_dashboard")
+
+    return render(
+        request,
+        "dashboards/faculty/edit_profile.html",
+        {
+            "faculty": faculty,
+            "user_obj": user
+        }
+    )
+@login_required
 def student_dashboard(request):
     if not request.user.role or request.user.role.name.lower() != 'student':
         return HttpResponseForbidden(render(request, '403.html'))
@@ -574,41 +625,46 @@ def edit_student_profile(request):
 
     if request.method == "POST":
 
-        new_username = request.POST.get('username')
+        user.first_name = request.POST.get("first_name")
+        user.last_name = request.POST.get("last_name")
+        new_username = request.POST.get("username")
 
         # Prevent empty username
         if not new_username:
             messages.error(request, "Username cannot be empty.")
-            return redirect('edit_student_profile')
+            return redirect("edit_student_profile")
 
         # Prevent duplicate username
         if User.objects.exclude(pk=user.pk).filter(username=new_username).exists():
             messages.error(request, "Username already taken.")
-            return redirect('edit_student_profile')
+            return redirect("edit_student_profile")
 
-        # Update User
         user.username = new_username
+
+        # 🔥 PROFILE IMAGE SAVE (NEW)
+        if request.FILES.get("profile_image"):
+            user.profile_image = request.FILES["profile_image"]
+
         user.save()
 
         # Update StudentProfile
-        student.date_of_birth = request.POST.get('date_of_birth')
-        student.phone = request.POST.get('phone')
-        student.gender = request.POST.get('gender')
-        student.address = request.POST.get('address')
+        student.date_of_birth = request.POST.get("date_of_birth")
+        student.phone = request.POST.get("phone")
+        student.gender = request.POST.get("gender")
+        student.address = request.POST.get("address")
         student.save()
 
         messages.success(request, "Profile updated successfully.")
-        return redirect('student_dashboard')
+        return redirect("student_dashboard")
 
     return render(
         request,
-        'dashboards/student/edit_profile.html',
+        "dashboards/student/edit_profile.html",
         {
-            'student': student,
-            'user': user
+            "student": student,
+            "user": user
         }
     )
-
 @login_required
 def mark_attendance(request, course_id):
 
@@ -957,8 +1013,12 @@ def admin_student_management(request):
         {'students': students}
     )
 @login_required
-@role_required(['admin'])
 def add_student(request):
+
+    if request.user.role and request.user.role.name.lower() == 'admin':
+        pass
+    elif not request.user.permissions.filter(code="manage_students").exists():
+        return render(request, "403.html", status=403)
 
     batches = Batch.objects.all()
 
@@ -1021,8 +1081,17 @@ def add_student(request):
     )
 
 @login_required
-@role_required(['admin'])
 def edit_student(request, student_id):
+
+    if request.user.role and request.user.role.name.lower() == 'admin':
+        pass
+    elif not request.user.permissions.filter(code="manage_students").exists():
+        return render(request, "403.html", status=403)
+
+    if request.user.role and request.user.role.name.lower() == 'admin':
+        pass
+    elif not request.user.permissions.filter(code="manage_students").exists():
+        return render(request, "403.html", status=403)
 
     student = get_object_or_404(
         StudentProfile,
@@ -1070,8 +1139,12 @@ def edit_student(request, student_id):
 
 
 @login_required
-@role_required(['admin'])
 def delete_student(request, student_id):
+
+    if request.user.role and request.user.role.name.lower() == 'admin':
+        pass
+    elif not request.user.permissions.filter(code="manage_students").exists():
+        return render(request, "403.html", status=403)
 
     student = get_object_or_404(
         StudentProfile,

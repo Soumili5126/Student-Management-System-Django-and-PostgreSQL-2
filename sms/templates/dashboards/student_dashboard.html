@@ -141,8 +141,20 @@
 
 
 <!-- ================= PROFILE ================= -->
-<div class="tab-pane fade" id="profile">
 
+<div class="tab-pane fade" id="profile">
+<div class="text-center mb-3">
+    {% if request.user.profile_image %}
+        <img src="{{ request.user.profile_image.url }}"
+             class="rounded-circle shadow"
+             width="120"
+             height="120"
+             style="object-fit:cover;">
+    {% else %}
+        <img src="https://via.placeholder.com/120"
+             class="rounded-circle shadow">
+    {% endif %}
+</div>
 <div class="card mb-4">
     <div class="card-header"><strong>My Profile</strong></div>
     <div class="card-body">
@@ -578,7 +590,26 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+
+    if (tab) {
+
+        const triggerEl = document.querySelector(
+            '[data-bs-target="#' + tab + '"]'
+        );
+
+        if (triggerEl) {
+            const tabInstance = new bootstrap.Tab(triggerEl);
+            tabInstance.show();
+        }
+    }
+
+});
+</script>
 
 
 
