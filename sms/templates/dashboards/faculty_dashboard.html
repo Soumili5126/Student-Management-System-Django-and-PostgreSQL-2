@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h2 class="mb-4 fw-bold">Faculty Dashboard</h2>
+<h2 class="mb-4 fw-bold">Welcome!</h2>
 
 <!-- ================= NAV TABS ================= -->
 <ul class="nav nav-tabs mb-4">
@@ -15,7 +15,7 @@
     </li>
 
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#subjects">Subjects</button>
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#subjects">Subjects & Students</button>
     </li>
 
     <li class="nav-item">
@@ -28,46 +28,66 @@
 
     <!-- PROFILE -->
     <div class="tab-pane fade show active" id="profile">
-        <div class="text-center mb-3">
-            {% if request.user.profile_image %}
-                <img src="{{ request.user.profile_image.url }}"
-                    class="rounded-circle shadow"
-                    width="120"
-                    height="120"
-                    style="object-fit:cover;">
-            {% else %}
-                <img src="https://via.placeholder.com/120"
-                    class="rounded-circle shadow">
-            {% endif %}
-        </div>
 
-        <div class="card p-4">
-            <h5 class="mb-3">Profile Information</h5>
+        <div class="row">
 
-            <div class="row mb-2">
-                <div class="col-md-3 text-muted">Full Name</div>
-                <div class="col-md-9">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+            <!-- LEFT SIDE PROFILE -->
+            <div class="col-md-8">
+
+                <div class="text-center mb-3">
+                    {% if request.user.profile_image %}
+                        <img src="{{ request.user.profile_image.url }}"
+                            class="rounded-circle shadow"
+                            width="120"
+                            height="120"
+                            style="object-fit:cover;">
+                    {% else %}
+                        <img src="https://via.placeholder.com/120"
+                            class="rounded-circle shadow">
+                    {% endif %}
+                </div>
+
+                <div class="card p-4">
+                    <h5 class="mb-3">Profile Information</h5>
+
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-muted">Full Name</div>
+                        <div class="col-md-9">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-muted">Username</div>
+                        <div class="col-md-9">{{ faculty.user.username }}</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-muted">Department</div>
+                        <div class="col-md-9">{{ faculty.department }}</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 text-muted">Designation</div>
+                        <div class="col-md-9">{{ faculty.designation }}</div>
+                    </div>
+
+                    <a href="{% url 'edit_faculty_profile' %}"
+                       class="btn btn-primary mt-4">
+                        Edit Profile
+                    </a>
+                </div>
+
             </div>
 
-            <div class="row mb-2">
-                <div class="col-md-3 text-muted">Username</div>
-                <div class="col-md-9">{{ faculty.user.username }}</div>
+            <!-- RIGHT SIDE CALENDAR -->
+            <div class="col-md-4">
+
+                <div class="card p-3 shadow-sm">
+                    <h6 class="text-center mb-3">Calendar</h6>
+                    <div id="facultyCalendar"></div>
+                </div>
+
             </div>
 
-            <div class="row mb-2">
-                <div class="col-md-3 text-muted">Department</div>
-                <div class="col-md-9">{{ faculty.department }}</div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-3 text-muted">Designation</div>
-                <div class="col-md-9">{{ faculty.designation }}</div>
-            </div>
-
-            <a href="{% url 'edit_faculty_profile' %}"
-               class="btn btn-primary mt-4">
-                Edit Profile
-            </a>
         </div>
 
     </div>
@@ -93,7 +113,7 @@
         {% else %}
             <p class="text-muted">No exams created yet.</p>
         {% endif %}
-
+    
     </div>
 
     <!-- SUBJECTS -->
@@ -110,7 +130,8 @@
                     {% if item.enrollments %}
                         <ul class="mb-0">
                             {% for e in item.enrollments %}
-                                <li>{{ e.student.user.username }}</li>
+                                <li>{{ e.student.user.first_name }} {{ e.student.user.last_name }}
+                                    ({{ e.student.user.username }})</li>
                             {% endfor %}
                         </ul>
                     {% else %}
@@ -170,7 +191,11 @@
 </div>
 
 
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
 
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -179,15 +204,96 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (hash) {
         var triggerEl = document.querySelector('[data-bs-target="' + hash + '"]');
-
         if (triggerEl) {
             var tab = new bootstrap.Tab(triggerEl);
             tab.show();
         }
     }
 
+ var calendarEl = document.getElementById('facultyCalendar');
+
+if (calendarEl) {
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        height: 400,
+
+        headerToolbar: {
+            left: 'prev',
+            center: 'title',
+            right: 'next'
+        },
+
+        titleFormat: {
+            year: 'numeric',
+            month: 'long'
+        },
+
+        navLinks: false
+
+    });
+
+    calendar.render();
+}
 });
 </script>
+<style>
 
+/* Force smaller month + year text */
+.fc .fc-toolbar-title {
+    font-size: 20px !important;   /* 👈 adjust here */
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
+}
+
+/* Optional: reduce space around header */
+.fc .fc-toolbar {
+    margin-bottom: 10px !important;
+}
+
+/* Optional: reduce arrow button size */
+.fc .fc-button {
+    padding: 3px 8px !important;
+    font-size: 12px !important;
+}
+<>
+
+/* Remove underline from ALL calendar links */
+.fc a {
+    text-decoration: none !important;
+}
+
+/* Remove underline from date numbers specifically */
+.fc-daygrid-day-number {
+    text-decoration: none !important;
+    color: #333 !important;   /* 👈 change to any color you want */
+}
+
+/* Prevent blue visited link color */
+.fc-daygrid-day-number:visited {
+    color: #333 !important;
+}
+
+/* Optional: remove hover blue */
+.fc-daygrid-day-number:hover {
+    color: #000 !important;
+}
+
+/* Remove underline from weekday names */
+.fc-col-header-cell-cushion {
+    text-decoration: none !important;
+    color: #333 !important;   /* Change color here */
+}
+
+/* Remove underline from all calendar links safely */
+.fc a {
+    text-decoration: none !important;
+}
+
+/* Disable hover effect */
+.fc-col-header-cell-cushion:hover {
+    text-decoration: none !important;
+}
+
+</style>
 {% endblock %}
 

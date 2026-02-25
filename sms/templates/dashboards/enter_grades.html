@@ -46,5 +46,42 @@
         Cancel
     </a>
 </form>
+<hr>
 
+<h5 class="mt-4">Entered Grades</h5>
+
+{% if grades %}
+<table class="table table-bordered table-striped mt-3">
+    <thead class="table-dark">
+        <tr>
+            <th>Student</th>
+            <th>Roll Number</th>
+            <th>Marks</th>
+            <th>Total</th>
+            <th>Percentage</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for g in grades %}
+        <tr>
+            <td>{{ g.student.user.first_name }} {{ g.student.user.last_name }}</td>
+            <td>{{ g.student.roll_number }}</td>
+            <td>{{ g.marks_obtained }}</td>
+            <td>{{ g.exam.total_marks }}</td>
+            <td>{{ g.percentage|floatformat:2 }}%</td>
+            <td>
+                {% if g.is_pass %}
+                    <span class="badge bg-success">Pass</span>
+                {% else %}
+                    <span class="badge bg-danger">Fail</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">No grades entered yet.</p>
+{% endif %}
 {% endblock %}

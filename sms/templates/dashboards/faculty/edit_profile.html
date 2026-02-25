@@ -5,58 +5,73 @@
 
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    <div class="mb-3">
-        <label>Profile Image</label>
-        <input type="file" name="profile_image" class="form-control">
-    </div>
-    <div class="mb-3">
-        <label>Username</label>
-        <input type="text"
-            name="username"
-            value="{{ user_obj.username }}"
-            class="form-control">
-    </div>
-    <div class="mb-3">
-        <label>First Name</label>
-        <input type="text"
-               name="first_name"
-               value="{{ user_obj.first_name }}"
-               class="form-control">
-    </div>
+    <div class="card p-4">
 
-    <div class="mb-3">
-        <label>Last Name</label>
-        <input type="text"
-               name="last_name"
-               value="{{ user_obj.last_name }}"
-               class="form-control">
+        <!-- PROFILE IMAGE -->
+        <div class="mb-3 text-center">
+            {% if user_obj.profile_image %}
+                <img src="{{ user_obj.profile_image.url }}"
+                     class="rounded-circle mb-3 shadow"
+                     width="130"
+                     height="130"
+                     style="object-fit:cover;">
+            {% else %}
+                <img src="https://via.placeholder.com/130"
+                     class="rounded-circle mb-3 shadow">
+            {% endif %}
+
+            <input type="file"
+                   name="profile_image"
+                   class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Username</label>
+            <input type="text"
+                name="username"
+                value="{{ user_obj.username }}"
+                class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>First Name</label>
+            <input type="text"
+                name="first_name"
+                value="{{ user_obj.first_name }}"
+                class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Last Name</label>
+            <input type="text"
+                name="last_name"
+                value="{{ user_obj.last_name }}"
+                class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Department</label>
+            <input type="text"
+                name="department"
+                value="{{ faculty.department }}"
+                class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Designation</label>
+            <input type="text"
+                name="designation"
+                value="{{ faculty.designation }}"
+                class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            Save Changes
+        </button>
+
+        <a href="{% url 'faculty_dashboard' %}"
+        class="btn btn-secondary">
+        Cancel
+        </a>
     </div>
-
-    <div class="mb-3">
-        <label>Department</label>
-        <input type="text"
-               name="department"
-               value="{{ faculty.department }}"
-               class="form-control">
-    </div>
-
-    <div class="mb-3">
-        <label>Designation</label>
-        <input type="text"
-               name="designation"
-               value="{{ faculty.designation }}"
-               class="form-control">
-    </div>
-
-    <button type="submit" class="btn btn-success">
-        Save Changes
-    </button>
-
-    <a href="{% url 'faculty_dashboard' %}"
-       class="btn btn-secondary">
-       Cancel
-    </a>
-
 </form>
 
 {% endblock %}

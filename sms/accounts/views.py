@@ -624,9 +624,17 @@ def edit_student_profile(request):
     user = request.user
 
     if request.method == "POST":
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
 
-        user.first_name = request.POST.get("first_name")
-        user.last_name = request.POST.get("last_name")
+        # Prevent null values
+        if first_name:
+            user.first_name = first_name
+
+        if last_name:
+            user.last_name = last_name
+
+        
         new_username = request.POST.get("username")
 
         # Prevent empty username
@@ -1227,13 +1235,13 @@ def add_faculty(request):
         designation = request.POST.get("designation")
         selected_courses = request.POST.getlist("courses")
 
-        # ✅ Get Faculty Role object
+        # Get Faculty Role object
         faculty_role = get_object_or_404(
             Role,
             name__iexact="Faculty"
         )
 
-        # ✅ Create user with ForeignKey role
+        # Create user with ForeignKey role
         user = User.objects.create(
             username=username,
             email=email,
@@ -1594,7 +1602,7 @@ def enter_grades(request, exam_id):
         id=exam_id,
         course__faculty=faculty
     )
-
+    grades = Grade.objects.filter(exam=exam).select_related("student", "student__user")
     enrollments = Enrollment.objects.filter(
         course=exam.course
     )
@@ -1621,7 +1629,8 @@ def enter_grades(request, exam_id):
         'dashboards/enter_grades.html',
         {
             'exam': exam,
-            'enrollments': enrollments
+            'enrollments': enrollments,
+            "grades": grades, 
         }
     )
 
