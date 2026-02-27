@@ -1,48 +1,110 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Exam Management</h2>
+<div class="container mt-4">
 
-<a href="{% url 'add_exam' %}" class="btn btn-success mb-3">
-    Add Exam
-</a>
+    <div class="card shadow-sm border-0">
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Course</th>
-            <th>Title</th>
-            <th>Date</th>
-            <th>Total Marks</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for exam in exams %}
-        <tr>
-            <td>{{ exam.course.code }} - {{ exam.course.name }}</td>
-            <td>{{ exam.title }}</td>
-            <td>{{ exam.date }}</td>
-            <td>{{ exam.total_marks }}</td>
-            <td>
-                <a href="{% url 'edit_exam' exam.id %}"
-                   class="btn btn-sm btn-primary">Edit</a>
+        <!-- Header -->
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+            <h4 class="fw-bold mb-0">Exam Management</h4>
 
-                <a href="{% url 'delete_exam' exam.id %}"
-                   class="btn btn-sm btn-danger">Delete</a>
-                <a href="{% url 'admin_manage_grades' exam.id %}"
-                    class="btn btn-sm btn-warning">
-                    Manage Marks
-                </a>
+            <a href="{% url 'add_exam' %}"
+               class="btn btn-primary px-3">
+                + Add Exam
+            </a>
+        </div>
 
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5" class="text-muted">No exams found.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        <div class="card-body">
+
+            {% if exams %}
+
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Course</th>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Total Marks</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for exam in exams %}
+                        <tr>
+
+                            <!-- Course -->
+                            <td class="fw-semibold">
+                                {{ exam.course.code }}
+                                <br>
+                                <small class="text-muted">
+                                    {{ exam.course.name }}
+                                </small>
+                            </td>
+
+                            <!-- Title -->
+                            <td>
+                                {{ exam.title }}
+                            </td>
+
+                            <!-- Date -->
+                            <td class="text-muted">
+                                {{ exam.date }}
+                            </td>
+
+                            <!-- Total Marks -->
+                            <td>
+                                <span class="badge bg-secondary px-3 py-2">
+                                    {{ exam.total_marks }}
+                                </span>
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="text-end">
+
+                                <a href="{% url 'edit_exam' exam.id %}"
+                                   class="btn btn-sm btn-outline-primary me-1">
+                                    Edit
+                                </a>
+
+                                <a href="{% url 'admin_manage_grades' exam.id %}"
+                                   class="btn btn-sm btn-outline-warning me-1">
+                                    Manage Marks
+                                </a>
+
+                                <a href="{% url 'delete_exam' exam.id %}"
+                                   class="btn btn-sm btn-outline-danger">
+                                    Delete
+                                </a>
+
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">
+                        No exams found.
+                    </p>
+
+                    <a href="{% url 'add_exam' %}"
+                       class="btn btn-outline-primary mt-3">
+                        Create First Exam
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
 
 {% endblock %}

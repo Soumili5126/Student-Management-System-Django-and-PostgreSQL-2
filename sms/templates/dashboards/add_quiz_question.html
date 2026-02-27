@@ -1,114 +1,197 @@
-
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4">
-    Add Questions — {{ quiz.title }}
-</h2>
+<!-- ================= HEADER ================= -->
+<div class="mb-4">
+    <h2 class="fw-semibold mb-1" style="font-size:22px;">
+        Add Questions
+    </h2>
+    <p class="text-muted small mb-0">
+        {{ quiz.course.code }} — {{ quiz.course.name }}
+    </p>
+</div>
 
-<p class="text-muted">Course: {{ quiz.course.code }} - {{ quiz.course.name }}</p>
+<!-- ================= ADD QUESTION CARD ================= -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
 
-<!-- ================= ADD QUESTION FORM ================= -->
-<div class="card mb-4">
-    <div class="card-header">
-        <strong>Add New Question</strong>
-    </div>
+        <h6 class="fw-semibold mb-3 text-secondary">
+            Add New Question — {{ quiz.title }}
+        </h6>
 
-    <div class="card-body">
         <form method="post">
             {% csrf_token %}
 
-            <div class="mb-2">
-                <label class="form-label">Question</label>
-                <textarea name="question_text" class="form-control" required></textarea>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-2">
-                    <input name="option_a" class="form-control" placeholder="Option A" required>
-                </div>
-                <div class="col-md-6 mb-2">
-                    <input name="option_b" class="form-control" placeholder="Option B" required>
-                </div>
-                <div class="col-md-6 mb-2">
-                    <input name="option_c" class="form-control" placeholder="Option C" required>
-                </div>
-                <div class="col-md-6 mb-2">
-                    <input name="option_d" class="form-control" placeholder="Option D" required>
-                </div>
-            </div>
-
+            <!-- Question -->
             <div class="mb-3">
-                <label class="form-label">Correct Option</label>
-                <select name="correct_option" class="form-select" required>
+                <label class="form-label small fw-medium">
+                    Question
+                </label>
+                <textarea name="question_text"
+                          class="form-control form-control-sm"
+                          rows="3"
+                          required></textarea>
+            </div>
+
+            <!-- Options -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <input name="option_a"
+                           class="form-control form-control-sm"
+                           placeholder="Option A"
+                           required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <input name="option_b"
+                           class="form-control form-control-sm"
+                           placeholder="Option B"
+                           required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <input name="option_c"
+                           class="form-control form-control-sm"
+                           placeholder="Option C"
+                           required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <input name="option_d"
+                           class="form-control form-control-sm"
+                           placeholder="Option D"
+                           required>
+                </div>
+            </div>
+
+            <!-- Correct Option -->
+            <div class="mb-4">
+                <label class="form-label small fw-medium">
+                    Correct Option
+                </label>
+                <select name="correct_option"
+                        class="form-select form-select-sm"
+                        required>
                     <option value="">Select</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                    <option value="D">D</option>
+                    <option value="A">Option A</option>
+                    <option value="B">Option B</option>
+                    <option value="C">Option C</option>
+                    <option value="D">Option D</option>
                 </select>
             </div>
 
-            <button class="btn btn-success">Add Question</button>
+            <button class="btn btn-primary btn-sm px-4">
+                <i class="bi bi-plus-circle me-1"></i>
+                Add Question
+            </button>
+
         </form>
+
     </div>
 </div>
 
-<!-- ================= QUESTION GRID ================= -->
-<div class="card">
-    <div class="card-header">
-        <strong>Existing Questions</strong>
-    </div>
+<!-- ================= QUESTIONS TABLE ================= -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
 
-    <div class="card-body">
-        <table class="table table-bordered table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Question</th>
-                    <th>Options</th>
-                    <th>Correct</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+        <h6 class="fw-semibold mb-3 text-secondary">
+            Existing Questions
+        </h6>
 
-            <tbody>
-                {% for q in questions %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ q.question_text }}</td>
-                    <td>
-                        A. {{ q.option_a }}<br>
-                        B. {{ q.option_b }}<br>
-                        C. {{ q.option_c }}<br>
-                        D. {{ q.option_d }}
-                    </td>
-                    <td><strong>{{ q.correct_option }}</strong></td>
-                    <td>
-                        <a href="{% url 'edit_quiz_question' q.id %}"
-                           class="btn btn-sm btn-outline-primary">
-                            Edit
-                        </a>
+        <div class="table-responsive">
+            <table class="table align-middle modern-table">
 
-                        <a href="{% url 'delete_quiz_question' q.id %}"
-                           class="btn btn-sm btn-outline-danger"
-                           onclick="return confirm('Delete this question?')">
-                            Delete
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted">
-                        No questions added yet.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                <thead>
+                    <tr>
+                        <th style="width:5%">#</th>
+                        <th style="width:35%">Question</th>
+                        <th style="width:35%">Options</th>
+                        <th style="width:10%">Correct</th>
+                        <th style="width:15%">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for q in questions %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+
+                        <td class="fw-medium">
+                            {{ q.question_text }}
+                        </td>
+
+                        <td class="small text-muted">
+                            <div><strong>A.</strong> {{ q.option_a }}</div>
+                            <div><strong>B.</strong> {{ q.option_b }}</div>
+                            <div><strong>C.</strong> {{ q.option_c }}</div>
+                            <div><strong>D.</strong> {{ q.option_d }}</div>
+                        </td>
+
+                        <td>
+                            <span class="badge bg-success">
+                                {{ q.correct_option }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'edit_quiz_question' q.id %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Edit
+                                </a>
+
+                                <a href="{% url 'delete_quiz_question' q.id %}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Delete this question?')">
+                                    Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5"
+                            class="text-center text-muted py-4">
+                            No questions added yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
     </div>
 </div>
-<a href="{% url 'faculty_dashboard' %}" class="btn btn-secondary mt-3">
-    ← Back to faculty Dashboard
+
+<a href="{% url 'faculty_dashboard' %}"
+   class="btn btn-outline-secondary btn-sm mt-3">
+   <i class="bi bi-arrow-left me-1"></i>
+   Back to Faculty Dashboard
 </a>
+
+<style>
+
+/* Modern table */
+.modern-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.modern-table thead {
+    background: #f8fafc;
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+/* Cleaner inputs */
+.form-control-sm,
+.form-select-sm {
+    border-radius: 8px;
+}
+
+</style>
+
 {% endblock %}

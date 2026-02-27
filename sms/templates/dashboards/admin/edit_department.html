@@ -1,49 +1,142 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Edit Department</h2>
+<!-- ===== PAGE HEADER ===== -->
+<div class="mb-4">
+    <h2 class="fw-semibold mb-1" style="font-size: 22px;">
+        Edit Department
+    </h2>
+    <p class="text-muted small mb-0">
+        Update department details and manage related courses
+    </p>
+</div>
 
 <form method="POST">
     {% csrf_token %}
 
-    <div class="card mb-4 p-3">
-        <h5>Department Details</h5>
-        {{ form.as_p }}
+    <!-- ===== DEPARTMENT DETAILS CARD ===== -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+
+            <h6 class="fw-semibold mb-3 text-secondary">
+                Department Details
+            </h6>
+
+            <div class="modern-form">
+                {{ form.as_p }}
+            </div>
+
+        </div>
     </div>
 
-    <div class="card p-3">
-        <h5>Courses Under This Department</h5>
+    <!-- ===== COURSE FORMSET CARD ===== -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
 
-        {{ formset.management_form }}
+            <h6 class="fw-semibold mb-3 text-secondary">
+                Courses Under This Department
+            </h6>
 
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Code</th>
-                    <th>Name</th>
-                    <th>Delete</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for form in formset %}
-                <tr>
-                    {{ form.id }} 
-                    <td>{{ form.code }}</td>
-                    <td>{{ form.name }}</td>
-                    <td>{{ form.DELETE }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            {{ formset.management_form }}
+
+            <div class="table-responsive">
+                <table class="table align-middle modern-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Code</th>
+                            <th style="width: 50%;">Name</th>
+                            <th style="width: 15%;">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in formset %}
+                        <tr>
+
+                            {{ form.id }}
+
+                            <td>{{ form.code }}</td>
+                            <td>{{ form.name }}</td>
+                            <td class="text-center">
+                                {{ form.DELETE }}
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
     </div>
 
-    <button type="submit" class="btn btn-success mt-3">
-        Save Changes
-    </button>
+    <!-- ===== ACTION BUTTONS ===== -->
+    <div class="mt-4 d-flex gap-2">
+
+        <button type="submit"
+                class="btn btn-primary btn-sm px-4">
+            <i class="bi bi-check-circle me-1"></i>
+            Save Changes
+        </button>
+
+        <a href="{% url 'department_list' %}"
+           class="btn btn-outline-secondary btn-sm">
+            Cancel
+        </a>
+
+    </div>
 
 </form>
-<a href="{% url 'department_list' %}"
-       class="btn btn-secondary mt-3">
-       ← Go Back
-</a>
+
+<style>
+
+/* Improve default Django form styling */
+.modern-form p {
+    margin-bottom: 1rem;
+}
+
+.modern-form label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.modern-form input,
+.modern-form select,
+.modern-form textarea {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.modern-form input:focus,
+.modern-form select:focus,
+.modern-form textarea:focus {
+    outline: none;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 2px rgba(148,163,184,0.15);
+}
+
+/* Modern table styling */
+.modern-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.modern-table thead {
+    background: #f8fafc;
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.modern-table td,
+.modern-table th {
+    vertical-align: middle;
+}
+
+</style>
+
 {% endblock %}

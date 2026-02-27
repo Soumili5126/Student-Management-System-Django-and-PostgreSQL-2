@@ -1,48 +1,93 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Edit Exam</h2>
+<div class="container mt-4" style="max-width: 700px;">
 
-<form method="post">
-    {% csrf_token %}
+    <div class="card shadow-sm border-0">
 
-    <div class="mb-3">
-        <label>Course</label>
-        <select name="course_id" class="form-select">
-            {% for c in courses %}
-                <option value="{{ c.id }}"
-                    {% if c.id == exam.course.id %}selected{% endif %}>
-                    {{ c.code }} - {{ c.name }}
-                </option>
-            {% endfor %}
-        </select>
+        <!-- Header -->
+        <div class="card-header bg-white border-0">
+            <h4 class="fw-bold mb-0">Edit Exam</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Course -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        Course
+                    </label>
+
+                    <select name="course_id"
+                            class="form-select form-select-lg">
+                        {% for c in courses %}
+                            <option value="{{ c.id }}"
+                                {% if c.id == exam.course.id %}selected{% endif %}>
+                                {{ c.code }} - {{ c.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Title -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        Exam Title
+                    </label>
+
+                    <input type="text"
+                           name="title"
+                           value="{{ exam.title }}"
+                           class="form-control form-control-lg">
+                </div>
+
+                <!-- Date -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        Exam Date
+                    </label>
+
+                    <input type="date"
+                           name="date"
+                           value="{{ exam.date|date:'Y-m-d' }}"
+                           class="form-control form-control-lg">
+                </div>
+
+                <!-- Total Marks -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        Total Marks
+                    </label>
+
+                    <input type="number"
+                           name="total_marks"
+                           value="{{ exam.total_marks }}"
+                           class="form-control form-control-lg">
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+
+                    <a href="{% url 'admin_exam_list' %}"
+                       class="btn btn-outline-secondary">
+                        ← Back
+                    </a>
+
+                    <button class="btn btn-primary px-4">
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
     </div>
 
-    <div class="mb-3">
-        <label>Title</label>
-        <input type="text"
-               name="title"
-               value="{{ exam.title }}"
-               class="form-control">
-    </div>
-
-    <div class="mb-3">
-        <label>Date</label>
-        <input type="date"
-               name="date"
-               value="{{ exam.date|date:'Y-m-d' }}"
-               class="form-control">
-    </div>
-
-    <div class="mb-3">
-        <label>Total Marks</label>
-        <input type="number"
-               name="total_marks"
-               value="{{ exam.total_marks }}"
-               class="form-control">
-    </div>
-
-    <button class="btn btn-success">Save Changes</button>
-</form>
+</div>
 
 {% endblock %}

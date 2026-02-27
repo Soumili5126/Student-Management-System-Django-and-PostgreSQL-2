@@ -1,61 +1,100 @@
 {% extends "base.html" %}
 {% block content %}
 
+<!-- PAGE HEADER -->
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Faculty Management</h2>
+    <div>
+        <h2 class="fw-semibold mb-1" style="font-size: 22px;">
+            Faculty Management
+        </h2>
+        <p class="text-muted mb-0 small">
+            Manage faculty members and assigned courses
+        </p>
+    </div>
 
-    <a href="{% url 'add_faculty' %}" class="btn btn-success">
-        + Add Faculty
+    <a href="{% url 'add_faculty' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-person-plus me-1"></i> Add Faculty
     </a>
 </div>
-<table class="table table-bordered table-striped table-sm">
-<thead class="table-dark">
-<tr>
-    <th>Username</th>
-    <th>Email</th>
-    <th>Department</th>
-    <th>Designation</th>
-    <th>Courses Assigned</th>
-    <th>Actions</th>
-</tr>
-</thead>
 
-<tbody>
-{% for f in faculty_list %}
-<tr>
-    <td>{{ f.user.username }}</td>
-    <td>{{ f.user.email }}</td>
-    <td>{{ f.department }}</td>
-    <td>{{ f.designation }}</td>
+<!-- TABLE CARD -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-3">
 
-    <td>
-        {% for c in f.courses.all %}
-            {{ c.code }} — {{ c.name }}<br>
-        {% empty %}
-            <span class="text-muted">No courses</span>
-        {% endfor %}
-    </td>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
 
-    <td>
-        <a href="{% url 'edit_faculty' f.id %}"
-           class="btn btn-sm btn-outline-primary">
-           Edit
-        </a>
+                <thead class="table-light">
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Courses Assigned</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-        <a href="{% url 'delete_faculty' f.id %}"
-           class="btn btn-sm btn-outline-danger"
-           onclick="return confirm('Delete this faculty permanently?');">
-           Delete
-        </a>
-    </td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
+                <tbody>
+                {% for f in faculty_list %}
+                <tr>
+
+                    <td class="fw-medium">{{ f.user.username }}</td>
+                    <td class="small">{{ f.user.email }}</td>
+
+                    <td>
+                        <span class="badge bg-info-subtle text-info px-2 py-1">
+                            {{ f.department }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge bg-secondary-subtle text-secondary px-2 py-1">
+                            {{ f.designation }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {% for c in f.courses.all %}
+                            <span class="badge bg-primary-subtle text-primary px-2 py-1 me-1 mb-1">
+                                {{ c.code }}
+                            </span>
+                        {% empty %}
+                            <span class="text-muted small">No courses</span>
+                        {% endfor %}
+                    </td>
+
+                    <td>
+                        <div class="d-flex gap-1 flex-wrap">
+
+                            <a href="{% url 'edit_faculty' f.id %}"
+                               class="btn btn-sm btn-outline-primary">
+                               <i class="bi bi-pencil-square"></i>
+                            </a>
+
+                            <a href="{% url 'delete_faculty' f.id %}"
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Delete this faculty permanently?');">
+                               <i class="bi bi-trash"></i>
+                            </a>
+
+                        </div>
+                    </td>
+
+                </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
 
 <a href="{% url 'admin_dashboard' %}"
-   class="btn btn-secondary mt-3">
-   ← Back to Admin Dashboard
+   class="btn btn-outline-secondary btn-sm mt-3">
+   <i class="bi bi-arrow-left me-1"></i>
+   Back to Admin Dashboard
 </a>
 
 {% endblock %}

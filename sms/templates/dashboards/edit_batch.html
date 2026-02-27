@@ -1,38 +1,83 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Edit Batch</h2>
+<!-- ===== PAGE HEADER ===== -->
+<div class="mb-4">
+    <h2 class="fw-semibold mb-1" style="font-size: 22px;">
+        Edit Batch
+    </h2>
+    <p class="text-muted small mb-0">
+        Update batch academic information
+    </p>
+</div>
 
-<form method="post">
-    {% csrf_token %}
+<!-- ===== FORM CARD ===== -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
 
-    <div class="mb-3">
-        <label>Program</label>
-        <input type="text" name="program" class="form-control"
-               value="{{ batch.program }}">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-medium">Program</label>
+                    <input type="text"
+                           name="program"
+                           class="form-control form-control-sm"
+                           value="{{ batch.program }}">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-medium">Batch Name</label>
+                    <input type="text"
+                           name="name"
+                           class="form-control form-control-sm"
+                           value="{{ batch.name }}">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-medium">Academic Year</label>
+                    <input type="text"
+                           name="academic_year"
+                           class="form-control form-control-sm"
+                           value="{{ batch.academic_year }}">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-medium">Section</label>
+                    <input type="text"
+                           name="section"
+                           class="form-control form-control-sm"
+                           value="{{ batch.section }}">
+                </div>
+
+            </div>
+
+            <!-- ===== ACTION BUTTONS ===== -->
+            <div class="mt-4 d-flex gap-2">
+
+                <button class="btn btn-primary btn-sm px-4">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Update Batch
+                </button>
+
+                <a href="{% url 'batch_list' %}"
+                   class="btn btn-outline-secondary btn-sm">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
     </div>
+</div>
 
-    <div class="mb-3">
-        <label>Batch Name</label>
-        <input type="text" name="name" class="form-control"
-               value="{{ batch.name }}">
-    </div>
-
-    <div class="mb-3">
-        <label>Academic Year</label>
-        <input type="text" name="academic_year" class="form-control"
-               value="{{ batch.academic_year }}">
-    </div>
-
-    <div class="mb-3">
-        <label>Section</label>
-        <input type="text" name="section" class="form-control"
-               value="{{ batch.section }}">
-    </div>
-
-    <button class="btn btn-primary">Update Batch</button>
-    <a href="{% url 'batch_list' %}" class="btn btn-secondary">Cancel</a>
-
-</form>
+<a href="{% url 'batch_list' %}"
+   class="btn btn-outline-secondary btn-sm mt-3">
+   <i class="bi bi-arrow-left me-1"></i>
+   Back to Batch List
+</a>
 
 {% endblock %}

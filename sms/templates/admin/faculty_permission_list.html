@@ -1,22 +1,61 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Faculty Permission Management</h2>
 
-<table class="table">
-<tr>
-    <th>Faculty</th>
-    <th>Action</th>
-</tr>
+<div class="container mt-4">
 
-{% for f in faculties %}
-<tr>
-    <td>{{ f.username }}</td>
-    <td>
-        <a href="{% url 'assign_faculty_permissions' f.id %}" class="btn btn-primary">
-            Manage Permissions
-        </a>
-    </td>
-</tr>
-{% endfor %}
-</table>
+    <div class="card shadow-sm border-0">
+
+        <!-- Header -->
+        <div class="card-header bg-white border-0">
+            <h4 class="fw-bold mb-0">Faculty Permission Management</h4>
+        </div>
+
+        <div class="card-body">
+
+            {% if faculties %}
+
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Faculty</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for f in faculties %}
+                        <tr>
+                            <td class="fw-semibold">
+                                {{ f.username }}
+                            </td>
+
+                            <td class="text-end">
+                                <a href="{% url 'assign_faculty_permissions' f.id %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Manage Permissions
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">
+                        No faculty members found.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

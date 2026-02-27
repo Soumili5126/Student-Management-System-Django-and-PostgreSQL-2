@@ -1,80 +1,142 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Batch Management</h2>
-       
+
+<!-- PAGE HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-semibold mb-1">Batch Management</h2>
+        <p class="text-muted mb-0">Manage student assignments and batches</p>
+    </div>
+</div>
+
+<a href="{% url 'create_batch' %}" class="btn btn-primary mb-4">
+    <i class="bi bi-plus-circle me-1"></i> Create New Batch
+</a>
+
+<!-- ================= STUDENT SECTION ================= -->
+<div class="card shadow-sm border-0 mb-5">
+    <div class="card-body">
+
+        <h5 class="fw-semibold mb-3">Students</h5>
+
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Student</th>
+                        <th>Current Batch</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for s in students %}
+                <tr>
+                    <td class="fw-medium">{{ s.user.username }}</td>
+
+                    <td>
+                        {% if s.batch %}
+                            <span class="badge bg-success-subtle text-success px-3 py-2">
+                                {{ s.batch }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger px-3 py-2">
+                                Not Assigned
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="d-flex gap-2 flex-wrap">
+
+                            <a href="{% url 'assign_batch' s.id %}"
+                               class="btn btn-sm btn-warning">
+                                <i class="bi bi-person-plus me-1"></i>
+                                Assign
+                            </a>
+
+                            {% if s.batch %}
+                            <a href="{% url 'remove_student_from_batch' s.id %}"
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Remove student from batch?');">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Remove
+                            </a>
+                            {% endif %}
+
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
 </div>
 
 
-<a href="{% url 'create_batch' %}" class="btn btn-success mb-3">
-    Create New Batch
-</a>
+<!-- ================= BATCH SECTION ================= -->
+<div class="card shadow-sm border-0">
+    <div class="card-body">
 
-<h4>Students</h4>
+        <h5 class="fw-semibold mb-3">Available Batches</h5>
 
-<table class="table table-bordered">
-<tr>
-    <th>Student</th>
-    <th>Current Batch</th>
-    <th>Action</th>
-</tr>
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
 
-{% for s in students %}
-<tr>
-    <td>{{ s.user.username }}</td>
-    <td>
-        {% if s.batch %}{{ s.batch }}{% else %}Not Assigned{% endif %}
-    </td>
-    <td>
-        <a href="{% url 'assign_batch' s.id %}" class="btn btn-sm btn-warning">
-            Assign Batch
-        </a>
-        {% if s.batch %}
-            <a href="{% url 'remove_student_from_batch' s.id %}"
-                class="btn btn-danger btn-sm"
-                onclick="return confirm('Remove student from batch?');">
-                Remove
-            </a>
-        {% endif %}
-    </td>
-</tr>
-{% endfor %}
-</table>
-<hr class="my-5">
+                <thead class="table-light">
+                    <tr>
+                        <th>Program</th>
+                        <th>Name</th>
+                        <th>Academic Year</th>
+                        <th>Section</th>
+                        <th>Total Students</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
 
-<h4>Available Batches</h4>
+                <tbody>
+                {% for batch in batches %}
+                <tr>
+                    <td>{{ batch.program }}</td>
+                    <td class="fw-medium">{{ batch.name }}</td>
+                    <td>{{ batch.academic_year }}</td>
+                    <td>{{ batch.section }}</td>
+                    <td>
+                        <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                            {{ batch.students.count }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_batch' batch.id %}"
+                           class="btn btn-sm btn-outline-warning">
+                           <i class="bi bi-pencil-square me-1"></i>
+                           Edit
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-muted text-center py-4">
+                        No batches available.
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
 
-<table class="table table-bordered">
-    <tr>
-        <th>Program</th>
-        <th>Name</th>
-        <th>Academic Year</th>
-        <th>Section</th>
-        <th>Total Students</th>
-    </tr>
+            </table>
+        </div>
 
-    {% for batch in batches %}
-    <tr>
-        <td>{{ batch.program }}</td>
-        <td>{{ batch.name }}</td>
-        <td>{{ batch.academic_year }}</td>
-        <td>{{ batch.section }}</td>
-        <td>{{ batch.students.count }}</td>
-        <td>
-            <a href="{% url 'edit_batch' batch.id %}"
-               class="btn btn-sm btn-warning">
-               Edit
-            </a>
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="5">No batches available.</td>
-    </tr>
-    {% endfor %}
-</table>
+    </div>
+</div>
+
 <a href="{% url 'admin_dashboard' %}"
-       class="btn btn-secondary mt-3">
-       ← Go to Admin Dashboard
+   class="btn btn-outline-secondary mt-4">
+   <i class="bi bi-arrow-left me-1"></i>
+   Go to Admin Dashboard
 </a>
+
 {% endblock %}

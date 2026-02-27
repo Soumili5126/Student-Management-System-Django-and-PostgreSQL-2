@@ -1,59 +1,106 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Course Management</h2>
+<!-- PAGE HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-semibold mb-1" style="font-size: 22px;">
+            Course Management
+        </h2>
+        <p class="text-muted mb-0 small">
+            Manage courses and faculty assignments
+        </p>
+    </div>
 
-<a href="{% url 'add_course' %}" class="btn btn-success mb-3">
-    + Add New Course
-</a>
+    <a href="{% url 'add_course' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle me-1"></i> Add New Course
+    </a>
+</div>
 
-<table class="table table-bordered align-middle">
-    <thead>
-        <tr>
-            <th>Code</th>
-            <th>Name</th>
-            <th>Department</th>
-            <th>Faculty</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
+<!-- TABLE CARD -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-3">
 
-    <tbody>
-        {% for course in courses %}
-        <tr>
-            <td>{{ course.code }}</td>
-            <td>{{ course.name }}</td>
-            <td>{{ course.department }}</td>
-            <td>
-                {% if course.faculty %}
-                    {{ course.faculty.user.username }}
-                {% else %}
-                    <span class="text-muted">Not Assigned</span>
-                {% endif %}
-            </td>
-            <td>
-                <a href="{% url 'edit_course' course.id %}"
-                   class="btn btn-sm btn-outline-primary">Edit</a>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
 
-                <a href="{% url 'delete_course' course.id %}"
-                   class="btn btn-sm btn-outline-danger"
-                   onclick="return confirm('Delete this course?');">
-                   Delete
-                </a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5" class="text-center text-muted">
-                No courses available.
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                <thead class="table-light">
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Faculty</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-<a href="{% url 'admin_dashboard' %}" class="btn btn-secondary mt-3">
-    ← Back to Admin Dashboard
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary px-2 py-1">
+                                {{ course.code }}
+                            </span>
+                        </td>
+
+                        <td class="fw-medium">{{ course.name }}</td>
+
+                        <td>
+                            <span class="badge bg-info-subtle text-info px-2 py-1">
+                                {{ course.department }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if course.faculty %}
+                                <span class="badge bg-success-subtle text-success px-2 py-1">
+                                    {{ course.faculty.user.username }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger px-2 py-1">
+                                    Not Assigned
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="d-flex gap-1">
+
+                                <a href="{% url 'edit_course' course.id %}"
+                                   class="btn btn-sm btn-outline-primary">
+                                   <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <a href="{% url 'delete_course' course.id %}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Delete this course?');">
+                                   <i class="bi bi-trash"></i>
+                                </a>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted small">
+                            No courses available.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<a href="{% url 'admin_dashboard' %}"
+   class="btn btn-outline-secondary btn-sm mt-3">
+    <i class="bi bi-arrow-left me-1"></i>
+    Back to Admin Dashboard
 </a>
 
 {% endblock %}

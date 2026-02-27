@@ -1,69 +1,185 @@
 {% extends "base.html" %}
 {% load dict_extras %}
 {% block content %}
+<style>
+
+/* PAGE BACKGROUND */
+body {
+    background-color: #f5f7fa;
+}
+
+/* Welcome Title */
+h2 {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* ================= TABS ================= */
+
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 8px 8px 0 0;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #ffffff;
+    color: #2c3e50;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+}
+
+/* ================= CARDS ================= */
+
+.card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f1f1;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Summary cards */
+.card.p-3 {
+    border-radius: 14px;
+}
+
+/* Tables */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+}
+
+.table th {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Badges refinement */
+.badge {
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+/* Buttons refinement */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+/* Chart containers */
+canvas {
+    max-width: 100%;
+}
+
+</style>
 
 <h2 class="mb-4">Welcome!</h2>
 
-<!-- TABS -->
-<ul class="nav nav-tabs mb-3">
-    <li class="nav-item">
+<!-- ================= TABS ================= -->
+<ul class="nav nav-tabs mb-3" id="studentTab" role="tablist">
+
+    <li class="nav-item" role="presentation">
         <button class="nav-link active"
+                id="dashboard-tab"
                 data-bs-toggle="tab"
-                data-bs-target="#dashboard">
+                data-bs-target="#dashboard"
+                type="button"
+                role="tab">
             Dashboard
         </button>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item" role="presentation">
         <button class="nav-link"
+                id="profile-tab"
                 data-bs-toggle="tab"
-                data-bs-target="#profile">
+                data-bs-target="#profile"
+                type="button"
+                role="tab">
             My Profile
         </button>
     </li>
-
-    <li class="nav-item">
+    <li class="nav-item" role="presentation">
         <button class="nav-link"
+                id="performance-tab"
                 data-bs-toggle="tab"
-                data-bs-target="#timetable">
+                data-bs-target="#performance"
+                type="button"
+                role="tab">
+            Performance
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link"
+                id="timetable-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#timetable"
+                type="button"
+                role="tab">
             My Time Table
         </button>
     </li>
 
-
-    <li class="nav-item">
+    <li class="nav-item" role="presentation">
         <button class="nav-link"
+                id="attendance-tab"
                 data-bs-toggle="tab"
-                data-bs-target="#attendance">
+                data-bs-target="#attendance"
+                type="button"
+                role="tab">
             Attendance
         </button>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item" role="presentation">
         <button class="nav-link"
+                id="courses-tab"
                 data-bs-toggle="tab"
-                data-bs-target="#courses">
+                data-bs-target="#courses"
+                type="button"
+                role="tab">
             Courses
         </button>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item" role="presentation">
         <button class="nav-link"
+                id="quizzes-tab"
                 data-bs-toggle="tab"
-                data-bs-target="#quizzes">
+                data-bs-target="#quizzes"
+                type="button"
+                role="tab">
             Quizzes
         </button>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item" role="presentation">
         <button class="nav-link"
+                id="attempts-tab"
                 data-bs-toggle="tab"
-                data-bs-target="#attempts">
+                data-bs-target="#attempts"
+                type="button"
+                role="tab">
             Quiz Attempts
         </button>
     </li>
-</ul>
 
+</ul>
 <div class="tab-content">
 
 <!-- ================= DASHBOARD ================= -->
@@ -150,300 +266,538 @@
 <!-- ================= PROFILE ================= -->
 
 <div class="tab-pane fade" id="profile">
-<div class="text-center mb-3">
-    {% if request.user.profile_image %}
-        <img src="{{ request.user.profile_image.url }}"
-             class="rounded-circle shadow"
-             width="120"
-             height="120"
-             style="object-fit:cover;">
-    {% else %}
-        <img src="https://via.placeholder.com/120"
-             class="rounded-circle shadow">
-    {% endif %}
-</div>
-<div class="card mb-4">
-    <div class="card-header"><strong>My Profile</strong></div>
-    <div class="card-body">
-        <p><strong>Name:</strong> 
-            {{ request.user.first_name }} {{ request.user.last_name }}
-        </p>
-        <p><strong>Username:</strong> {{ request.user.username }}</p>
-        <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
-        <p><strong>Date of Birth:</strong> {{ student.date_of_birth }}</p>
-        <p><strong>Phone:</strong> {{ student.phone }}</p>
-        <p><strong>Gender:</strong> {{ student.gender|title }}</p>
-        <p><strong>Address:</strong> {{ student.address }}</p>
-        <p><strong>Admission Year:</strong> {{ student.admission_year }}</p>
 
-        <p><strong>Batch:</strong>
-            {% if student.batch %}
-                {{ student.batch.program }} - {{ student.batch.name }}
-                ({{ student.batch.academic_year }})
+    <!-- PROFILE HEADER CARD -->
+    <div class="card shadow-sm border-0 mt-4 mb-4">
+        <div class="card-body text-center p-4">
+
+            {% if request.user.profile_image %}
+                <img src="{{ request.user.profile_image.url }}"
+                     class="rounded-circle shadow mb-3"
+                     width="130"
+                     height="130"
+                     style="object-fit:cover;">
             {% else %}
-                <span class="text-muted">Not assigned</span>
+                <img src="https://via.placeholder.com/130"
+                     class="rounded-circle shadow mb-3">
             {% endif %}
-        </p>
+
+            <h4 class="fw-bold mb-1">
+                {{ request.user.first_name }} {{ request.user.last_name }}
+            </h4>
+            <p class="text-muted mb-0">
+                {{ request.user.username }}
+            </p>
+
+        </div>
     </div>
-</div>
-<a href="{% url 'edit_student_profile' %}"
-   class="btn btn-primary mt-3">
-   Edit Profile
-</a>
+
+    <!-- PROFILE DETAILS CARD -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white border-0">
+            <h5 class="fw-bold mb-0">My Profile</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Roll Number</strong>
+                    <div class="text-muted">
+                        {{ student.roll_number }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <strong>Date of Birth</strong>
+                    <div class="text-muted">
+                        {{ student.date_of_birth }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Phone</strong>
+                    <div class="text-muted">
+                        {{ student.phone }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <strong>Gender</strong>
+                    <div class="text-muted">
+                        {{ student.gender|title }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <strong>Address</strong>
+                <div class="text-muted">
+                    {{ student.address }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Admission Year</strong>
+                    <div class="text-muted">
+                        {{ student.admission_year }}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <strong>Batch</strong>
+                    <div class="text-muted">
+                        {% if student.batch %}
+                            {{ student.batch.program }} - {{ student.batch.name }}
+                            ({{ student.batch.academic_year }})
+                        {% else %}
+                            Not assigned
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end mt-4">
+                <a href="{% url 'edit_student_profile' %}"
+                   class="btn btn-primary px-4">
+                   Edit Profile
+                </a>
+            </div>
+
+        </div>
+    </div>
 
 </div>
 
 <!-- ================= TIMETABLE ================= -->
 <div class="tab-pane fade" id="timetable">
-<div class="card mt-4 p-3">
-    <h5>My Timetable</h5>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Day</th>
-                <th>Course</th>
-                <th>Time</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for t in timetable %}
-            <tr>
-                <td>{{ t.get_day_display }}</td>
-                <td>{{ t.course.code }}</td>
-                <td>{{ t.start_time }} - {{ t.end_time }}</td>
-            </tr>
-        {% empty %}
-            <tr><td colspan="3">No schedule assigned.</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
+
+    <div class="card shadow-sm border-0 mt-4">
+
+        <div class="card-header bg-white border-0">
+            <h5 class="fw-bold mb-0">My Timetable</h5>
+        </div>
+
+        <div class="card-body">
+
+            {% if timetable %}
+
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Day</th>
+                            <th>Course</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for t in timetable %}
+                        <tr>
+                            <td class="fw-semibold">
+                                {{ t.get_day_display }}
+                            </td>
+
+                            <td>
+                                <span class="badge bg-secondary px-3 py-2">
+                                    {{ t.course.code }}
+                                </span>
+                            </td>
+
+                            <td class="text-muted">
+                                {{ t.start_time }} - {{ t.end_time }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">
+                        No schedule assigned.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
 </div>
 
 <!-- ================= PERFORMANCE ================= -->
 <div class="tab-pane fade" id="performance">
 
-<!-- Keep your full exam results section exactly as you wrote -->
-<!-- (Copied directly from your original code) -->
+    <div class="card shadow-sm border-0 mt-4">
 
-<!-- Exam Results -->
-<div class="card mt-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <strong>Exam Results</strong>
-        <a href="{% url 'export_exam_results_pdf' %}"
-           class="btn btn-sm btn-outline-danger">Export PDF</a>
+        <!-- Header -->
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0">Exam Results</h5>
+
+            <a href="{% url 'export_exam_results_pdf' %}"
+               class="btn btn-sm btn-outline-danger px-3">
+                Export PDF
+            </a>
+        </div>
+
+        <div class="card-body">
+
+            {% if grades %}
+
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Course</th>
+                            <th>Exam</th>
+                            <th>Marks</th>
+                            <th>Total</th>
+                            <th>Percentage</th>
+                            <th>Grade</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for g in grades %}
+                        <tr>
+
+                            <!-- Course -->
+                            <td class="fw-semibold">
+                                {{ g.exam.course.code }}
+                            </td>
+
+                            <!-- Exam Title -->
+                            <td class="text-muted">
+                                {{ g.exam.title }}
+                            </td>
+
+                            <!-- Marks -->
+                            <td>
+                                <span class="badge bg-secondary px-3 py-2">
+                                    {{ g.marks_obtained }}
+                                </span>
+                            </td>
+
+                            <!-- Total -->
+                            <td>
+                                {{ g.exam.total_marks }}
+                            </td>
+
+                            <!-- Percentage -->
+                            <td>
+                                <strong>
+                                    {{ g.percentage|floatformat:2 }}%
+                                </strong>
+                            </td>
+
+                            <!-- Grade -->
+                            <td>
+                                <span class="badge bg-info px-3 py-2">
+                                    {{ g.grade_letter }}
+                                </span>
+                            </td>
+
+                            <!-- Result -->
+                            <td>
+                                {% if g.is_pass %}
+                                    <span class="badge bg-success px-3 py-2">
+                                        Pass
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger px-3 py-2">
+                                        Fail
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">
+                        No exam results available yet.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
     </div>
 
-    <div class="card-body">
-        {% if grades %}
-        <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>Course</th>
-                    <th>Exam</th>
-                    <th>Marks</th>
-                    <th>Total</th>
-                    <th>Percentage</th>
-                    <th>Grade</th>
-                    <th>Result</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for g in grades %}
-                <tr>
-                    <td>{{ g.exam.course.code }}</td>
-                    <td>{{ g.exam.title }}</td>
-                    <td>{{ g.marks_obtained }}</td>
-                    <td>{{ g.exam.total_marks }}</td>
-                    <td>{{ g.percentage|floatformat:2 }}</td>
-                    <td><span class="badge bg-secondary">{{ g.grade_letter }}</span></td>
-                    <td>
-                        {% if g.is_pass %}
-                        <span class="badge bg-success">Pass</span>
-                        {% else %}
-                        <span class="badge bg-danger">Fail</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-            <p class="text-muted">No exam results available yet.</p>
-        {% endif %}
-    </div>
 </div>
-
-
-
-</div>
-
 
 <div class="tab-pane fade" id="attendance">
 
-<div class="card mb-4">
-    <div class="card-header">
-        <strong>Attendance</strong>
-    </div>
+    <div class="card shadow-sm border-0 mt-4">
 
-    <div class="card-body">
-        {% if attendance %}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Course</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for a in attendance %}
-                <tr>
-                    <td>{{ a.date }}</td>
-                    <td>{{ a.course.name }}</td>
-                    <td>
-                        {% if a.status == 'present' %}
-                            <span class="badge bg-success">Present</span>
-                        {% else %}
-                            <span class="badge bg-danger">Absent</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-            <p class="text-muted">No attendance records available.</p>
-        {% endif %}
+        <div class="card-header bg-white border-0">
+            <h5 class="fw-bold mb-0">Attendance</h5>
+        </div>
+
+        <div class="card-body">
+
+            {% if attendance %}
+
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Course</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for a in attendance %}
+                        <tr>
+
+                            <!-- Date -->
+                            <td class="text-muted">
+                                {{ a.date }}
+                            </td>
+
+                            <!-- Course -->
+                            <td class="fw-semibold">
+                                {{ a.course.name }}
+                            </td>
+
+                            <!-- Status -->
+                            <td>
+                                {% if a.status == 'present' %}
+                                    <span class="badge bg-success px-3 py-2">
+                                        Present
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger px-3 py-2">
+                                        Absent
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">
+                        No attendance records available.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
+
     </div>
-</div>
 
 </div>
 <div class="tab-pane fade" id="courses">
 
-<div class="card">
-    <div class="card-header">
-        <strong>My Courses</strong>
-    </div>
+    <div class="card shadow-sm border-0 mt-4">
 
-    <div class="card-body">
-        {% if enrollments %}
-        <ul class="list-group">
-            {% for enrollment in enrollments %}
-               <li class="list-group-item d-flex justify-content-between align-items-center">
-                   {{ enrollment.course.code }} — {{ enrollment.course.name }}
+        <div class="card-header bg-white border-0">
+            <h5 class="fw-bold mb-0">My Courses</h5>
+        </div>
 
-                   <span class="badge bg-info">
-                       Attendance:
-                       {{ attendance_summary|dict_get:enrollment.course.id }}%
-                   </span>
-               </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-            <p class="text-muted">You are not enrolled in any courses.</p>
-        {% endif %}
+        <div class="card-body">
+
+            {% if enrollments %}
+
+            <div class="list-group list-group-flush">
+
+                {% for enrollment in enrollments %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+
+                    <!-- Course Info -->
+                    <div>
+                        <div class="fw-semibold">
+                            {{ enrollment.course.code }}
+                        </div>
+                        <small class="text-muted">
+                            {{ enrollment.course.name }}
+                        </small>
+                    </div>
+
+                    <!-- Attendance Badge -->
+                    <div>
+                        <span class="badge bg-info px-3 py-2">
+                            {{ attendance_summary|dict_get:enrollment.course.id }}%
+                            Attendance
+                        </span>
+                    </div>
+
+                </div>
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">
+                        You are not enrolled in any courses.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
+
     </div>
-</div>
 
 </div>
 <div class="tab-pane fade" id="quizzes">
 
-<div class="card mt-4">
-    <div class="card-header">
-        <strong>Available Quizzes</strong>
-    </div>
+    <div class="card shadow-sm border-0 mt-4">
 
-    <div class="card-body">
-        {% if quizzes %}
-            <ul class="list-group">
+        <div class="card-header bg-white border-0">
+            <h5 class="fw-bold mb-0">Available Quizzes</h5>
+        </div>
+
+        <div class="card-body">
+
+            {% if quizzes %}
+
+            <div class="list-group list-group-flush">
+
                 {% for quiz in quizzes %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ quiz.course.code }} — {{ quiz.title }}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
 
+                    <!-- Quiz Info -->
+                    <div>
+                        <div class="fw-semibold">
+                            {{ quiz.course.code }}
+                        </div>
+                        <small class="text-muted">
+                            {{ quiz.title }}
+                        </small>
+                    </div>
+
+                    <!-- Attempt Button -->
+                    <div>
                         <a href="{% url 'attempt_quiz' quiz.id %}"
-                           class="btn btn-sm btn-primary">
+                           class="btn btn-sm btn-outline-primary px-3">
                             Attempt Quiz
                         </a>
-                    </li>
+                    </div>
+
+                </div>
                 {% endfor %}
-            </ul>
-        {% else %}
-            <p class="text-muted">No quizzes available.</p>
-        {% endif %}
+
+            </div>
+
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">
+                        No quizzes available.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
+
     </div>
-</div>
 
 </div>
 <div class="tab-pane fade" id="attempts">
 
-<div class="card mt-4">
-    <div class="card-header">
-        <strong>Quiz Attempts</strong>
+<div class="card shadow-sm border-0 mt-4">
+
+    <div class="card-header bg-white border-0">
+        <h5 class="fw-bold mb-0">Quiz Attempts</h5>
     </div>
 
     <div class="card-body">
+
         {% if quiz_attempts %}
 
-        <table class="table table-bordered table-striped mt-3">
-            <thead class="table-dark">
-                <tr>
-                    <th>Quiz</th>
-                    <th>Date</th>
-                    <th>Score</th>
-                    <th>Percentage</th>
-                    <th>Status</th>
-                    <th>Result</th>
-                </tr>
-            </thead>
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Quiz</th>
+                        <th>Date</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Status</th>
+                        <th class="text-center">Result</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-                {% for attempt in quiz_attempts %}
-                <tr>
-                    <td>{{ attempt.quiz.title }}</td>
+                <tbody>
+                    {% for attempt in quiz_attempts %}
+                    <tr>
 
-                    <td>
-                        {{ attempt.attempted_at|date:"M d, Y H:i" }}
-                    </td>
+                        <!-- Quiz Title -->
+                        <td class="fw-semibold">
+                            {{ attempt.quiz.title }}
+                        </td>
 
-                    <td>
-                        {{ attempt.score }}/{{ attempt.total_questions }}
-                    </td>
+                        <!-- Date -->
+                        <td class="text-muted">
+                            {{ attempt.attempted_at|date:"M d, Y H:i" }}
+                        </td>
 
-                    <td>
-                        {% if attempt.total_questions > 0 %}
-                            {{ attempt.percentage }}%
-                        {% else %}
-                            0%
-                        {% endif %}
-                    </td>
-
-                    <td>
-                        {% if attempt.percentage >= 40 %}
-                            <span class="badge bg-success">
-                                PASS
+                        <!-- Score -->
+                        <td>
+                            <span class="badge bg-secondary">
+                                {{ attempt.score }}/{{ attempt.total_questions }}
                             </span>
-                        {% else %}
-                            <span class="badge bg-danger">
-                                FAIL
-                            </span>
-                        {% endif %}
-                    </td>
+                        </td>
 
-                    <td>
-                        <a href="{% url 'quiz_result' attempt.id %}" 
-                           class="btn btn-sm btn-primary">
-                            View Result
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        <!-- Percentage -->
+                        <td>
+                            {% if attempt.total_questions > 0 %}
+                                <strong>{{ attempt.percentage }}%</strong>
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+
+                        <!-- Status -->
+                        <td>
+                            {% if attempt.percentage >= 40 %}
+                                <span class="badge bg-success px-3">
+                                    PASS
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger px-3">
+                                    FAIL
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- View Result -->
+                        <td class="text-center">
+                            <a href="{% url 'quiz_result' attempt.id %}"
+                               class="btn btn-sm btn-outline-primary">
+                                View Result
+                            </a>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         {% else %}
-            <p class="text-muted">No quiz attempts yet.</p>
+            <div class="text-center py-4">
+                <p class="text-muted mb-0">No quiz attempts yet.</p>
+            </div>
         {% endif %}
+
     </div>
 </div>
 

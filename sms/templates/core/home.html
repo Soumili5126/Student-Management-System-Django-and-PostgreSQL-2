@@ -5,13 +5,16 @@
 
 <style>
 
-/* Remove padding from base layout only on home */
+/* Remove base padding only for home */
 #page-content-wrapper {
     padding: 0 !important;
 }
 
+/* Hero must fill remaining viewport after navbar */
 .hero {
-    height: 100vh;
+    height: calc(100vh - 56px); /* subtract navbar height */
+    width: 100%;
+    margin: 0;
     background: url("{% static 'images/hero.jpg' %}") no-repeat center center;
     background-size: cover;
 
@@ -27,14 +30,11 @@
 .hero::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: rgba(0, 0, 0, 0.55);
 }
 
-/* Text above overlay */
+/* Text */
 .hero h1 {
     position: relative;
     font-size: 3.5rem;
@@ -43,20 +43,12 @@
     text-shadow: 2px 2px 20px rgba(0,0,0,0.8);
 }
 
-/* INFO SECTION */
+/* Info Section */
 .info-section {
     background-color: #111;
     color: white;
     padding: 60px 10%;
-}
-
-.info-section h4 {
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-
-.info-section p {
-    margin: 5px 0;
+    margin: 0;
 }
 
 </style>
@@ -87,6 +79,3 @@
 </section>
 
 {% endblock %}
-
-
-

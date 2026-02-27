@@ -1,53 +1,110 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4">Quiz Result</h2>
+<div class="container mt-4">
 
-<div class="card mb-4">
-    <div class="card-body">
-        <p><strong>Quiz:</strong> {{ attempt.quiz.title }}</p>
-        <p><strong>Score:</strong> {{ attempt.score }} / {{ attempt.total_questions }}</p>
-        <p><strong>Percentage:</strong>
-            <span class="badge bg-info">
-                {{ attempt.percentage|floatformat:2 }}%
-            </span>
-        </p>
-
-        {% if attempt.percentage >= 40 %}
-            <span class="badge bg-success">PASS</span>
-        {% else %}
-            <span class="badge bg-danger">FAIL</span>
-        {% endif %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Quiz Result</h2>
+        <a href="{% url 'student_dashboard' %}" 
+           class="btn btn-outline-secondary">
+            ← Back to Dashboard
+        </a>
     </div>
-</div>
 
-<h4>Question-wise Review</h4>
+    <!-- ================= RESULT SUMMARY CARD ================= -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
 
-{% for ans in answers %}
-    <div class="card mb-2">
-        <div class="card-body">
-            <p><strong>Question:</strong> {{ ans.question.question_text }}</p>
+            <div class="row text-center">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h6 class="text-muted">Quiz</h6>
+                    <h5 class="fw-semibold">{{ attempt.quiz.title }}</h5>
+                </div>
 
-            <p>
-                <strong>Your Answer:</strong>
-                {{ ans.selected_option }}
-            </p>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h6 class="text-muted">Score</h6>
+                    <h5 class="fw-semibold">
+                        {{ attempt.score }} / {{ attempt.total_questions }}
+                    </h5>
+                </div>
 
-            {% if ans.selected_option == ans.question.correct_option %}
-                <span class="badge bg-success">Correct</span>
-            {% else %}
-                <span class="badge bg-danger">Wrong</span><br>
-                <small class="text-muted">
-                    Correct Answer:
-                    {{ ans.question.correct_option }}
-                </small>
-            {% endif %}
+                <div class="col-md-4">
+                    <h6 class="text-muted">Percentage</h6>
+                    <h5>
+                        <span class="badge bg-info px-3 py-2 fs-6">
+                            {{ attempt.percentage|floatformat:2 }}%
+                        </span>
+                    </h5>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                {% if attempt.percentage >= 40 %}
+                    <span class="badge bg-success fs-6 px-4 py-2">
+                        PASS
+                    </span>
+                {% else %}
+                    <span class="badge bg-danger fs-6 px-4 py-2">
+                        FAIL
+                    </span>
+                {% endif %}
+            </div>
+
         </div>
     </div>
-{% endfor %}
 
-<a href="{% url 'student_dashboard' %}" class="btn btn-secondary mt-3">
-    Back to Dashboard
-</a>
+
+    <!-- ================= QUESTION REVIEW ================= -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-0">
+            <h4 class="fw-bold mb-0">Question-wise Review</h4>
+        </div>
+
+        <div class="card-body">
+
+            {% for ans in answers %}
+                <div class="card mb-3 shadow-sm border-0">
+                    <div class="card-body">
+
+                        <p class="fw-semibold">
+                            Q{{ forloop.counter }}. {{ ans.question.question_text }}
+                        </p>
+
+                        <div class="mb-2">
+                            <strong>Your Answer:</strong>
+                            <span class="ms-2">
+                                {{ ans.selected_option }}
+                            </span>
+                        </div>
+
+                        {% if ans.selected_option == ans.question.correct_option %}
+                            <span class="badge bg-success">
+                                ✔ Correct
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                ✘ Wrong
+                            </span>
+
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    Correct Answer:
+                                    <strong>
+                                        {{ ans.question.correct_option }}
+                                    </strong>
+                                </small>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">No answers found for this attempt.</p>
+            {% endfor %}
+
+        </div>
+    </div>
+
+</div>
 
 {% endblock %}

@@ -1,65 +1,144 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Edit Student</h2>
+<div class="container mt-4" style="max-width: 800px;">
 
-<form method="post" class="card p-4">
-{% csrf_token %}
+    <div class="card shadow-sm border-0">
 
-<label>Username</label>
-<input name="username" value="{{ student.user.username }}" class="form-control mb-2">
+        <!-- Header -->
+        <div class="card-header bg-white border-0">
+            <h4 class="fw-bold mb-0">Edit Student</h4>
+        </div>
 
-<label>Email</label>
-<input name="email" value="{{ student.user.email }}" class="form-control mb-2">
+        <div class="card-body">
 
-<label>Roll Number</label>
-<input name="roll_number" value="{{ student.roll_number }}" class="form-control mb-2">
+            <form method="post">
+                {% csrf_token %}
 
-<label>Gender</label>
-<select name="gender" class="form-control mb-2">
-    <option value="male">Male</option>
-    <option value="female">Female</option>
-    <option value="other">Other</option>
-</select>
+                <div class="row">
 
-<label>Phone</label>
-<input name="phone" value="{{ student.phone }}" class="form-control mb-2">
+                    <!-- Username -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold">Username</label>
+                        <input name="username"
+                               value="{{ student.user.username }}"
+                               class="form-control form-control-lg">
+                    </div>
 
-<label>Date of Birth</label>
-<input type="date" name="date_of_birth"
-       value="{{ student.date_of_birth|date:'Y-m-d' }}"
-       class="form-control mb-2">
+                    <!-- Email -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input name="email"
+                               value="{{ student.user.email }}"
+                               class="form-control form-control-lg">
+                    </div>
 
-<label>Address</label>
-<textarea name="address" class="form-control mb-2">{{ student.address }}</textarea>
+                    <!-- Roll Number -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold">Roll Number</label>
+                        <input name="roll_number"
+                               value="{{ student.roll_number }}"
+                               class="form-control form-control-lg">
+                    </div>
 
-<label>Admission Year</label>
-<input name="admission_year" value="{{ student.admission_year }}" class="form-control mb-2">
+                    <!-- Gender -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold">Gender</label>
+                        <select name="gender"
+                                class="form-select form-select-lg">
+                            <option value="male"
+                                {% if student.gender == "male" %}selected{% endif %}>
+                                Male
+                            </option>
+                            <option value="female"
+                                {% if student.gender == "female" %}selected{% endif %}>
+                                Female
+                            </option>
+                            <option value="other"
+                                {% if student.gender == "other" %}selected{% endif %}>
+                                Other
+                            </option>
+                        </select>
+                    </div>
 
-<label>Batch</label>
-<select name="batch" class="form-control mb-3">
-    <option value="">-- No Batch --</option>
-    {% for b in batches %}
-        <option value="{{ b.id }}"
-        {% if student.batch_id == b.id %}selected{% endif %}>
-            {{ b.program }} | {{ b.name }}
-        </option>
-    {% endfor %}
-</select>
+                    <!-- Phone -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold">Phone</label>
+                        <input name="phone"
+                               value="{{ student.phone }}"
+                               class="form-control form-control-lg">
+                    </div>
 
-<div class="mt-3">
-        <button type="submit" class="btn btn-success">
-            Save
-        </button>
+                    <!-- DOB -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold">Date of Birth</label>
+                        <input type="date"
+                               name="date_of_birth"
+                               value="{{ student.date_of_birth|date:'Y-m-d' }}"
+                               class="form-control form-control-lg">
+                    </div>
 
-        <a href="{% url 'admin_student_management' %}" class="btn btn-secondary">
-            Cancel
-        </a>
+                    <!-- Address -->
+                    <div class="col-12 mb-4">
+                        <label class="form-label fw-semibold">Address</label>
+                        <textarea name="address"
+                                  rows="3"
+                                  class="form-control form-control-lg">{{ student.address }}</textarea>
+                    </div>
+
+                    <!-- Admission Year -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold">Admission Year</label>
+                        <input name="admission_year"
+                               value="{{ student.admission_year }}"
+                               class="form-control form-control-lg">
+                    </div>
+
+                    <!-- Batch -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold">Batch</label>
+                        <select name="batch"
+                                class="form-select form-select-lg">
+                            <option value="">-- No Batch --</option>
+                            {% for b in batches %}
+                                <option value="{{ b.id }}"
+                                    {% if student.batch_id == b.id %}selected{% endif %}>
+                                    {{ b.program }} | {{ b.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+
+                    <a href="{% url 'admin_student_management' %}"
+                       class="btn btn-outline-secondary">
+                        ← Go Back
+                    </a>
+
+                    <div>
+                        <a href="{% url 'admin_student_management' %}"
+                           class="btn btn-light me-2">
+                            Cancel
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary px-4">
+                            Save Changes
+                        </button>
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
 </div>
 
-</form>
-<a href="{% url 'admin_student_management' %}"
-       class="btn btn-secondary mt-3">
-       ← Go Back
-</a>
 {% endblock %}

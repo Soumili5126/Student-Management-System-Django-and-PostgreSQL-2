@@ -1,87 +1,203 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Enter Grades</h2>
+<!-- ================= HEADER ================= -->
+<div class="mb-4">
+    <h2 class="fw-semibold mb-1" style="font-size:22px;">
+        Enter Grades
+    </h2>
+    <p class="text-muted small mb-0">
+        Record and manage exam results
+    </p>
+</div>
 
-<div class="card mb-3">
-    <div class="card-body">
-        <p><strong>Exam:</strong> {{ exam.title }}</p>
-        <p><strong>Course:</strong> {{ exam.course.code }} — {{ exam.course.name }}</p>
-        <p><strong>Total Marks:</strong> {{ exam.total_marks }}</p>
+<!-- ================= EXAM INFO CARD ================= -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <div class="small text-muted">Exam</div>
+                <div class="fw-semibold">{{ exam.title }}</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="small text-muted">Course</div>
+                <div class="fw-semibold">
+                    {{ exam.course.code }} — {{ exam.course.name }}
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="small text-muted">Total Marks</div>
+                <div class="fw-semibold text-primary">
+                    {{ exam.total_marks }}
+                </div>
+            </div>
+
+        </div>
+
     </div>
 </div>
 
+<!-- ================= ENTER MARKS ================= -->
 <form method="post">
     {% csrf_token %}
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Student</th>
-                <th>Marks</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for e in enrollments %}
-            <tr>
-                <td>{{ e.student.user.username }}</td>
-                <td>
-                    <input type="number"
-                           name="{{ e.student.id }}"
-                           class="form-control"
-                           min="0"
-                           max="{{ exam.total_marks }}"
-                           required>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
 
-    <button class="btn btn-primary">
-        Save Grades
-    </button>
+            <h6 class="fw-semibold text-secondary mb-3">
+                Enter Marks
+            </h6>
 
-    <a href="{% url 'faculty_dashboard' %}" class="btn btn-secondary ms-2">
-        Cancel
-    </a>
+            <div class="table-responsive">
+                <table class="table align-middle modern-table">
+
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th style="width:200px;">Marks</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for e in enrollments %}
+                        <tr>
+                            <td class="fw-medium">
+                                {{ e.student.user.username }}
+                            </td>
+
+                            <td>
+                                <input type="number"
+                                       name="{{ e.student.id }}"
+                                       class="form-control form-control-sm"
+                                       min="0"
+                                       max="{{ exam.total_marks }}"
+                                       required>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+                <button class="btn btn-primary btn-sm px-4">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Save Grades
+                </button>
+
+                <a href="{% url 'faculty_dashboard' %}"
+                   class="btn btn-outline-secondary btn-sm">
+                    Cancel
+                </a>
+            </div>
+
+        </div>
+    </div>
+
 </form>
-<hr>
 
-<h5 class="mt-4">Entered Grades</h5>
+<!-- ================= ENTERED GRADES ================= -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
 
-{% if grades %}
-<table class="table table-bordered table-striped mt-3">
-    <thead class="table-dark">
-        <tr>
-            <th>Student</th>
-            <th>Roll Number</th>
-            <th>Marks</th>
-            <th>Total</th>
-            <th>Percentage</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for g in grades %}
-        <tr>
-            <td>{{ g.student.user.first_name }} {{ g.student.user.last_name }}</td>
-            <td>{{ g.student.roll_number }}</td>
-            <td>{{ g.marks_obtained }}</td>
-            <td>{{ g.exam.total_marks }}</td>
-            <td>{{ g.percentage|floatformat:2 }}%</td>
-            <td>
-                {% if g.is_pass %}
-                    <span class="badge bg-success">Pass</span>
-                {% else %}
-                    <span class="badge bg-danger">Fail</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p class="text-muted">No grades entered yet.</p>
-{% endif %}
+        <h6 class="fw-semibold text-secondary mb-3">
+            Entered Grades
+        </h6>
+
+        {% if grades %}
+
+        <div class="table-responsive">
+            <table class="table align-middle modern-table">
+
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Roll Number</th>
+                        <th>Marks</th>
+                        <th>Total</th>
+                        <th>Percentage</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for g in grades %}
+                    <tr>
+
+                        <td class="fw-medium">
+                            {{ g.student.user.first_name }}
+                            {{ g.student.user.last_name }}
+                        </td>
+
+                        <td>{{ g.student.roll_number }}</td>
+
+                        <td>{{ g.marks_obtained }}</td>
+
+                        <td>{{ g.exam.total_marks }}</td>
+
+                        <td>
+                            <span class="badge bg-info text-dark">
+                                {{ g.percentage|floatformat:2 }}%
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if g.is_pass %}
+                                <span class="badge bg-success">Pass</span>
+                            {% else %}
+                                <span class="badge bg-danger">Fail</span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+        {% else %}
+            <p class="text-muted small mb-0">
+                No grades entered yet.
+            </p>
+        {% endif %}
+
+    </div>
+</div>
+
+<style>
+
+/* Modern table */
+.modern-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.modern-table thead {
+    background: #f8fafc;
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+/* Inputs */
+.form-control-sm {
+    border-radius: 8px;
+}
+
+/* Badge consistency */
+.badge {
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 8px;
+}
+
+</style>
+
 {% endblock %}

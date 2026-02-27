@@ -1,76 +1,117 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Student Management</h2>
+<!-- PAGE HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-semibold mb-1" style="font-size: 22px;">
+            Student Management
+        </h2>
+        <p class="text-muted mb-0 small">
+            Manage student records and enrollments
+        </p>
+    </div>
+</div>
 
-<a href="{% url 'add_student' %}" class="btn btn-success mb-3">
-    + Add New Student
+<a href="{% url 'add_student' %}" class="btn btn-primary btn-sm mb-3">
+    <i class="bi bi-person-plus me-1"></i> Add New Student
 </a>
-<table class="table table-bordered table-striped table-sm">
-<thead class="table-dark">
-<tr>
-    <th>Username</th>
-    <th>Email</th>
-    <th>Roll</th>
-    <th>Gender</th>
-    <th>Phone</th>
-    <th>DOB</th>
-    <th>Address</th>
-    <th>Year</th>
-    <th>Batch</th>
-    <th>Courses</th>
-    <th>Actions</th>
-</tr>
-</thead>
 
-<tbody>
-{% for s in students %}
-<tr>
-    <td>{{ s.user.username }}</td>
-    <td>{{ s.user.email }}</td>
-    <td>{{ s.roll_number }}</td>
-    <td>{{ s.gender|title }}</td>
-    <td>{{ s.phone }}</td>
-    <td>{{ s.date_of_birth }}</td>
-    <td>{{ s.address }}</td>
-    <td>{{ s.admission_year }}</td>
+<!-- ================= TABLE CARD ================= -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-3">
 
-    <td>
-        {% if s.batch %}
-            {{ s.batch.program }} | {{ s.batch.name }}
-        {% else %}
-            <span class="text-muted">Not Assigned</span>
-        {% endif %}
-    </td>
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
 
-    <td>
-        {% for e in s.enrollments.all %}
-            {{ e.course.code }}{% if not forloop.last %}, {% endif %}
-        {% empty %}
-            —
-        {% endfor %}
-    </td>
+                <thead class="table-light">
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Roll</th>
+                        <th>Gender</th>
+                        <th>Phone</th>
+                        <th>DOB</th>
+                        <th>Address</th>
+                        <th>Year</th>
+                        <th>Batch</th>
+                        <th>Courses</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-    <td>
-        <a href="{% url 'edit_student' s.id %}"
-           class="btn btn-primary btn-sm">
-           Edit
-        </a>
+                <tbody>
+                {% for s in students %}
+                <tr>
 
-        <a href="{% url 'delete_student' s.id %}"
-           class="btn btn-danger btn-sm"
-           onclick="return confirm('Delete this student permanently?');">
-           Delete
-        </a>
-    </td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
+                    <td class="fw-medium">{{ s.user.username }}</td>
+                    <td class="small">{{ s.user.email }}</td>
+                    <td>{{ s.roll_number }}</td>
+
+                    <td>
+                        <span class="badge bg-info-subtle text-info px-2 py-1">
+                            {{ s.gender|title }}
+                        </span>
+                    </td>
+
+                    <td>{{ s.phone }}</td>
+                    <td class="small">{{ s.date_of_birth }}</td>
+                    <td class="text-muted small">{{ s.address }}</td>
+                    <td>{{ s.admission_year }}</td>
+
+                    <td>
+                        {% if s.batch %}
+                            <span class="badge bg-success-subtle text-success px-2 py-1">
+                                {{ s.batch.program }} | {{ s.batch.name }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger px-2 py-1">
+                                Not Assigned
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% for e in s.enrollments.all %}
+                            <span class="badge bg-primary-subtle text-primary px-2 py-1 me-1">
+                                {{ e.course.code }}
+                            </span>
+                        {% empty %}
+                            <span class="text-muted small">—</span>
+                        {% endfor %}
+                    </td>
+
+                    <td>
+                        <div class="d-flex gap-1 flex-wrap">
+
+                            <a href="{% url 'edit_student' s.id %}"
+                               class="btn btn-sm btn-outline-primary">
+                               <i class="bi bi-pencil-square"></i>
+                            </a>
+
+                            <a href="{% url 'delete_student' s.id %}"
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Delete this student permanently?');">
+                               <i class="bi bi-trash"></i>
+                            </a>
+
+                        </div>
+                    </td>
+
+                </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
 
 <a href="{% url 'admin_dashboard' %}"
-   class="btn btn-secondary mt-3">
-   ← Back to Admin Dashboard
+   class="btn btn-outline-secondary btn-sm mt-3">
+   <i class="bi bi-arrow-left me-1"></i>
+   Back to Admin Dashboard
 </a>
 
 {% endblock %}
