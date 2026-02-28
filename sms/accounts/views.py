@@ -1032,6 +1032,8 @@ def add_student(request):
 
     if request.method == "POST":
 
+    
+
         username = request.POST.get("username")
         email = request.POST.get("email")
         password = request.POST.get("password")
@@ -1044,13 +1046,12 @@ def add_student(request):
         admission_year = request.POST.get("admission_year")
         batch_id = request.POST.get("batch")
 
-        # ✅ Get Student Role object
         student_role = get_object_or_404(
             Role,
             name__iexact="Student"
         )
 
-        # ✅ Create User with ForeignKey role
+        # Create User
         user = User.objects.create(
             username=username,
             email=email,
@@ -1062,12 +1063,8 @@ def add_student(request):
 
         batch = None
         if batch_id:
-            batch = get_object_or_404(
-                Batch,
-                id=batch_id
-            )
+            batch = get_object_or_404(Batch, id=batch_id)
 
-        # Create Student Profile
         StudentProfile.objects.create(
             user=user,
             roll_number=roll_number,
@@ -1079,7 +1076,38 @@ def add_student(request):
             batch=batch
         )
 
-        messages.success(request, "Student added successfully.")
+        # ================= SEND EMAIL =================
+
+      # ================= SEND EMAIL =================
+
+        subject = "Your Student Account Has Been Created"
+
+        login_url = request.build_absolute_uri(reverse("login"))
+
+        html_content = render_to_string(
+            "emails/student_account_created.html",  # make sure this path is correct
+            {
+                "first_name": username,
+                "username": username,
+                "password": password,
+                "login_url": login_url,
+                "year": timezone.now().year
+            }
+        )
+
+        text_content = strip_tags(html_content)
+
+        email_message = EmailMultiAlternatives(
+            subject,
+            text_content,
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+        )
+
+        email_message.attach_alternative(html_content, "text/html")
+        email_message.send()
+
+        messages.success(request, "Student added successfully and email sent.")
         return redirect('admin_student_management')
 
     return render(
@@ -1227,6 +1255,7 @@ def add_faculty(request):
 
     if request.method == "POST":
 
+        
         username = request.POST.get("username")
         email = request.POST.get("email")
         password = request.POST.get("password")
@@ -1274,10 +1303,39 @@ def add_faculty(request):
             )
             course.faculty = faculty
             course.save()
+         # ================= SEND EMAIL =================
 
-        messages.success(request, "Faculty added successfully.")
+        subject = "Your Faculty Account Has Been Created"
+
+        login_url = request.build_absolute_uri(reverse("login"))
+
+        html_content = render_to_string(
+            "emails/faculty_account_created.html",
+            {
+                "username": username,
+                "password": password,
+                "department": department.name if department else "Not Assigned",
+                "designation": designation,
+                "login_url": login_url,
+                "year": timezone.now().year
+            }
+        )
+
+        text_content = strip_tags(html_content)
+
+        email_message = EmailMultiAlternatives(
+            subject,
+            text_content,
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+        )
+
+        email_message.attach_alternative(html_content, "text/html")
+        email_message.send()
+
+        messages.success(request, "Faculty added successfully and email sent.")
         return redirect("admin_faculty_management")
-
+        
     return render(
         request,
         "admin/add_faculty.html",

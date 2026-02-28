@@ -27,19 +27,99 @@
     <span class="navbar-brand fw-semibold">Student Management</span>
 
     <div class="ms-auto">
-        {% if request.user.is_authenticated %}
-            <span class="me-3 text-muted">
-                {{ user.first_name }} {{ user.last_name }} ({{ user.role.name }})
-            </span>
-            <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-danger">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
+
+    {% if request.user.is_authenticated %}
+
+            <div class="dropdown">
+
+                <a class="d-flex align-items-center text-decoration-none dropdown-toggle"
+                href="#"
+                id="userDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+
+                    {% if request.user.profile_image %}
+                        <img src="{{ request.user.profile_image.url }}"
+                            width="38"
+                            height="38"
+                            class="rounded-circle">
+                    {% else %}
+                        <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
+                            style="width:38px; height:38px; font-weight:600;">
+                            {{ request.user.first_name|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm"
+                    style="min-width:220px;"
+                    aria-labelledby="userDropdown">
+
+                    <li class="px-3 py-2">
+                        <div class="fw-semibold">
+                            {{ request.user.first_name }} {{ request.user.last_name }}
+                        </div>
+                        <small class="text-muted">
+                            {{ request.user.role.name }}
+                        </small>
+                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    {% if request.user.role.name|lower == "student" %}
+                        <li>
+                            <a class="dropdown-item"
+                            href="{% url 'student_dashboard' %}">
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                    {% elif request.user.role.name|lower == "faculty" %}
+                        <li>
+                            <a class="dropdown-item"
+                            href="{% url 'faculty_dashboard' %}">
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                    {% elif request.user.role.name|lower == "admin" %}
+                        <li>
+                            <a class="dropdown-item"
+                            href="{% url 'admin_dashboard' %}">
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    <li>
+                        <a class="dropdown-item text-danger"
+                        href="{% url 'logout' %}">
+                            <i class="bi bi-box-arrow-right me-2"></i>
+                            Logout
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
         {% else %}
-            <a href="{% url 'login' %}" class="btn btn-sm btn-primary me-2">Login</a>
-            <a href="{% url 'register' %}" class="btn btn-sm btn-success">Register</a>
+
+            <a href="{% url 'login' %}" class="btn btn-sm btn-primary me-2">
+                Login
+            </a>
+            <a href="{% url 'register' %}" class="btn btn-sm btn-success">
+                Register
+            </a>
+
         {% endif %}
-    </div>
-    
+
+        </div>
+        
 </nav>
 
 <div class="d-flex" id="wrapper">

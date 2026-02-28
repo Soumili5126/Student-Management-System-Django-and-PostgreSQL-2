@@ -416,67 +416,46 @@ def create_department(request):
 @role_required(['admin'])
 def edit_department(request, pk):
 
-    department = get_object_or_404(
-        Department,
-        pk=pk
-    )
+    department = get_object_or_404(Department, pk=pk)
+    courses = Course.objects.filter(department=department)
 
-    CourseFormSet = modelformset_factory(
-        Course,
-        fields=('code', 'name'),
-        extra=1,
-        can_delete=True
-    )
+    if request.method == "POST":
 
-    queryset = Course.objects.filter(
-        department=department
-    )
+        # ---------- Update Department ----------
+        department.name = request.POST.get("dept_name")
+        department.save()
 
-    if request.method == 'POST':
+        # ---------- Update Existing Courses ----------
+        for course in courses:
+            code = request.POST.get(f"code_{course.id}")
+            name = request.POST.get(f"name_{course.id}")
 
-        form = DepartmentForm(
-            request.POST,
-            instance=department
-        )
+            if code and name:
+                course.code = code
+                course.name = name
+                course.save()
 
-        formset = CourseFormSet(
-            request.POST,
-            queryset=queryset,
-            prefix='courses'
-        )
+        # ---------- Add New Course (Optional) ----------
+        new_code = request.POST.get("new_code")
+        new_name = request.POST.get("new_name")
 
-        if form.is_valid() and formset.is_valid():
+        if new_code and new_name:
+            Course.objects.create(
+                department=department,
+                code=new_code,
+                name=new_name
+            )
 
-            form.save()
-
-            instances = formset.save(commit=False)
-
-            for instance in instances:
-                instance.department = department
-                instance.save()
-
-            for obj in formset.deleted_objects:
-                obj.delete()
-
-            return redirect('department_list')
-
-    else:
-        form = DepartmentForm(instance=department)
-        formset = CourseFormSet(
-            queryset=queryset,
-            prefix='courses'
-        )
+        return redirect("department_list")
 
     return render(
         request,
-        'dashboards/admin/edit_department.html',
+        "dashboards/admin/edit_department.html",
         {
-            'form': form,
-            'formset': formset,
-            'department': department
+            "department": department,
+            "courses": courses
         }
     )
-
 @login_required
 @role_required(['admin'])
 def delete_department(request, pk):
