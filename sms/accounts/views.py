@@ -37,7 +37,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.contrib.auth.models import Group
-
+from django.db.models import Q
 
 # -------- REGISTER --------
 def register_view(request):
@@ -777,6 +777,8 @@ def assign_faculty(request, course_id):
         }
     )
 
+from django.db.models import Q
+
 @login_required
 @role_required(['admin'])
 def enroll_students(request, course_id):
@@ -786,13 +788,21 @@ def enroll_students(request, course_id):
         id=course_id
     )
 
+    search_query = request.GET.get("search", "")
+
     students = StudentProfile.objects.select_related('user')
+
+    if search_query:
+        students = students.filter(
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(roll_number__icontains=search_query)
+        )
 
     if request.method == 'POST':
         selected_students = request.POST.getlist('students')
 
         for student_id in selected_students:
-
             student = get_object_or_404(
                 StudentProfile,
                 id=student_id
@@ -815,7 +825,8 @@ def enroll_students(request, course_id):
         'dashboards/enroll_students.html',
         {
             'course': course,
-            'students': students
+            'students': students,
+            'search_query': search_query
         }
     )
 
@@ -1003,10 +1014,10 @@ def admin_student_management(request):
     # Admin bypass
     if request.user.role and request.user.role.name.lower() == 'admin':
         pass
-
-    # Faculty permission check
     elif not request.user.permissions.filter(code="manage_students").exists():
         return render(request, "403.html", status=403)
+
+    search_query = request.GET.get("search", "")
 
     students = StudentProfile.objects.select_related(
         'user',
@@ -1015,10 +1026,22 @@ def admin_student_management(request):
         'enrollments__course'
     )
 
+    if search_query:
+        students = students.filter(
+            Q(user__username__icontains=search_query) |
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(roll_number__icontains=search_query)
+        )
+
     return render(
         request,
         'admin/student_management.html',
-        {'students': students}
+        {
+            'students': students,
+            'search_query': search_query,
+             'total_students': students.count()
+        }
     )
 @login_required
 def add_student(request):
@@ -1198,17 +1221,40 @@ def delete_student(request, student_id):
 
 
 # -----------Faculty Management CRUD--------------
+from django.db.models import Q
+from django.http import HttpResponseForbidden
+
 @login_required
 def faculty_permission_list(request):
 
     if not request.user.role or request.user.role.name.lower() != 'admin':
         return HttpResponseForbidden()
 
-    faculties = User.objects.filter(role__name__iexact='Faculty')
+    search_query = request.GET.get("search", "")
 
-    return render(request, 'admin/faculty_permission_list.html', {
-        'faculties': faculties
-    })
+    faculties = (
+        User.objects
+        .filter(role__name__iexact='Faculty')
+        .select_related('faculty_profile')
+        .prefetch_related('faculty_profile__courses')
+    )
+
+    if search_query:
+        faculties = faculties.filter(
+            Q(username__icontains=search_query) |
+            Q(faculty_profile__department__icontains=search_query) |   # if department is CharField
+            Q(faculty_profile__courses__code__icontains=search_query) |
+            Q(faculty_profile__courses__name__icontains=search_query)
+        ).distinct()
+
+    return render(
+        request,
+        'admin/faculty_permission_list.html',
+        {
+            'faculties': faculties,
+            'search_query': search_query,
+        }
+    )
 
 @login_required
 def assign_faculty_permissions(request, user_id):
@@ -1232,20 +1278,33 @@ def assign_faculty_permissions(request, user_id):
 @role_required(['admin'])
 def admin_faculty_management(request):
 
+    search_query = request.GET.get("search", "")
+
     faculty_list = FacultyProfile.objects.select_related(
-        'user'
+        'user'  # ONLY this
     ).prefetch_related(
         'courses'
     )
+
+    if search_query:
+        faculty_list = faculty_list.filter(
+            Q(user__username__icontains=search_query) |
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(user__email__icontains=search_query) |
+            Q(department__icontains=search_query) |   # 👈 because it's a CharField
+            Q(designation__icontains=search_query)
+        )
 
     return render(
         request,
         'admin/faculty_management.html',
         {
-            'faculty_list': faculty_list
+            'faculty_list': faculty_list,
+            'search_query': search_query,
+            'total_faculty': faculty_list.count()
         }
     )
-
 @login_required
 @role_required(['admin'])
 def add_faculty(request):
@@ -1476,21 +1535,30 @@ def remove_course_from_faculty(request, course_id):
 @role_required(['admin'])
 def course_management(request):
 
-    courses = Course.objects.select_related(
-        'faculty'
-    ).all()
+    search_query = request.GET.get("search", "")
 
-    departments = Department.objects.all()
+    # Optimize related queries
+    courses = Course.objects.select_related(
+        'faculty__user'
+    )
+
+    if search_query:
+        courses = courses.filter(
+            Q(code__icontains=search_query) |
+            Q(name__icontains=search_query) |
+            Q(department__icontains=search_query) |  # use this if department is CharField
+            Q(faculty__user__username__icontains=search_query)
+        )
 
     return render(
         request,
         'admin/course_management.html',
         {
             'courses': courses,
-            'departments': departments
+            'search_query': search_query,
+            'total_courses': courses.count()
         }
     )
-
 
 @login_required
 @role_required(['admin'])

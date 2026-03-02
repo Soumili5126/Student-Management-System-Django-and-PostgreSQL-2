@@ -18,6 +18,29 @@
     <div class="card-body">
 
         <h5 class="fw-semibold mb-3">Students</h5>
+        <form method="get" class="row mb-3">
+            <div class="col-md-4">
+                <div class="input-group input-group-sm">
+                    <input type="text"
+                        name="search"
+                        class="form-control"
+                        placeholder="Search by username..."
+                        value="{{ search_query }}">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            {% if search_query %}
+            <div class="col-md-auto">
+                <a href="{% url 'batch_list' %}"
+                class="btn btn-outline-secondary btn-sm">
+                    Clear
+                </a>
+            </div>
+            {% endif %}
+        </form>
 
         <div class="table-responsive">
             <table class="table align-middle table-hover mb-0">

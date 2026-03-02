@@ -11,6 +11,29 @@
         </div>
 
         <div class="card-body">
+           <form method="get" class="row mb-3">
+            <div class="col-md-4">
+                <div class="input-group input-group-sm">
+                    <input type="text"
+                        name="search"
+                        class="form-control"
+                        placeholder="Search by username, department or subject.."
+                        value="{{ search_query }}">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            {% if search_query %}
+            <div class="col-md-auto">
+                <a href="{% url 'faculty_permission_list' %}"
+                class="btn btn-outline-secondary btn-sm">
+                    Clear
+                </a>
+            </div>
+            {% endif %}
+        </form>
 
             {% if faculties %}
 
@@ -20,6 +43,8 @@
                     <thead class="table-light">
                         <tr>
                             <th>Faculty</th>
+                            <th>Department</th>
+                            <th>Subjects</th>
                             <th class="text-end">Action</th>
                         </tr>
                     </thead>
@@ -29,6 +54,25 @@
                         <tr>
                             <td class="fw-semibold">
                                 {{ f.username }}
+                            </td>
+                            <td>
+                                {% if f.faculty_profile.department %}
+                                    <span class="badge bg-info-subtle text-info px-2 py-1">
+                                        {{ f.faculty_profile.department }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted small">Not Assigned</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% for course in f.faculty_profile.courses.all %}
+                                    <span class="badge bg-primary-subtle text-primary px-2 py-1 me-1 mb-1">
+                                        {{ course.code }}
+                                    </span>
+                                {% empty %}
+                                    <span class="text-muted small">No subjects</span>
+                                {% endfor %}
                             </td>
 
                             <td class="text-end">

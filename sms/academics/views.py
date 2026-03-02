@@ -10,6 +10,7 @@ from .forms import DepartmentForm
 from django.forms import modelformset_factory
 from django.contrib import messages
 from accounts.decorators import permission_required
+from django.db.models import Q
 
 # Create your views here.
 @login_required
@@ -282,23 +283,30 @@ def delete_exam(request, exam_id):
     return redirect('admin_exam_list')
 
 @login_required
-@login_required
 @permission_required('manage_batches')
 def batch_list(request):
 
     batches = Batch.objects.all()
+
+    search_query = request.GET.get("search", "")
 
     students = (
         StudentProfile.objects
         .select_related('batch', 'user')
     )
 
+    if search_query:
+        students = students.filter(
+            user__username__icontains=search_query
+        )
+
     return render(
         request,
         'dashboards/batch_list.html',
         {
             'batches': batches,
-            'students': students
+            'students': students,
+            'search_query': search_query,
         }
     )
 
@@ -383,13 +391,26 @@ def edit_batch(request, batch_id):
 @role_required(['admin'])
 def department_list(request):
 
-    departments = Department.objects.prefetch_related('courses')
+    search_query = request.GET.get("search", "")
+
+    departments = Department.objects.prefetch_related(
+        'courses'
+    )
+
+    if search_query:
+        departments = departments.filter(
+            Q(name__icontains=search_query) |
+            Q(courses__code__icontains=search_query) |
+            Q(courses__name__icontains=search_query)
+        ).distinct()
 
     return render(
         request,
         'dashboards/admin/department_list.html',
         {
-            'departments': departments
+            'departments': departments,
+            'search_query': search_query,
+            'total_departments': departments.count()
         }
     )
 @login_required
