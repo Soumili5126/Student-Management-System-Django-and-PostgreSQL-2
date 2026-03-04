@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container" style="max-width:500px">
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h4 class="fw-semibold mb-3">Update Profile Photo</h4>
+
+            <div class="text-center mb-4">
+
+                {% if request.user.profile_image %}
+                    <img src="{{ request.user.profile_image.url }}"
+                         width="120"
+                         height="120"
+                         class="rounded-circle"
+                         style="object-fit:cover;">
+                {% else %}
+                    <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
+                         style="width:120px;height:120px;font-size:32px;">
+                        {{ request.user.first_name|slice:":1"|upper }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <input type="file"
+                       name="profile_image"
+                       class="form-control mb-3">
+
+                <button class="btn btn-primary w-100">
+                    Upload Photo
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

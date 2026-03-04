@@ -1,9 +1,30 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="mb-4">
-    <h2 class="fw-semibold">Welcome back, Admin 👋</h2>
-    <p class="text-muted">Here's what's happening in your system.</p>
+<div class="d-flex align-items-center gap-3 mb-4">
+
+    {% if request.user.profile_image %}
+        <img src="{{ request.user.profile_image.url }}"
+             width="55"
+             height="55"
+             class="rounded-circle shadow-sm"
+             style="object-fit:cover;">
+    {% else %}
+        <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
+             style="width:55px;height:55px;font-weight:600;font-size:18px;">
+            {{ request.user.first_name|slice:":1"|upper }}
+        </div>
+    {% endif %}
+
+    <div>
+        <h2 class="fw-semibold mb-1">
+            Welcome back, {{ request.user.first_name }} 👋
+        </h2>
+        <p class="text-muted mb-0">
+            Here's what's happening in your system.
+        </p>
+    </div>
+
 </div>
 
 <!-- ================= STATS ================= -->
@@ -55,6 +76,25 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-semibold mb-0">Enrollment Overview</h5>
+              <form method="get" class="d-flex">
+                <div class="input-group input-group-sm">
+                    <input type="text"
+                        name="search"
+                        class="form-control"
+                        placeholder="Search by course code or name..."
+                        value="{{ search_query }}">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+
+                {% if search_query %}
+                <a href="{% url 'admin_dashboard' %}"
+                class="btn btn-outline-secondary btn-sm ms-2">
+                    Clear
+                </a>
+                {% endif %}
+            </form>
         </div>
 
         <div class="table-responsive">
@@ -149,6 +189,46 @@
             </table>
         </div>
     </div>
+{% if page_obj.has_other_pages %}
+<nav class="mt-3">
+    <ul class="pagination pagination-sm justify-content-center">
+
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                Previous
+            </a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                Next
+            </a>
+        </li>
+        {% endif %}
+
+    </ul>
+</nav>
+{% endif %}
 </div>
 
 {% endblock %}

@@ -11,7 +11,7 @@ from django.forms import modelformset_factory
 from django.contrib import messages
 from accounts.decorators import permission_required
 from django.db.models import Q
-
+from django.core.paginator import Paginator
 # Create your views here.
 @login_required
 @role_required(['student'])
@@ -282,6 +282,8 @@ def delete_exam(request, exam_id):
 
     return redirect('admin_exam_list')
 
+from django.core.paginator import Paginator
+
 @login_required
 @permission_required('manage_batches')
 def batch_list(request):
@@ -300,12 +302,18 @@ def batch_list(request):
             user__username__icontains=search_query
         )
 
+    # Pagination
+    paginator = Paginator(students, 10)  # 10 students per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(
         request,
         'dashboards/batch_list.html',
         {
             'batches': batches,
-            'students': students,
+            'students': page_obj,
+            'page_obj': page_obj,
             'search_query': search_query,
         }
     )
@@ -404,11 +412,17 @@ def department_list(request):
             Q(courses__name__icontains=search_query)
         ).distinct()
 
+    # Pagination
+    paginator = Paginator(departments, 10)  # 10 departments per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(
         request,
         'dashboards/admin/department_list.html',
         {
-            'departments': departments,
+            'departments': page_obj,
+            'page_obj': page_obj,
             'search_query': search_query,
             'total_departments': departments.count()
         }

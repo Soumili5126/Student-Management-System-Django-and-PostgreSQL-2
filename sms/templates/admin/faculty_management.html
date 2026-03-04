@@ -66,7 +66,7 @@
                 </thead>
 
                 <tbody>
-                {% for f in faculty_list %}
+                {% for f in page_obj %}
                 <tr>
 
                     <td class="fw-medium">{{ f.user.username }}</td>
@@ -120,7 +120,46 @@
 
     </div>
 </div>
+{% if page_obj.has_other_pages %}
+<nav class="mt-3">
+    <ul class="pagination pagination-sm justify-content-center">
 
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                Previous
+            </a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                   {{ num }}
+                </a>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                Next
+            </a>
+        </li>
+        {% endif %}
+
+    </ul>
+</nav>
+{% endif %}
 <a href="{% url 'admin_dashboard' %}"
    class="btn btn-outline-secondary btn-sm mt-3">
    <i class="bi bi-arrow-left me-1"></i>
