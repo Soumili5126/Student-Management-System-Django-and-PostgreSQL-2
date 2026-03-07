@@ -34,200 +34,232 @@
 
 <div class="tab-content">
 
-    <!-- ================= PROFILE ================= -->
-    <div class="tab-pane fade show active" id="profile">
+<!-- ================= PROFILE ================= -->
+<div class="tab-pane fade show active" id="profile">
 
-        <div class="row">
+<div class="row">
 
-            <!-- LEFT SIDE PROFILE -->
-            <div class="col-md-8">
+<!-- LEFT SIDE PROFILE -->
+<div class="col-md-8">
 
-                <div class="text-center mb-4">
-                    {% if request.user.profile_image %}
-                        <img src="{{ request.user.profile_image.url }}"
-                            class="rounded-circle shadow-lg profile-img"
-                            width="130"
-                            height="130"
-                            style="object-fit:cover;">
-                    {% else %}
-                        <img src="https://via.placeholder.com/130"
-                            class="rounded-circle shadow-lg profile-img">
-                    {% endif %}
-                </div>
+<div class="card modern-card p-4">
 
-                <div class="card modern-card p-4">
-                    <h6 class="fw-semibold mb-3 text-secondary">
-                        Profile Information
-                    </h6>
+<div class="d-flex align-items-start gap-4">
 
-                    <div class="profile-row">
-                        <span>Full Name</span>
-                        <strong>{{ request.user.first_name }} {{ request.user.last_name }}</strong>
-                    </div>
+<!-- Profile Image -->
+<div>
 
-                    <div class="profile-row">
-                        <span>Username</span>
-                        <strong>{{ faculty.user.username }}</strong>
-                    </div>
+{% if request.user.profile_image %}
+<img src="{{ request.user.profile_image.url }}"
+class="rounded-circle shadow profile-img"
+width="120"
+height="120"
+style="object-fit:cover;">
+{% else %}
+<img src="https://via.placeholder.com/120"
+class="rounded-circle shadow profile-img">
+{% endif %}
 
-                    <div class="profile-row">
-                        <span>Department</span>
-                        <strong>{{ faculty.department }}</strong>
-                    </div>
+</div>
 
-                    <div class="profile-row">
-                        <span>Designation</span>
-                        <strong>{{ faculty.designation }}</strong>
-                    </div>
+<!-- Profile Information -->
+<div class="flex-grow-1">
 
-                    <a href="{% url 'edit_faculty_profile' %}"
-                       class="btn btn-primary btn-sm mt-4">
-                        Edit Profile
-                    </a>
-                </div>
+<h6 class="fw-semibold mb-3 text-secondary">
+Profile Information
+</h6>
 
-            </div>
+<div class="profile-row">
+<span>Full Name</span>
+<strong>{{ request.user.first_name }} {{ request.user.last_name }}</strong>
+</div>
 
-            <!-- RIGHT SIDE CALENDAR -->
-            <div class="col-md-4">
+<div class="profile-row">
+<span>Username</span>
+<strong>{{ faculty.user.username }}</strong>
+</div>
 
-                <div class="card modern-card p-3 calendar-card">
-                    <h6 class="text-center mb-3 text-secondary fw-semibold">
-                        Academic Calendar
-                    </h6>
-                    <div id="facultyCalendar"></div>
-                </div>
+<div class="profile-row">
+<span>Department</span>
+<strong>{{ faculty.department }}</strong>
+</div>
 
-            </div>
+<div class="profile-row">
+<span>Designation</span>
+<strong>{{ faculty.designation }}</strong>
+</div>
 
-        </div>
+<a href="{% url 'edit_faculty_profile' %}"
+class="btn btn-primary btn-sm mt-4">
+Edit Profile
+</a>
 
-    </div>
+</div>
 
-    <!-- ================= EXAMS ================= -->
-    <div class="tab-pane fade" id="exams">
+</div>
 
-        {% if exams %}
-            <div class="row">
-                {% for exam in exams %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card modern-card p-3 h-100 exam-card">
+</div>
 
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-light text-dark small">
-                                    {{ exam.course.code }}
-                                </span>
-                            </div>
+</div>
 
-                            <h6 class="fw-semibold mb-2">
-                                {{ exam.title }}
-                            </h6>
 
-                            <a href="{% url 'enter_grades' exam.id %}"
-                               class="btn btn-outline-primary btn-sm mt-auto">
-                               Enter Grades
-                            </a>
+<!-- RIGHT SIDE CALENDAR -->
+<div class="col-md-4">
 
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="text-muted small">No exams created yet.</p>
-        {% endif %}
+<div class="card modern-card p-3 calendar-card">
+<h6 class="text-center mb-3 text-secondary fw-semibold">
+Academic Calendar
+</h6>
+<div id="facultyCalendar"></div>
+</div>
 
-    </div>
+</div>
 
-    <!-- ================= SUBJECTS ================= -->
-    <div class="tab-pane fade" id="subjects">
+</div>
 
-        <div class="row">
-        {% for item in course_data %}
-            <div class="col-md-6 mb-4">
-                <div class="card modern-card p-3">
+</div>
 
-                    <h6 class="fw-semibold mb-3">
-                        {{ item.course.code }} — {{ item.course.name }}
-                    </h6>
+<!-- ================= EXAMS ================= -->
+<div class="tab-pane" id="exams">
 
-                    <p class="text-secondary small fw-medium">
-                        Students Enrolled
-                    </p>
+{% if exams %}
+<div class="row">
 
-                    {% if item.enrollments %}
-                        <ul class="small ps-3 student-list">
-                            {% for e in item.enrollments %}
-                                <li>
-                                    {{ e.student.user.first_name }}
-                                    {{ e.student.user.last_name }}
-                                    ({{ e.student.user.username }})
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted small">
-                            No students enrolled.
-                        </p>
-                    {% endif %}
+{% for exam in exams %}
+<div class="col-md-6 mb-3">
 
-                </div>
-            </div>
-        {% empty %}
-            <p class="small">No courses assigned.</p>
-        {% endfor %}
-        </div>
+<div class="card modern-card p-3 h-100 exam-card">
 
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-2">
+<span class="badge bg-light text-dark small">
+{{ exam.course.code }}
+</span>
+</div>
 
-    <!-- ================= QUIZZES ================= -->
-    <div class="tab-pane fade" id="quizzes">
+<h6 class="fw-semibold mb-2">
+{{ exam.title }}
+</h6>
 
-        <div class="row">
-        {% for item in course_data %}
-            <div class="col-md-6 mb-4">
-                <div class="card modern-card p-3">
+<a href="{% url 'enter_grades' exam.id %}"
+class="btn btn-outline-primary btn-sm mt-auto">
+Enter Grades
+</a>
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-semibold">
-                            {{ item.course.code }}
-                        </h6>
+</div>
 
-                        <a href="{% url 'create_quiz' item.course.id %}"
-                           class="btn btn-sm btn-success">
-                            Create
-                        </a>
-                    </div>
+</div>
+{% endfor %}
 
-                    {% for quiz in item.quizzes %}
-                        <div class="quiz-box mb-3 p-2">
+</div>
 
-                            <strong>{{ quiz.title }}</strong>
+{% else %}
+<p class="text-muted small">No exams created yet.</p>
+{% endif %}
 
-                            <div class="mt-2 d-flex gap-2 flex-wrap">
-                                <a href="{% url 'add_quiz_question' quiz.id %}"
-                                   class="btn btn-sm btn-outline-secondary">
-                                    Add Questions
-                                </a>
+</div>
 
-                                <a href="{% url 'faculty_quiz_analytics' quiz.id %}"
-                                   class="btn btn-sm btn-outline-info">
-                                    View Analytics
-                                </a>
-                            </div>
 
-                        </div>
-                    {% empty %}
-                        <p class="text-muted small">
-                            No quizzes created.
-                        </p>
-                    {% endfor %}
+<!-- ================= SUBJECTS ================= -->
+<div class="tab-pane" id="subjects">
 
-                </div>
-            </div>
-        {% endfor %}
-        </div>
+<div class="row">
+{% for item in course_data %}
+<div class="col-md-6 mb-4">
 
-    </div>
+<div class="card modern-card p-3">
+
+<h6 class="fw-semibold mb-3">
+{{ item.course.code }} — {{ item.course.name }}
+</h6>
+
+<p class="text-secondary small fw-medium">
+Students Enrolled
+</p>
+
+{% if item.enrollments %}
+<ul class="small ps-3 student-list">
+
+{% for e in item.enrollments %}
+<li>
+{{ e.student.user.first_name }}
+{{ e.student.user.last_name }}
+({{ e.student.user.username }})
+</li>
+{% endfor %}
+
+</ul>
+
+{% else %}
+<p class="text-muted small">
+No students enrolled.
+</p>
+{% endif %}
+
+</div>
+
+</div>
+{% empty %}
+<p class="small">No courses assigned.</p>
+{% endfor %}
+</div>
+
+</div>
+
+
+<!-- ================= QUIZZES ================= -->
+<div class="tab-pane" id="quizzes">
+
+<div class="row">
+{% for item in course_data %}
+<div class="col-md-6 mb-4">
+
+<div class="card modern-card p-3">
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h6 class="fw-semibold">
+{{ item.course.code }}
+</h6>
+
+<a href="{% url 'create_quiz' item.course.id %}"
+class="btn btn-sm btn-success">
+Create
+</a>
+</div>
+
+{% for quiz in item.quizzes %}
+<div class="quiz-box mb-3 p-2">
+
+<strong>{{ quiz.title }}</strong>
+
+<div class="mt-2 d-flex gap-2 flex-wrap">
+
+<a href="{% url 'add_quiz_question' quiz.id %}"
+class="btn btn-sm btn-outline-secondary">
+Add Questions
+</a>
+
+<a href="{% url 'faculty_quiz_analytics' quiz.id %}"
+class="btn btn-sm btn-outline-info">
+View Analytics
+</a>
+
+</div>
+
+</div>
+
+{% empty %}
+<p class="text-muted small">
+No quizzes created.
+</p>
+{% endfor %}
+
+</div>
+
+</div>
+{% endfor %}
+</div>
+
+</div>
 
 </div>
 
@@ -239,35 +271,55 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-    var hash = window.location.hash;
+var hash = window.location.hash;
 
-    if (hash) {
-        var triggerEl = document.querySelector('[data-bs-target="' + hash + '"]');
-        if (triggerEl) {
-            var tab = new bootstrap.Tab(triggerEl);
-            tab.show();
-        }
-    }
+if (hash) {
+var triggerEl = document.querySelector('[data-bs-target="' + hash + '"]');
+if (triggerEl) {
+var tab = new bootstrap.Tab(triggerEl);
+tab.show();
+}
+}
 
-    var calendarEl = document.getElementById('facultyCalendar');
+var calendarEl = document.getElementById('facultyCalendar');
 
-    if (calendarEl) {
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            height: 400,
-            headerToolbar: {
-                left: 'prev',
-                center: 'title',
-                right: 'next'
-            },
-            titleFormat: {
-                year: 'numeric',
-                month: 'long'
-            }
-        });
+if (calendarEl) {
+var calendar = new FullCalendar.Calendar(calendarEl, {
 
-        calendar.render();
-    }
+initialView: 'dayGridMonth',
+height: 320,
+
+headerToolbar: {
+left: 'prev',
+center: 'title',
+right: 'next'
+},
+
+dateClick: function(info) {
+
+window.location.href =
+"{% url 'select_course_for_exam' %}?date=" + info.dateStr;
+
+},
+titleFormat: {
+month: 'long',
+year: 'numeric'
+},
+
+dayHeaderFormat: {
+weekday: 'short'
+},
+
+fixedWeekCount: false,
+showNonCurrentDates: true,
+
+dayMaxEventRows: 1,
+aspectRatio: 1
+
+});
+
+calendar.render();
+}
 
 });
 </script>
@@ -276,68 +328,119 @@ document.addEventListener("DOMContentLoaded", function() {
 
 /* ===== Cards ===== */
 .modern-card {
-    border: none;
-    border-radius: 18px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+border: none;
+border-radius: 18px;
+box-shadow: 0 8px 30px rgba(0,0,0,0.05);
 }
 
 /* ===== Profile Rows ===== */
 .profile-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 14px;
+display: flex;
+justify-content: space-between;
+padding: 8px 0;
+border-bottom: 1px solid #f1f5f9;
+font-size: 14px;
 }
 
 .profile-row:last-child {
-    border-bottom: none;
+border-bottom: none;
 }
 
 /* ===== Image Hover Effect ===== */
 .profile-img {
-    transition: 0.3s;
+transition: 0.3s;
 }
+
 .profile-img:hover {
-    transform: scale(1.05);
+transform: scale(1.05);
 }
 
 /* ===== Tabs ===== */
 .modern-tabs .nav-link {
-    border: none;
-    color: #64748b;
-    font-weight: 500;
+border: none;
+color: #64748b;
+font-weight: 500;
 }
 
 .modern-tabs .nav-link.active {
-    background: #f1f5f9;
-    border-radius: 8px;
-    color: #0f172a;
+background: #f1f5f9;
+border-radius: 8px;
+color: #0f172a;
 }
 
 /* ===== Quiz Box ===== */
 .quiz-box {
-    background: #f8fafc;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
+background: #f8fafc;
+border-radius: 10px;
+border: 1px solid #e2e8f0;
 }
 
 /* ===== Student List ===== */
 .student-list li {
-    margin-bottom: 4px;
+margin-bottom: 4px;
 }
 
 /* ===== Calendar Styling ===== */
+
+.calendar-card {
+border-radius: 18px;
+}
+
+#facultyCalendar {
+font-size: 12px;
+}
+
+.fc {
+font-size: 12px;
+}
+
 .fc .fc-toolbar-title {
-    font-size: 18px !important;
-    font-weight: 500 !important;
+font-size: 16px !important;
+font-weight: 600 !important;
 }
 
 .fc a {
-    text-decoration: none !important;
+text-decoration: none !important;
+}
+/* ===== Remove FullCalendar Grid ===== */
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+    border: none !important;
 }
 
+.fc-scrollgrid {
+    border: none !important;
+}
+
+.fc-daygrid-day-frame {
+    border: none !important;
+}
+
+.fc-daygrid-day {
+    padding: 6px;
+}
+
+/* optional hover effect (looks nicer) */
+.fc-daygrid-day:hover {
+    background: #f1f5f9;
+    border-radius: 6px;
+    cursor: pointer;
+}
+/* Make calendar dates black */
+.fc-daygrid-day-number {
+    color: #0f172a !important;
+}
+
+/* Make weekday names black */
+.fc-col-header-cell-cushion {
+    color: #0f172a !important;
+}
+
+/* Override link color used by FullCalendar */
+.fc a {
+    color: #0f172a !important;
+}
 </style>
 
 {% endblock %}
-

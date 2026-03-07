@@ -52,7 +52,7 @@
             </span>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive student-table-wrapper">
             <table class="table align-middle table-hover mb-0">
 
                 <thead class="table-light">
@@ -121,9 +121,8 @@
                             </a>
 
                             <a href="{% url 'delete_student' s.id %}"
-                               class="btn btn-sm btn-outline-danger"
-                               onclick="return confirm('Delete this student permanently?');">
-                               <i class="bi bi-trash"></i>
+                                class="btn btn-sm btn-outline-danger delete-student-btn">
+                                    <i class="bi bi-trash"></i>
                             </a>
 
                         </div>
@@ -184,5 +183,54 @@
    <i class="bi bi-arrow-left me-1"></i>
    Back to Admin Dashboard
 </a>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script>
+document.querySelectorAll(".delete-student-btn").forEach(function(button){
+
+button.addEventListener("click", function(e){
+
+e.preventDefault();
+
+let url = this.getAttribute("href");
+
+Swal.fire({
+title: "Delete this student?",
+text: "This will permanently remove the student record.",
+icon: "warning",
+showCancelButton: true,
+confirmButtonColor: "#dc3545",
+cancelButtonColor: "#6c757d",
+confirmButtonText: "Yes, delete"
+}).then((result)=>{
+
+if(result.isConfirmed){
+window.location.href = url;
+}
+
+});
+
+});
+
+});
+</script>
+<style>
+
+.student-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+.student-table-wrapper table {
+    min-width: 1200px;
+}
+
+/* Prevent sidebar shrinking */
+.sidebar{
+    flex-shrink: 0;
+}
+
+</style>
 {% endblock %}

@@ -64,9 +64,10 @@
 
                     <tbody>
                         {% for e in enrollments %}
+                        {% if e.student.id not in graded_students %}
                         <tr>
                             <td class="fw-medium">
-                                {{ e.student.user.username }}
+                                {{ e.student.user.first_name }} {{ e.student.user.last_name }} ({{ e.student.user.username }})
                             </td>
 
                             <td>
@@ -78,6 +79,8 @@
                                        required>
                             </td>
                         </tr>
+                        {% endif %}
+
                         {% endfor %}
                     </tbody>
 
@@ -114,49 +117,56 @@
         <div class="table-responsive">
             <table class="table align-middle modern-table">
 
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Roll Number</th>
-                        <th>Marks</th>
-                        <th>Total</th>
-                        <th>Percentage</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-
                 <tbody>
                     {% for g in grades %}
-                    <tr>
+                        <tr>
 
-                        <td class="fw-medium">
-                            {{ g.student.user.first_name }}
-                            {{ g.student.user.last_name }}
-                        </td>
+                            <td class="fw-medium">
+                                {{ g.student.user.first_name }} {{ g.student.user.last_name }} ({{ g.student.user.username }})
+                            </td>
 
-                        <td>{{ g.student.roll_number }}</td>
+                            <td>
+                                {{ g.student.roll_number }}
+                            </td>
 
-                        <td>{{ g.marks_obtained }}</td>
+                            <td>
+                                {{ g.marks_obtained }}
+                            </td>
 
-                        <td>{{ g.exam.total_marks }}</td>
+                            <td>
+                                {{ g.exam.total_marks }}
+                            </td>
 
-                        <td>
-                            <span class="badge bg-info text-dark">
-                                {{ g.percentage|floatformat:2 }}%
-                            </span>
-                        </td>
+                            <td>
+                                <span class="badge bg-info text-dark">
+                                    {{ g.percentage|floatformat:2 }}%
+                                </span>
+                            </td>
 
-                        <td>
-                            {% if g.is_pass %}
-                                <span class="badge bg-success">Pass</span>
-                            {% else %}
-                                <span class="badge bg-danger">Fail</span>
-                            {% endif %}
-                        </td>
+                            <td>
+                                {% if g.is_pass %}
+                                    <span class="badge bg-success">Pass</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Fail</span>
+                                {% endif %}
+                            </td>
 
-                    </tr>
+                            <td>
+                                <a href="{% url 'edit_grade' g.id %}"
+                                class="btn btn-sm btn-outline-primary">
+                                    Edit
+                                </a>
+
+                                <a href="{% url 'delete_grade' g.id %}"
+                                    class="btn btn-sm btn-outline-danger delete-grade-btn">
+                                        Delete
+                                </a>
+                            </td>
+
+                        </tr>
                     {% endfor %}
                 </tbody>
+                
 
             </table>
         </div>
@@ -199,5 +209,36 @@
 }
 
 </style>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script>
+document.querySelectorAll(".delete-grade-btn").forEach(function(button){
+
+button.addEventListener("click", function(e){
+
+e.preventDefault();
+
+let url = this.getAttribute("href");
+
+Swal.fire({
+title: "Delete this grade?",
+text: "This action cannot be undone.",
+icon: "warning",
+showCancelButton: true,
+confirmButtonColor: "#dc3545",
+cancelButtonColor: "#6c757d",
+confirmButtonText: "Yes, delete it"
+}).then((result)=>{
+
+if(result.isConfirmed){
+window.location.href = url;
+}
+
+});
+
+});
+
+});
+</script>
 {% endblock %}

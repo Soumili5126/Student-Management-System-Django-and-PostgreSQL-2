@@ -97,9 +97,15 @@ urlpatterns = [
     views.create_exam,
     name='create_exam'),
     path(
+    "select-course/",
+    views.select_course_for_exam,
+    name="select_course_for_exam"),
+    path(
     'faculty/exam/<int:exam_id>/grades/',
     views.enter_grades,
     name='enter_grades'),
+    path("grade/edit/<int:grade_id>/", views.edit_grade, name="edit_grade"),
+    path("grade/delete/<int:grade_id>/", views.delete_grade, name="delete_grade"),
     path(
     'student/exam-results/pdf/',
     views.export_exam_results_pdf,

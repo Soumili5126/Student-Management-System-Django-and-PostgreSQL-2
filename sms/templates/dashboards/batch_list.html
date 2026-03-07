@@ -12,7 +12,63 @@
 <a href="{% url 'create_batch' %}" class="btn btn-primary mb-4">
     <i class="bi bi-plus-circle me-1"></i> Create New Batch
 </a>
+<!-- ================= BATCH SECTION ================= -->
+<div class="card shadow-sm border-0 mb-5">
+    <div class="card-body">
 
+        <h5 class="fw-semibold mb-3">Available Batches</h5>
+        <span class="badge bg-primary-subtle text-primary px-3 py-2">
+            Total: {{ batches|length }}
+        </span>
+
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Program</th>
+                        <th>Name</th>
+                        <th>Academic Year</th>
+                        <th>Section</th>
+                        <th>Total Students</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for batch in batches %}
+                <tr>
+                    <td>{{ batch.program }}</td>
+                    <td class="fw-medium">{{ batch.name }}</td>
+                    <td>{{ batch.academic_year }}</td>
+                    <td>{{ batch.section }}</td>
+                    <td>
+                        <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                            {{ batch.students.count }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_batch' batch.id %}"
+                           class="btn btn-sm btn-outline-warning">
+                           <i class="bi bi-pencil-square me-1"></i>
+                           Edit
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-muted text-center py-4">
+                        No batches available.
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
 <!-- ================= STUDENT SECTION ================= -->
 <div class="card shadow-sm border-0 mb-5">
     <div class="card-body">
@@ -140,63 +196,7 @@
     </ul>
 </nav>
 {% endif %}
-<!-- ================= BATCH SECTION ================= -->
-<div class="card shadow-sm border-0">
-    <div class="card-body">
 
-        <h5 class="fw-semibold mb-3">Available Batches</h5>
-        <span class="badge bg-primary-subtle text-primary px-3 py-2">
-            Total: {{ batches|length }}
-        </span>
-
-        <div class="table-responsive">
-            <table class="table align-middle table-hover mb-0">
-
-                <thead class="table-light">
-                    <tr>
-                        <th>Program</th>
-                        <th>Name</th>
-                        <th>Academic Year</th>
-                        <th>Section</th>
-                        <th>Total Students</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                {% for batch in batches %}
-                <tr>
-                    <td>{{ batch.program }}</td>
-                    <td class="fw-medium">{{ batch.name }}</td>
-                    <td>{{ batch.academic_year }}</td>
-                    <td>{{ batch.section }}</td>
-                    <td>
-                        <span class="badge bg-primary-subtle text-primary px-3 py-2">
-                            {{ batch.students.count }}
-                        </span>
-                    </td>
-                    <td>
-                        <a href="{% url 'edit_batch' batch.id %}"
-                           class="btn btn-sm btn-outline-warning">
-                           <i class="bi bi-pencil-square me-1"></i>
-                           Edit
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-muted text-center py-4">
-                        No batches available.
-                    </td>
-                </tr>
-                {% endfor %}
-                </tbody>
-
-            </table>
-        </div>
-
-    </div>
-</div>
 
 <a href="{% url 'admin_dashboard' %}"
    class="btn btn-outline-secondary mt-4">

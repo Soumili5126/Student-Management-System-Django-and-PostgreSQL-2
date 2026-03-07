@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h4>Select Course</h4>
+
+<p>
+    Date selected: <strong>{{ selected_date }}</strong>
+</p>
+
+<ul class="list-unstyled">
+
+    {% for course in courses %}
+        <li class="d-flex align-items-center mb-3">
+
+            <span class="me-3">
+                {{ course.code }} — {{ course.name }}
+            </span>
+
+            <a href="{% url 'create_exam' course.id %}?date={{ selected_date }}"
+               class="btn btn-sm btn-primary">
+                Create Exam
+            </a>
+
+        </li>
+    {% endfor %}
+
+</ul>
+
+{% endblock %}

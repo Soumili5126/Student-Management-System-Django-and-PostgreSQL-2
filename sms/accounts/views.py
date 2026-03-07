@@ -39,6 +39,7 @@ from django.utils.html import strip_tags
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.views.decorators.cache import never_cache
 
 # -------- REGISTER --------
 def register_view(request):
@@ -116,6 +117,7 @@ def register_view(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 # -------- LOGIN --------
+
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
@@ -144,12 +146,14 @@ def login_view(request):
     return render(request, 'accounts/login.html', {'form': form})
 
 # -------- LOGOUT --------
+@never_cache
 def logout_view(request):
     logout(request)
     return redirect('login')
 
 # -------- DASHBOARD ROUTER --------
 @login_required
+@never_cache
 def dashboard(request):
     user = request.user
 
@@ -362,6 +366,7 @@ def approve_user(request, user_id):
 from django.db.models import Q
 
 @login_required
+@never_cache
 def admin_dashboard(request):
 
     if not request.user.role or request.user.role.name.lower() != 'admin':
@@ -443,6 +448,7 @@ def edit_profile(request):
 
     return render(request, "accounts/edit_profile.html")
 @login_required
+@never_cache
 def faculty_dashboard(request):
 
     # Proper role check
@@ -537,6 +543,7 @@ def edit_faculty_profile(request):
         }
     )
 @login_required
+@never_cache
 def student_dashboard(request):
     if not request.user.role or request.user.role.name.lower() != 'student':
         return HttpResponseForbidden(render(request, '403.html'))
@@ -1754,7 +1761,7 @@ def create_exam(request, course_id):
         id=course_id,
         faculty=faculty
     )
-
+    selected_date = request.GET.get("date")
     if request.method == 'POST':
 
         title = request.POST.get('title')
@@ -1774,9 +1781,28 @@ def create_exam(request, course_id):
     return render(
         request,
         'dashboards/create_exam.html',
-        {'course': course}
+        {
+            "course": course,
+            "selected_date": selected_date
+        }
     )
+@login_required
+@role_required(['faculty'])
+def select_course_for_exam(request):
 
+    faculty = request.user.faculty_profile
+    courses = Course.objects.filter(faculty=faculty)
+
+    selected_date = request.GET.get("date")
+
+    return render(
+        request,
+        "dashboards/select_course_exam.html",
+        {
+            "courses": courses,
+            "selected_date": selected_date
+        }
+    )
 @login_required
 @role_required(['faculty'])
 def enter_grades(request, exam_id):
@@ -1786,33 +1812,42 @@ def enter_grades(request, exam_id):
     except FacultyProfile.DoesNotExist:
         return HttpResponseForbidden()
 
-    # Ensure faculty owns the exam
     exam = get_object_or_404(
         Exam,
         id=exam_id,
         course__faculty=faculty
     )
-    grades = Grade.objects.filter(exam=exam).select_related("student", "student__user")
+
     enrollments = Enrollment.objects.filter(
         course=exam.course
-    )
+    ).select_related("student__user")
+
+    grades = Grade.objects.filter(
+        exam=exam
+    ).select_related("student__user")
+
+    # students who already have grades
+    graded_students = grades.values_list("student_id", flat=True)
 
     if request.method == 'POST':
 
         for enrollment in enrollments:
+
+            # skip students who already have grades
+            if enrollment.student.id in graded_students:
+                continue
+
             marks = request.POST.get(str(enrollment.student.id))
 
-            if marks is not None:
-                Grade.objects.update_or_create(
+            if marks:
+                Grade.objects.create(
                     exam=exam,
                     student=enrollment.student,
-                    defaults={
-                        'marks_obtained': marks
-                    }
+                    marks_obtained=marks
                 )
 
         messages.success(request, "Grades saved successfully.")
-        return redirect('faculty_dashboard')
+        return redirect('enter_grades', exam_id=exam.id)
 
     return render(
         request,
@@ -1820,10 +1855,49 @@ def enter_grades(request, exam_id):
         {
             'exam': exam,
             'enrollments': enrollments,
-            "grades": grades, 
+            'grades': grades,
+            'graded_students': graded_students
         }
     )
+@login_required
+@role_required(['faculty'])
+def edit_grade(request, grade_id):
 
+    grade = get_object_or_404(Grade, id=grade_id)
+
+    exam = grade.exam
+
+    if request.method == "POST":
+
+        marks = request.POST.get("marks")
+
+        grade.marks_obtained = marks
+        grade.save()
+
+        messages.success(request, "Grade updated successfully.")
+
+        return redirect("enter_grades", exam_id=exam.id)
+
+    return render(
+        request,
+        "dashboards/edit_grade.html",
+        {
+            "grade": grade
+        }
+    )
+@login_required
+@role_required(['faculty'])
+def delete_grade(request, grade_id):
+
+    grade = get_object_or_404(Grade, id=grade_id)
+
+    exam_id = grade.exam.id
+
+    grade.delete()
+
+    messages.success(request, "Grade deleted.")
+
+    return redirect("enter_grades", exam_id=exam_id)
 @login_required
 @role_required(['student'])
 def export_exam_results_pdf(request):

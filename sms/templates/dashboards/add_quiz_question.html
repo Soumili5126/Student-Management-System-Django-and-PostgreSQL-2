@@ -141,8 +141,7 @@
                                 </a>
 
                                 <a href="{% url 'delete_quiz_question' q.id %}"
-                                   class="btn btn-sm btn-outline-danger"
-                                   onclick="return confirm('Delete this question?')">
+                                    class="btn btn-sm btn-outline-danger delete-btn">
                                     Delete
                                 </a>
                             </div>
@@ -193,5 +192,36 @@
 }
 
 </style>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script>
+document.querySelectorAll(".delete-btn").forEach(function(button){
+
+button.addEventListener("click", function(e){
+
+e.preventDefault();
+
+let url = this.getAttribute("href");
+
+Swal.fire({
+title: "Delete this question?",
+text: "This action cannot be undone.",
+icon: "warning",
+showCancelButton: true,
+confirmButtonColor: "#dc3545",
+cancelButtonColor: "#6c757d",
+confirmButtonText: "Yes, delete it"
+}).then((result)=>{
+
+if(result.isConfirmed){
+window.location.href = url;
+}
+
+});
+
+});
+
+});
+</script>
 {% endblock %}
