@@ -30,6 +30,10 @@ urlpatterns = [
     views.assign_faculty,
     name='assign_faculty'),
     path(
+    'admin/course/<int:course_id>/remove-faculty/',
+    views.remove_faculty,
+    name='remove_faculty'),
+    path(
     'admin/enroll-students/<int:course_id>/',
     views.enroll_students,
     name='enroll_students'),

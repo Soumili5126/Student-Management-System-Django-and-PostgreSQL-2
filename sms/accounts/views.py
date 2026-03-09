@@ -376,17 +376,17 @@ def admin_dashboard(request):
 
     courses = Course.objects.select_related(
         'faculty__user'
-    )
+    ).order_by('-id')
 
-    # SEARCH (course code / name)
+    # SEARCH
     if search_query:
         courses = courses.filter(
             Q(code__icontains=search_query) |
             Q(name__icontains=search_query)
         )
 
-    # PAGINATION
-    paginator = Paginator(courses, 5)   # 5 courses per page
+    paginator = Paginator(courses, 5)
+
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -396,13 +396,11 @@ def admin_dashboard(request):
     )
 
     course_data = []
+
     for course in page_obj:
-        enrollments = Enrollment.objects.filter(
-            course=course
-        ).select_related(
-            'student',
-            'student__user'
-        )
+
+        enrollments = course.enrollment_set.select_related(
+        'student__user').filter(course__isnull=False)
 
         course_data.append({
             'course': course,
@@ -410,6 +408,7 @@ def admin_dashboard(request):
         })
 
     context = {
+
         'total_students': User.objects.filter(
             role__name__iexact='Student'
         ).count(),
@@ -830,7 +829,24 @@ def assign_faculty(request, course_id):
         }
     )
 
-from django.db.models import Q
+@login_required
+def remove_faculty(request, course_id):
+
+    # 🔐 Role check
+    if not request.user.role or request.user.role.name.lower() != 'admin':
+        return HttpResponseForbidden(render(request, '403.html'))
+
+    course = get_object_or_404(Course, id=course_id)
+
+    course.faculty = None
+    course.save()
+
+    messages.success(
+        request,
+        f"Faculty removed from {course.name}"
+    )
+
+    return redirect('assign_faculty', course_id=course.id)
 
 @login_required
 @role_required(['admin'])
@@ -843,19 +859,42 @@ def enroll_students(request, course_id):
 
     search_query = request.GET.get("search", "")
 
-    students = StudentProfile.objects.select_related('user')
+    # ----------------------------
+    # Students already enrolled
+    # ----------------------------
+    enrolled_students = Enrollment.objects.filter(
+        course=course
+    ).select_related('student__user')
+
+    enrolled_student_ids = enrolled_students.values_list(
+        'student_id',
+        flat=True
+    )
+
+    # ----------------------------
+    # Students available for enrollment
+    # ----------------------------
+    students = StudentProfile.objects.select_related('user').exclude(
+        id__in=enrolled_student_ids
+    )
 
     if search_query:
         students = students.filter(
             Q(user__first_name__icontains=search_query) |
             Q(user__last_name__icontains=search_query) |
+            Q(user__username__icontains=search_query) |
             Q(roll_number__icontains=search_query)
         )
 
+    # ----------------------------
+    # Enroll selected students
+    # ----------------------------
     if request.method == 'POST':
+
         selected_students = request.POST.getlist('students')
 
         for student_id in selected_students:
+
             student = get_object_or_404(
                 StudentProfile,
                 id=student_id
@@ -871,7 +910,7 @@ def enroll_students(request, course_id):
             "Students enrolled successfully."
         )
 
-        return redirect('admin_dashboard')
+        return redirect('enroll_students', course_id=course.id)
 
     return render(
         request,
@@ -879,9 +918,12 @@ def enroll_students(request, course_id):
         {
             'course': course,
             'students': students,
+            'enrolled_students': enrolled_students,
             'search_query': search_query
         }
     )
+
+
 
 @login_required
 def edit_enrollment(request, enrollment_id):
@@ -917,11 +959,9 @@ def edit_enrollment(request, enrollment_id):
         }
     )
 
-
 @login_required
 def delete_enrollment(request, enrollment_id):
 
-    # 🔐 Role check
     if not request.user.role or request.user.role.name.lower() != 'admin':
         return HttpResponseForbidden(render(request, '403.html'))
 
@@ -930,6 +970,8 @@ def delete_enrollment(request, enrollment_id):
         id=enrollment_id
     )
 
+    course_id = enrollment.course.id
+
     enrollment.delete()
 
     messages.success(
@@ -937,7 +979,7 @@ def delete_enrollment(request, enrollment_id):
         "Student removed from course."
     )
 
-    return redirect('admin_dashboard')
+    return redirect('enroll_students', course_id=course_id)
 
 @login_required
 def export_attendance_csv(request, course_id):
@@ -1324,7 +1366,9 @@ def assign_faculty_permissions(request, user_id):
         return HttpResponseForbidden()
 
     faculty = get_object_or_404(User, id=user_id)
-    permissions = Permission.objects.all()
+
+    # Exclude Enroll Students permission
+    permissions = Permission.objects.exclude(name__icontains='enroll')
 
     if request.method == "POST":
         selected_permissions = request.POST.getlist("permissions")
@@ -1603,10 +1647,8 @@ def remove_course_from_faculty(request, course_id):
 def course_management(request):
 
     search_query = request.GET.get("search", "")
-
     courses = Course.objects.select_related(
-        'faculty__user'
-    )
+    'faculty__user').order_by('-id')
 
     if search_query:
         courses = courses.filter(
@@ -1719,29 +1761,13 @@ def edit_course(request, course_id):
         }
     )
 
-
 @login_required
 @role_required(['admin'])
 def delete_course(request, course_id):
 
-    course = get_object_or_404(
-        Course,
-        id=course_id
-    )
-
-    if Enrollment.objects.filter(course=course).exists():
-        messages.error(
-            request,
-            "Cannot delete course with enrolled students."
-        )
-        return redirect('course_management')
-
-    course.delete()
-
-    messages.success(
-        request,
-        "Course deleted successfully."
-    )
+    if request.method == "POST":
+        course = get_object_or_404(Course, id=course_id)
+        course.delete()
 
     return redirect('course_management')
 

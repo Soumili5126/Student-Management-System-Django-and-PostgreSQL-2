@@ -21,6 +21,41 @@
         Assign
     </button>
 </form>
+<hr class="my-4">
+
+<h5>Assigned Faculty</h5>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Faculty</th>
+            <th>Department</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% if course.faculty %}
+            <tr>
+                <td>{{ course.faculty.user.username }}</td>
+                <td>{{ course.faculty.department }}</td>
+                <td>
+                    <a href="{% url 'remove_faculty' course.id %}"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Remove faculty from this course?')">
+                        Remove
+                    </a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center text-muted">
+                    No faculty assigned
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
 <a href="{% url 'admin_dashboard' %}"
     class="btn btn-secondary mt-3">
     ← Go to Admin Dashboard
