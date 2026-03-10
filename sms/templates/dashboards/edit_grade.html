@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card shadow-sm p-4">
+
+    <h5>Edit Marks</h5>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <p>
+            <strong>Student:</strong>
+            {{ grade.student.user.first_name }} {{ grade.student.user.last_name }}
+        </p>
+
+        <div class="mb-3">
+            <label>Marks</label>
+            <input type="number"
+                   name="marks"
+                   value="{{ grade.marks_obtained }}"
+                   class="form-control"
+                   min="0"
+                   max="{{ grade.exam.total_marks }}">
+        </div>
+
+        <button class="btn btn-primary">Update</button>
+
+        <a href="{% url 'enter_grades' grade.exam.id %}"
+           class="btn btn-secondary">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

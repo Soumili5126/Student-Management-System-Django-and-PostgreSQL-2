@@ -1,4 +1,19 @@
 {% extends "base.html" %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+
+        <li class="breadcrumb-item">
+            <a href="{% url 'faculty_dashboard' %}">Dashboard</a>
+        </li>
+
+        <li class="breadcrumb-item active">
+            Enter Grade
+        </li>
+
+    </ol>
+</nav>
+{% endblock %}
 {% block content %}
 
 <!-- ================= HEADER ================= -->
@@ -93,10 +108,7 @@
                     Save Grades
                 </button>
 
-                <a href="{% url 'faculty_dashboard' %}"
-                   class="btn btn-outline-secondary btn-sm">
-                    Cancel
-                </a>
+                
             </div>
 
         </div>
@@ -178,8 +190,14 @@
         {% endif %}
 
     </div>
+   
 </div>
-
+ <div class="d-flex justify-content-center mt-3">
+    <a href="{% url 'faculty_dashboard' %}"
+    class="btn btn-outline-secondary btn-sm">
+    Cancel
+    </a>
+</div>
 <style>
 
 /* Modern table */

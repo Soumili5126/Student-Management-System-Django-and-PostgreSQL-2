@@ -1,4 +1,32 @@
 {% extends "base.html" %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+
+        <li class="breadcrumb-item">
+
+        {% if request.user.role.name|lower == "admin" %}
+            <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+
+        {% elif request.user.role.name|lower == "faculty" %}
+            <a href="{% url 'faculty_dashboard' %}">Dashboard</a>
+
+        
+        {% endif %}
+
+        </li>
+
+        <li class="breadcrumb-item">
+            <a href="{% url 'batch_list' %}">Manage Batches</a>
+        </li>
+
+        <li class="breadcrumb-item active">
+            Create Batch
+        </li>
+
+    </ol>
+</nav>
+{% endblock %}
 {% block content %}
 
 <!-- ===== PAGE HEADER ===== -->

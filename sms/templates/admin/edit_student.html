@@ -1,4 +1,32 @@
 {% extends "base.html" %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+
+        <li class="breadcrumb-item">
+
+        {% if request.user.role.name|lower == "admin" %}
+            <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+
+        {% elif request.user.role.name|lower == "faculty" %}
+            <a href="{% url 'faculty_dashboard' %}">Dashboard</a>
+
+        
+        {% endif %}
+
+        </li>
+
+        <li class="breadcrumb-item">
+            <a href="{% url 'admin_student_management' %}">Manage Students</a>
+        </li>
+
+        <li class="breadcrumb-item active">
+            Edit Student details
+        </li>
+
+    </ol>
+</nav>
+{% endblock %}
 {% block content %}
 
 <div class="container mt-4" style="max-width: 800px;">
@@ -16,6 +44,21 @@
                 {% csrf_token %}
 
                 <div class="row">
+                    <!-- First Name -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold">First Name</label>
+                        <input name="first_name"
+                            value="{{ student.user.first_name }}"
+                            class="form-control form-control-lg">
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-semibold">Last Name</label>
+                        <input name="last_name"
+                            value="{{ student.user.last_name }}"
+                            class="form-control form-control-lg">
+                    </div>
 
                     <!-- Username -->
                     <div class="col-md-6 mb-4">

@@ -1,4 +1,23 @@
 {% extends "base.html" %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+
+        <li class="breadcrumb-item">
+            <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+        </li>
+
+        <li class="breadcrumb-item">
+            <a href="{% url 'admin_exam_list' %}">Manage Exams</a>
+        </li>
+
+        <li class="breadcrumb-item active">
+            Manage Marks
+        </li>
+
+    </ol>
+</nav>
+{% endblock %}
 {% block content %}
 
 <div class="container mt-4">

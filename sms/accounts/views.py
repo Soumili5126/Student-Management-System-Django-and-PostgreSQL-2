@@ -409,13 +409,9 @@ def admin_dashboard(request):
 
     context = {
 
-        'total_students': User.objects.filter(
-            role__name__iexact='Student'
-        ).count(),
+        'total_students': StudentProfile.objects.count(),
 
-        'total_faculty': User.objects.filter(
-            role__name__iexact='Faculty'
-        ).count(),
+        'total_faculty': FacultyProfile.objects.count(),
 
         'total_courses': courses.count(),
 
@@ -1264,6 +1260,8 @@ def edit_student(request, student_id):
 
         user.username = request.POST.get('username')
         user.email = request.POST.get('email')
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
 
         student.roll_number = request.POST.get('roll_number')
         student.gender = request.POST.get('gender')
@@ -1311,7 +1309,10 @@ def delete_student(request, student_id):
         id=student_id
     )
 
-    student.user.delete()  # cascades user + profile
+    user = student.user
+
+    student.delete()   # delete profile first
+    user.delete()      # then delete user
 
     messages.success(
         request,
@@ -1331,11 +1332,14 @@ def faculty_permission_list(request):
     search_query = request.GET.get("search", "")
 
     faculties = (
-        User.objects
-        .filter(role__name__iexact='Faculty')
-        .select_related('faculty_profile')
-        .prefetch_related('faculty_profile__courses')
+    User.objects
+    .filter(
+        role__name__iexact='Faculty',
+        faculty_profile__isnull=False
     )
+    .select_related('faculty_profile')
+    .prefetch_related('faculty_profile__courses')
+)
 
     if search_query:
         faculties = faculties.filter(

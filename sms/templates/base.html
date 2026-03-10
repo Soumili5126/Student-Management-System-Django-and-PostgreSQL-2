@@ -281,6 +281,8 @@
                 </div>
             {% endfor %}
         {% endif %}
+        <!-- BREADCRUMBS -->
+        {% block breadcrumbs %}{% endblock %}
 
         {% block content %}{% endblock %}
 
@@ -364,7 +366,15 @@ body {
 .btn {
     border-radius: 10px;
 }
+.breadcrumb {
+    background: transparent;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
 
+.breadcrumb a {
+    text-decoration: none;
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

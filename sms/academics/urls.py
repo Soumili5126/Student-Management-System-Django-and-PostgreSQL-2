@@ -7,6 +7,10 @@ urlpatterns = [
     path('admin/batches/create/', views.create_batch, name='create_batch'),
     path('admin/batches/assign/<int:student_id>/', views.assign_batch, name='assign_batch'),
     path('batches/<int:batch_id>/edit/', views.edit_batch, name='edit_batch'),
+    path(
+    'delete-batch/<int:batch_id>/',
+    views.delete_batch,
+    name='delete_batch'),
     path('admin/departments/', views.department_list, name='department_list'),
     path('admin/departments/create/', views.create_department, name='create_department'),
     path('admin/departments/<int:pk>/edit/', views.edit_department, name='edit_department'),

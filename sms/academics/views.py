@@ -396,6 +396,17 @@ def edit_batch(request, batch_id):
         'batch': batch
     })
 @login_required
+@permission_required('manage_batches')
+def delete_batch(request, batch_id):
+
+    batch = get_object_or_404(Batch, id=batch_id)
+
+    batch.delete()
+
+    messages.success(request, "Batch deleted successfully.")
+
+    return redirect('batch_list')
+@login_required
 @role_required(['admin'])
 def department_list(request):
 

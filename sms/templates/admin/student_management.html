@@ -1,4 +1,28 @@
 {% extends "base.html" %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+
+        <li class="breadcrumb-item">
+
+        {% if request.user.role.name|lower == "admin" %}
+            <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+
+        {% elif request.user.role.name|lower == "faculty" %}
+            <a href="{% url 'faculty_dashboard' %}">Dashboard</a>
+
+        
+        {% endif %}
+
+        </li>
+
+        <li class="breadcrumb-item active">
+            Manage Students
+        </li>
+
+    </ol>
+</nav>
+{% endblock %}
 {% block content %}
 
 <!-- PAGE HEADER -->
@@ -75,7 +99,12 @@
                 {% for s in page_obj %}
                 <tr>
 
-                    <td class="fw-medium">{{ s.user.username }}</td>
+                    <td>
+                        <div class="fw-medium">{{ s.user.username }}</div>
+                        <div class="text-muted small">
+                            {{ s.user.first_name }} {{ s.user.last_name }}
+                        </div>
+                    </td>
                     <td class="small">{{ s.user.email }}</td>
                     <td>{{ s.roll_number }}</td>
 

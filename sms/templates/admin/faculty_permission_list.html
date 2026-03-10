@@ -1,4 +1,19 @@
 {% extends "base.html" %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+
+        <li class="breadcrumb-item">
+            <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+        </li>
+
+        <li class="breadcrumb-item active">
+            Manage Faculty Permission
+        </li>
+
+    </ol>
+</nav>
+{% endblock %}
 {% block content %}
 
 <div class="container mt-4">
@@ -7,7 +22,7 @@
 
         <!-- Header -->
         <div class="card-header bg-white border-0">
-            <h4 class="fw-bold mb-0">Faculty Permission Management</h4>
+            <h2 lass="fw-semibold mb-1" style="font-size: 22px;">Faculty Permission Management</h2>
         </div>
 
         <div class="card-body">
@@ -76,10 +91,19 @@
                             </td>
 
                             <td class="text-end">
-                                <a href="{% url 'assign_faculty_permissions' f.id %}"
-                                   class="btn btn-sm btn-outline-primary">
-                                    Manage Permissions
-                                </a>
+                                <div class="d-flex justify-content-end gap-1">
+
+                                    <a href="{% url 'assign_faculty_permissions' f.id %}"
+                                    class="btn btn-sm btn-outline-primary">
+                                        Manage Permissions
+                                    </a>
+
+                                    <a href="{% url 'delete_faculty' f.faculty_profile.id %}"
+                                        class="btn btn-sm btn-outline-danger delete-faculty-btn">
+                                            <i class="bi bi-trash"></i>
+                                    </a>
+
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -146,4 +170,36 @@
    <i class="bi bi-arrow-left me-1"></i>
    Back to Admin Dashboard
 </a>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.querySelectorAll(".delete-faculty-btn").forEach(function(button){
+
+button.addEventListener("click", function(e){
+
+e.preventDefault();
+
+let url = this.getAttribute("href");
+
+Swal.fire({
+title: "Delete this faculty?",
+text: "This will permanently remove the faculty record.",
+icon: "warning",
+showCancelButton: true,
+confirmButtonColor: "#dc3545",
+cancelButtonColor: "#6c757d",
+confirmButtonText: "Yes, delete"
+}).then((result)=>{
+
+if(result.isConfirmed){
+window.location.href = url;
+}
+
+});
+
+});
+
+});
+</script>
 {% endblock %}

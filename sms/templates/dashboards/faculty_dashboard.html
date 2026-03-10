@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h2 class="mb-4 fw-semibold" style="font-size:22px;">Welcome!</h2>
+<h2 class="mb-4 ">Welcome {{ request.user.first_name }} !👋</h2>
 
 <!-- ================= NAV TABS ================= -->
 <ul class="nav nav-tabs modern-tabs mb-4">
@@ -21,7 +21,7 @@
     <li class="nav-item">
         <button class="nav-link"
                 data-bs-toggle="tab"
-                data-bs-target="#subjects">Subjects & Students</button>
+                data-bs-target="#subjects">Students</button>
     </li>
 
     <li class="nav-item">

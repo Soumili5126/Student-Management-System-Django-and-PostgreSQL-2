@@ -1,4 +1,23 @@
 {% extends "base.html" %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+
+        <li class="breadcrumb-item">
+            <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+        </li>
+
+        <li class="breadcrumb-item">
+            <a href="{% url 'department_list' %}">Manage Departments</a>
+        </li>
+
+        <li class="breadcrumb-item active">
+            Create Department
+        </li>
+
+    </ol>
+</nav>
+{% endblock %}
 {% block content %}
 
 <!-- ===== PAGE HEADER ===== -->
