@@ -52,7 +52,7 @@ class User(AbstractUser):
     reset_token_expiry = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.username} ({self.role})"
+        return f"{self.get_full_name()} ({self.username})"
 
 class StudentProfile(models.Model):
     GENDER_CHOICES = (
@@ -84,6 +84,8 @@ class StudentProfile(models.Model):
 
     class Meta:
         db_table = 'academics_studentprofile'
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.roll_number}"
 
 class FacultyProfile(models.Model):
     user = models.OneToOneField(
@@ -96,7 +98,7 @@ class FacultyProfile(models.Model):
     class Meta:
         db_table = 'academics_facultyprofile'
     def __str__(self):
-        return f"{self.user.username} - {self.designation}"
+        return f"{self.user.get_full_name()} - {self.designation}"
 
 
 

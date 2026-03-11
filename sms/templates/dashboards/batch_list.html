@@ -171,10 +171,10 @@
 
                             {% if s.batch %}
                             <a href="{% url 'remove_student_from_batch' s.id %}"
-                               class="btn btn-sm btn-outline-danger"
-                               onclick="return confirm('Remove student from batch?');">
-                                <i class="bi bi-x-circle me-1"></i>
-                                Remove
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="confirmRemove(event, this.href)">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Remove
                             </a>
                             {% endif %}
 
@@ -238,6 +238,26 @@
    Go to Admin Dashboard
 </a>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function confirmRemove(event, url) {
+    event.preventDefault();
+
+    Swal.fire({
+        title: "Remove Student?",
+        text: "This student will be removed from the batch.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Yes, remove"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = url;
+        }
+    });
+}
+</script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function(){

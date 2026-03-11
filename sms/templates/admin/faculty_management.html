@@ -86,7 +86,12 @@
                 {% for f in page_obj %}
                 <tr>
 
-                    <td class="fw-medium">{{ f.user.username }}</td>
+                   <td>
+                        <div class="fw-semibold">{{ f.user.username }}</div>
+                        <small class="text-muted">
+                            {{ f.user.get_full_name }}
+                        </small>
+                    </td>
                     <td class="small">{{ f.user.email }}</td>
 
                     <td>

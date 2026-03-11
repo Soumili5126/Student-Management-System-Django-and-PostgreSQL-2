@@ -45,7 +45,18 @@
                            class="form-control form-control-sm"
                            value="{{ faculty.user.username }}">
                 </div>
-
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-medium">First Name</label>
+                    <input name="first_name"
+                        class="form-control form-control-sm"
+                        value="{{ faculty.user.first_name }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small fw-medium">Last Name</label>
+                    <input name="last_name"
+                        class="form-control form-control-sm"
+                        value="{{ faculty.user.last_name }}">
+                </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label small fw-medium">Email</label>
                     <input name="email"
@@ -70,7 +81,7 @@
             </div>
 
             <div class="mt-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm px-4">
+                <button type="submit" name="update_faculty" class="btn btn-primary btn-sm px-4">
                     <i class="bi bi-check-circle me-1"></i> Save Changes
                 </button>
 
@@ -145,7 +156,7 @@
                 </div>
 
                 <div class="col-md-4 mb-2">
-                    <button class="btn btn-success btn-sm w-100">
+                    <button name="assign_course" class="btn btn-success btn-sm w-100">
                         <i class="bi bi-plus-circle me-1"></i>
                         Assign Course
                     </button>

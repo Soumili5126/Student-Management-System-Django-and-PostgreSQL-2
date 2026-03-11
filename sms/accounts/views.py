@@ -1538,6 +1538,8 @@ def edit_faculty(request, faculty_id):
 
     if request.method == 'POST':
 
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
         user.username = request.POST.get('username')
         user.email = request.POST.get('email')
 
@@ -1546,13 +1548,7 @@ def edit_faculty(request, faculty_id):
 
         department_id = request.POST.get('department')
 
-        if department_id:
-            faculty.department = get_object_or_404(
-                Department,
-                id=department_id
-            )
-        else:
-            faculty.department = None
+        faculty.department = request.POST.get('department')
 
         user.save()
         faculty.save()

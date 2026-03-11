@@ -28,12 +28,19 @@
 .auth-inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center; /* FIXED */
 }
 
 /* Left form section */
 .auth-form {
-    width: 48%;
+    width: 60%; /* FIXED */
+    margin: auto; /* FIXED */
+    text-align: center; /* FIXED */
+}
+
+/* Keep form fields aligned properly */
+.auth-form form {
+    text-align: left;
 }
 
 /* Right design section */
@@ -134,14 +141,6 @@
                     </a>
                 </div>
 
-            </div>
-
-            <!-- RIGHT SIDE DESIGN -->
-            <div class="auth-design">
-                <!-- You can replace this with an image if you want -->
-                <img src="https://via.placeholder.com/350x350"
-                     class="img-fluid rounded"
-                     alt="Design">
             </div>
 
         </div>

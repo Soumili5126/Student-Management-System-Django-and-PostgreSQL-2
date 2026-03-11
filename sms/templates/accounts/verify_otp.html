@@ -15,7 +15,7 @@
 /* Card */
 .otp-card {
     width: 100%;
-    max-width: 400px;
+    max-width: 450px;
     background: #ffffff;
     padding: 40px;
     border-radius: 16px;
@@ -44,7 +44,7 @@
 }
 
 .otp-inputs input {
-    width: 55px;
+    width: 50px;
     height: 55px;
     text-align: center;
     font-size: 20px;
@@ -93,6 +93,8 @@
             {% csrf_token %}
 
             <div class="otp-inputs">
+                <input type="text" maxlength="1" required>
+                <input type="text" maxlength="1" required>
                 <input type="text" maxlength="1" required>
                 <input type="text" maxlength="1" required>
                 <input type="text" maxlength="1" required>
