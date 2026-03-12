@@ -724,17 +724,17 @@ def edit_student_profile(request):
 @login_required
 def mark_attendance(request, course_id):
 
-    # 🔐 Role check
+    # Role check
     if not request.user.role or request.user.role.name.lower() != 'faculty':
         return HttpResponseForbidden(render(request, '403.html'))
 
-    # 🔐 Safety: ensure faculty profile exists
+    # Safety: ensure faculty profile exists
     try:
         faculty = request.user.faculty_profile
     except FacultyProfile.DoesNotExist:
         return HttpResponseForbidden(render(request, '403.html'))
 
-    # 🔐 Ensure faculty owns the course
+    #  Ensure faculty owns the course
     course = get_object_or_404(
         Course,
         id=course_id,
@@ -789,11 +789,11 @@ def mark_attendance(request, course_id):
 @login_required
 def assign_faculty(request, course_id):
 
-    # 🔐 Role check
+    # Role check
     if not request.user.role or request.user.role.name.lower() != 'admin':
         return HttpResponseForbidden(render(request, '403.html'))
 
-    # 🔐 Secure course lookup
+    # Secure course lookup
     course = get_object_or_404(Course, id=course_id)
 
     faculties = FacultyProfile.objects.select_related('user')
@@ -828,7 +828,7 @@ def assign_faculty(request, course_id):
 @login_required
 def remove_faculty(request, course_id):
 
-    # 🔐 Role check
+    #  Role check
     if not request.user.role or request.user.role.name.lower() != 'admin':
         return HttpResponseForbidden(render(request, '403.html'))
 
@@ -1678,22 +1678,32 @@ def course_management(request):
 def add_course(request):
 
     departments = Department.objects.all()
+    faculties = FacultyProfile.objects.select_related('user')
 
     if request.method == "POST":
 
         code = request.POST.get("code")
         name = request.POST.get("name")
         department_id = request.POST.get("department")
+        faculty_id = request.POST.get("faculty")
 
         department = get_object_or_404(
             Department,
             id=department_id
         )
 
+        faculty = None
+        if faculty_id:
+            faculty = get_object_or_404(
+                FacultyProfile,
+                id=faculty_id
+            )
+
         Course.objects.create(
             code=code,
             name=name,
-            department=department
+            department=department,
+            faculty=faculty
         )
 
         messages.success(request, "Course added successfully.")
@@ -1703,7 +1713,8 @@ def add_course(request):
         request,
         "admin/add_course.html",
         {
-            "departments": departments
+            "departments": departments,
+            "faculties": faculties
         }
     )
 

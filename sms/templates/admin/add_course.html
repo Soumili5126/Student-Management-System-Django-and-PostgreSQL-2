@@ -83,6 +83,27 @@
                 </div>
 
             </div>
+            <!-- Assign Faculty -->
+            <div class="col-md-12 mb-4">
+                <label class="form-label small fw-medium">
+                    Assign Faculty
+                </label>
+
+                <select name="faculty"
+                        class="form-select form-select-sm">
+
+                    <option value="">
+                        -- Select Faculty (Optional) --
+                    </option>
+
+                    {% for faculty in faculties %}
+                        <option value="{{ faculty.id }}">
+                            {{ faculty.user.get_full_name }}({{ faculty.user.username }})
+                        </option>
+                    {% endfor %}
+
+                </select>
+            </div>
 
             <!-- ACTION BUTTONS -->
             <div class="d-flex gap-2">
