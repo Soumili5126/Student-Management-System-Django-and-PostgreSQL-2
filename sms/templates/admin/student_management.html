@@ -24,6 +24,7 @@
 </nav>
 {% endblock %}
 {% block content %}
+<div class="container-fluid">
 
 <!-- PAGE HEADER -->
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -246,20 +247,21 @@ window.location.href = url;
 </script>
 <style>
 
-.student-table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    display: block;
+/* Let Bootstrap handle scrolling */
+.student-table-wrapper{
+    overflow-x:auto;
 }
 
-.student-table-wrapper table {
-    min-width: 1200px;
+/* Keep table inside wrapper */
+.student-table-wrapper table{
+    width:100%;
 }
 
 /* Prevent sidebar shrinking */
 .sidebar{
-    flex-shrink: 0;
+    flex-shrink:0;
 }
 
 </style>
+</div> <!-- container-fluid -->
 {% endblock %}

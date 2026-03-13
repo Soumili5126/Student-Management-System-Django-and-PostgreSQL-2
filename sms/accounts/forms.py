@@ -177,9 +177,23 @@ class UserRegisterForm(UserCreationForm):
 
         return password
     
+
+
 class LoginForm(AuthenticationForm):
-    username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput)
+
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={
+            "placeholder": "Enter username",
+            "class": "form-control"
+        })
+    )
+
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            "placeholder": "Enter password",
+            "class": "form-control"
+        })
+    )
 
 class EnrollmentEditForm(forms.ModelForm):
     class Meta:

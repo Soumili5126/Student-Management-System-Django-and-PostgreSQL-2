@@ -16,7 +16,7 @@ from django.urls import reverse
 from .decorators import admin_only, faculty_only, student_only
 from .decorators import role_required
 from django.http import HttpResponseForbidden
-from .models import User, FacultyProfile, StudentProfile,Role, Permission
+from .models import User, FacultyProfile, StudentProfile,Role, Permission,Notification
 from academics.models import Course, Enrollment,Attendance,Batch,Exam,Grade,Quiz,QuizQuestion,QuizAnswer,QuizAttempt,Department,Timetable
 from datetime import date
 from datetime import datetime
@@ -40,7 +40,8 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.views.decorators.cache import never_cache
-
+from accounts.utils import create_notification
+from django.http import JsonResponse
 # -------- REGISTER --------
 def register_view(request):
     if request.method == 'POST':
@@ -734,7 +735,7 @@ def mark_attendance(request, course_id):
     except FacultyProfile.DoesNotExist:
         return HttpResponseForbidden(render(request, '403.html'))
 
-    #  Ensure faculty owns the course
+    # Ensure faculty owns the course
     course = get_object_or_404(
         Course,
         id=course_id,
@@ -744,13 +745,15 @@ def mark_attendance(request, course_id):
     enrollments = Enrollment.objects.filter(course=course)
 
     if request.method == 'POST':
+
         attendance_date = request.POST.get('date')
 
         for enrollment in enrollments:
+
             status = request.POST.get(str(enrollment.student.id))
 
             if not status:
-                continue  # Skip if no status selected
+                continue
 
             try:
                 Attendance.objects.create(
@@ -759,7 +762,32 @@ def mark_attendance(request, course_id):
                     date=attendance_date,
                     status=status
                 )
+
+                # 🔔 Attendance warning logic
+                total_classes = Attendance.objects.filter(
+                    student=enrollment.student,
+                    course=course
+                ).count()
+
+                present_classes = Attendance.objects.filter(
+                    student=enrollment.student,
+                    course=course,
+                    status="Present"
+                ).count()
+
+                if total_classes > 0:
+                    percentage = (present_classes / total_classes) * 100
+
+                    if percentage < 75:
+                        create_notification(
+                            enrollment.student.user,
+                            "Low Attendance Warning",
+                            f"Your attendance in {course.code} is below 75%",
+                            "/student_dashboard/?tab=attendance"
+                        )
+
             except IntegrityError:
+
                 messages.error(
                     request,
                     f"Attendance already marked for "
@@ -809,6 +837,14 @@ def assign_faculty(request, course_id):
         course.faculty = faculty
         course.save()
 
+        # 🔔 Notification for faculty
+        create_notification(
+            faculty.user,
+            "Course Assignment",
+            f"You have been assigned to teach {course.code}",
+            "/accounts/faculty-dashboard/"
+        )
+
         messages.success(
             request,
             f"{faculty.user.username} assigned to {course.name}"
@@ -824,7 +860,6 @@ def assign_faculty(request, course_id):
             'faculties': faculties
         }
     )
-
 @login_required
 def remove_faculty(request, course_id):
 
@@ -896,10 +931,28 @@ def enroll_students(request, course_id):
                 id=student_id
             )
 
-            Enrollment.objects.get_or_create(
+            enrollment, created = Enrollment.objects.get_or_create(
                 student=student,
                 course=course
             )
+
+            if created:
+                # 🔔 Notify student
+                create_notification(
+                    student.user,
+                    "Course Enrollment",
+                    f"You have been enrolled in {course.code}",
+                    "/student/courses/"
+                )
+
+                # 🔔 Notify faculty assigned to this course
+                if course.faculty and course.faculty.user:
+                    create_notification(
+                        course.faculty.user,
+                        "New Student Enrolled",
+                        f"{student.user.get_full_name()} has enrolled in {course.code}",
+                        "/accounts/faculty-dashboard/"
+                    )
 
         messages.success(
             request,
@@ -980,7 +1033,7 @@ def delete_enrollment(request, enrollment_id):
 @login_required
 def export_attendance_csv(request, course_id):
 
-    # 🔐 Ensure user has role
+    # Ensure user has role
     if not request.user.role:
         return HttpResponseForbidden()
 
@@ -989,10 +1042,10 @@ def export_attendance_csv(request, course_id):
     if role_name not in ['faculty', 'admin']:
         return HttpResponseForbidden()
 
-    # 🔐 Safe course lookup
+    # Safe course lookup
     course = get_object_or_404(Course, id=course_id)
 
-    # 🔐 If faculty → ensure they own the course
+    # If faculty → ensure they own the course
     if role_name == 'faculty':
         try:
             faculty = request.user.faculty_profile
@@ -1604,6 +1657,12 @@ def assign_course_to_faculty(request, faculty_id):
 
         course.faculty = faculty
         course.save()
+        create_notification(
+            faculty.user,
+            "Course Assigned",
+            f"You have been assigned to teach {course.code} - {course.name}",
+            "/faculty/courses/"
+        )
 
         messages.success(
             request,
@@ -1798,19 +1857,34 @@ def create_exam(request, course_id):
         id=course_id,
         faculty=faculty
     )
+
     selected_date = request.GET.get("date")
+
     if request.method == 'POST':
 
         title = request.POST.get('title')
         exam_date = request.POST.get('date')
         total_marks = request.POST.get('total_marks')
 
-        Exam.objects.create(
+        exam = Exam.objects.create(
             course=course,
             title=title,
             date=exam_date,
             total_marks=total_marks
         )
+
+        # 🔔 Notify enrolled students
+        enrollments = Enrollment.objects.filter(
+            course=course
+        ).select_related("student__user")
+
+        for enrollment in enrollments:
+            create_notification(
+                enrollment.student.user,
+                "Exam Scheduled",
+                f"An exam '{exam.title}' has been scheduled for {course.code}",
+                "/student_dashboard/?tab=courses"
+            )
 
         messages.success(request, "Exam created successfully.")
         return redirect('faculty_dashboard')
@@ -1877,10 +1951,18 @@ def enter_grades(request, exam_id):
             marks = request.POST.get(str(enrollment.student.id))
 
             if marks:
-                Grade.objects.create(
+                grade = Grade.objects.create(
                     exam=exam,
                     student=enrollment.student,
                     marks_obtained=marks
+                )
+
+                # 🔔 Send notification to the student
+                create_notification(
+                    enrollment.student.user,
+                    "Exam Result Published",
+                    f"Your result for {exam.title} is now available",
+                    "/student/results/"
                 )
 
         messages.success(request, "Grades saved successfully.")
@@ -1896,6 +1978,7 @@ def enter_grades(request, exam_id):
             'graded_students': graded_students
         }
     )
+
 @login_required
 @role_required(['faculty'])
 def edit_grade(request, grade_id):
@@ -1994,16 +2077,27 @@ def create_quiz(request, course_id):
         description = request.POST.get('description')
         total_questions = request.POST.get('total_questions')
 
-        Quiz.objects.create(
+        quiz = Quiz.objects.create(
             course=course,
             title=title,
             description=description,
             total_questions=total_questions
         )
 
+        # Send notification to enrolled students
+        students = StudentProfile.objects.filter(
+            enrollments__course=quiz.course
+        ).select_related('user')
+
+        for student in students:
+            create_notification(
+                student.user,
+                "New Quiz Available",
+                f"A new quiz '{quiz.title}' has been added for {quiz.course.code}"
+            )
+
         messages.success(request, "Quiz created successfully.")
         return redirect('faculty_dashboard')
-
     return render(
         request,
         'dashboards/create_quiz.html',
@@ -2126,7 +2220,7 @@ def attempt_quiz(request, quiz_id):
     except StudentProfile.DoesNotExist:
         return HttpResponseForbidden()
 
-    # 🔐 Ensure quiz belongs to a course student is enrolled in
+    # Ensure quiz belongs to a course student is enrolled in
     quiz = get_object_or_404(
         Quiz,
         id=quiz_id,
@@ -2213,7 +2307,7 @@ def faculty_quiz_analytics(request, quiz_id):
     except FacultyProfile.DoesNotExist:
         return HttpResponseForbidden()
 
-    # 🔐 Ensure quiz belongs to this faculty
+    # Ensure quiz belongs to this faculty
     quiz = get_object_or_404(
         Quiz,
         id=quiz_id,
@@ -2262,3 +2356,69 @@ def faculty_quiz_analytics(request, quiz_id):
             'student_stats': student_stats.values()
         }
     )
+@login_required
+def mark_notification_read(request, notification_id):
+
+    notification = get_object_or_404(
+        Notification,
+        id=notification_id,
+        user=request.user
+    )
+
+    notification.is_read = True
+    notification.save()
+
+    if notification.link:
+        return redirect(notification.link)
+
+    return redirect('dashboard')
+
+@login_required
+def notifications(request):
+
+    notifications = request.user.notifications.all().order_by("-created_at")
+
+  
+
+    return render(
+        request,
+        "notifications/notifications.html",
+        {"notifications": notifications}
+    )
+
+@login_required
+def mark_all_notifications_read(request):
+
+    Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+    return JsonResponse({"status": "success"})
+
+@login_required
+def notification_data(request):
+
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+
+    latest_notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by("-created_at")[:5]
+
+    data = []
+
+    for n in latest_notifications:
+        data.append({
+            "id": n.id,
+            "message": n.message,
+            "time": n.created_at.strftime("%Y-%m-%d %H:%M"),
+            "is_read": n.is_read
+        })
+
+    return JsonResponse({
+        "unread_count": unread_count,
+        "notifications": data
+    })

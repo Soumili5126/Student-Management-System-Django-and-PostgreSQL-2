@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from academics.views import edit_batch
+from .views import notifications
 urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
@@ -141,4 +142,20 @@ urlpatterns = [
     'faculty/quiz/<int:quiz_id>/analytics/',
     views.faculty_quiz_analytics,
     name='faculty_quiz_analytics'),
+    path(
+    "notifications/",
+    notifications,
+    name="notifications"),
+    path(
+    "notification/read/<int:notification_id>/",
+    views.mark_notification_read,
+    name="mark_notification_read"),
+    path(
+    "mark-all-read/",
+    views.mark_all_notifications_read,
+    name="mark_all_notifications_read"),
+    path(
+    "notification-data/",
+    views.notification_data,
+    name="notification_data"),
 ]

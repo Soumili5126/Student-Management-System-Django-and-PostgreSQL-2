@@ -8,3 +8,13 @@ def faculty_courses(request):
             )
         }
     return {}
+
+def notification_count(request):
+    if request.user.is_authenticated:
+        unread_notifications = request.user.notifications.filter(is_read=False).count()
+    else:
+        unread_notifications = 0
+
+    return {
+        "unread_notifications": unread_notifications
+    }
