@@ -26,36 +26,59 @@
     </p>
 </div>
 
+
 <!-- ================= EXAM INFO CARD ================= -->
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-body p-4">
 
-        <div class="row g-3">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
 
-            <div class="col-md-4">
-                <div class="small text-muted">Exam</div>
-                <div class="fw-semibold">{{ exam.title }}</div>
+            <div class="row g-3 flex-grow-1">
+
+                <div class="col-md-3">
+                    <div class="small text-muted">Exam</div>
+                    <div class="fw-semibold">{{ exam.title }}</div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="small text-muted">Course</div>
+                    <div class="fw-semibold">
+                        {{ exam.course.code }} — {{ exam.course.name }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="small text-muted">Date</div>
+                    <div class="fw-semibold">
+                        {{ exam.date }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="small text-muted">Total Marks</div>
+                    <div class="fw-semibold text-primary">
+                        {{ exam.total_marks }}
+                    </div>
+                </div>
+
             </div>
 
-            <div class="col-md-4">
-                <div class="small text-muted">Course</div>
-                <div class="fw-semibold">
-                    {{ exam.course.code }} — {{ exam.course.name }}
-                </div>
-            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'edit_exam_faculty' exam.id %}"
+                   class="btn btn-outline-primary btn-sm">
+                    Edit Exam
+                </a>
 
-            <div class="col-md-4">
-                <div class="small text-muted">Total Marks</div>
-                <div class="fw-semibold text-primary">
-                    {{ exam.total_marks }}
-                </div>
+                <a href="{% url 'delete_exam_faculty' exam.id %}"
+                   class="btn btn-outline-danger btn-sm delete-exam-btn">
+                    Delete Exam
+                </a>
             </div>
 
         </div>
 
     </div>
 </div>
-
 <!-- ================= ENTER MARKS ================= -->
 <form method="post">
     {% csrf_token %}
@@ -242,6 +265,35 @@ let url = this.getAttribute("href");
 Swal.fire({
 title: "Delete this grade?",
 text: "This action cannot be undone.",
+icon: "warning",
+showCancelButton: true,
+confirmButtonColor: "#dc3545",
+cancelButtonColor: "#6c757d",
+confirmButtonText: "Yes, delete it"
+}).then((result)=>{
+
+if(result.isConfirmed){
+window.location.href = url;
+}
+
+});
+
+});
+
+});
+</script>
+<script>
+document.querySelectorAll(".delete-exam-btn").forEach(function(button){
+
+button.addEventListener("click", function(e){
+
+e.preventDefault();
+
+let url = this.getAttribute("href");
+
+Swal.fire({
+title: "Delete this exam?",
+text: "All related grades will also be deleted.",
 icon: "warning",
 showCancelButton: true,
 confirmButtonColor: "#dc3545",

@@ -3,7 +3,7 @@ import random
 from django.utils import timezone
 from datetime import timedelta
 import uuid
-from .models import Notification
+from .models import Notification,User
 
 def generate_otp():
     return str(random.randint(100000, 999999))
@@ -22,3 +22,19 @@ def create_notification(user, title, message, link=None):
         message=message,
         link=link
     )
+def create_admin_notification(title, message, link=None):
+    admins = User.objects.filter(
+        role__name__iexact="admin"
+    )
+
+    notifications = [
+        Notification(
+            user=admin,
+            title=title,
+            message=message,
+            link=link
+        )
+        for admin in admins
+    ]
+
+    Notification.objects.bulk_create(notifications)

@@ -136,14 +136,18 @@ Academic Calendar
 </span>
 </div>
 
-<h6 class="fw-semibold mb-2">
-{{ exam.title }}
-</h6>
 
-<a href="{% url 'enter_grades' exam.id %}"
-class="btn btn-outline-primary btn-sm mt-auto">
-Enter Grades
-</a>
+
+<div class="d-flex justify-content-between align-items-center mt-2">
+    
+    <h6 class="mb-0">{{ exam.title }}</h6>
+
+    <a href="{% url 'enter_grades' exam.id %}"
+       class="btn btn-outline-primary btn-sm">
+        Enter Grades
+    </a>
+
+</div>
 
 </div>
 

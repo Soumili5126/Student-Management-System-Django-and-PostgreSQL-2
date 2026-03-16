@@ -40,7 +40,7 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.views.decorators.cache import never_cache
-from accounts.utils import create_notification
+from accounts.utils import create_notification, create_admin_notification
 from django.http import JsonResponse
 # -------- REGISTER --------
 def register_view(request):
@@ -69,7 +69,11 @@ def register_view(request):
                         'admission_year': form.cleaned_data.get('admission_year'),
                     }
                 )
-
+                create_admin_notification(
+                    "New Student Registered",
+                    f"{user.get_full_name() or user.username} has registered as a student.",
+                    "/accounts/admin-dashboard/"
+                )
             # ---------- FACULTY ----------
             elif user.role and user.role.name.lower() == 'faculty':
 
@@ -80,7 +84,11 @@ def register_view(request):
                         'designation': form.cleaned_data.get('designation'),
                     }
                 )
-
+                create_admin_notification(
+                    "New Faculty Registered",
+                    f"{user.get_full_name() or user.username} has registered as faculty.",
+                    "/accounts/admin-dashboard/"
+                )
             # ---------- ADMIN ----------
             # no profile needed
 
@@ -783,7 +791,7 @@ def mark_attendance(request, course_id):
                             enrollment.student.user,
                             "Low Attendance Warning",
                             f"Your attendance in {course.code} is below 75%",
-                            "/student_dashboard/?tab=attendance"
+                            "/accounts/student-dashboard/"
                         )
 
             except IntegrityError:
@@ -942,7 +950,7 @@ def enroll_students(request, course_id):
                     student.user,
                     "Course Enrollment",
                     f"You have been enrolled in {course.code}",
-                    "/student/courses/"
+                    "/accounts/student-dashboard/"
                 )
 
                 # 🔔 Notify faculty assigned to this course
@@ -1872,6 +1880,11 @@ def create_exam(request, course_id):
             date=exam_date,
             total_marks=total_marks
         )
+        create_admin_notification(
+            "Exam Created",
+            f"{request.user.get_full_name() or request.user.username} created exam '{exam.title}' for {course.code}.",
+            "/accounts/admin-dashboard/"
+        )
 
         # 🔔 Notify enrolled students
         enrollments = Enrollment.objects.filter(
@@ -1883,7 +1896,7 @@ def create_exam(request, course_id):
                 enrollment.student.user,
                 "Exam Scheduled",
                 f"An exam '{exam.title}' has been scheduled for {course.code}",
-                "/student_dashboard/?tab=courses"
+                "/accounts/student-dashboard/"
             )
 
         messages.success(request, "Exam created successfully.")
@@ -1962,7 +1975,12 @@ def enter_grades(request, exam_id):
                     enrollment.student.user,
                     "Exam Result Published",
                     f"Your result for {exam.title} is now available",
-                    "/student/results/"
+                    "/accounts/student-dashboard/"
+                )
+                create_admin_notification(
+                    "Grade Entered",
+                    f"{request.user.get_full_name() or request.user.username} entered marks for {enrollment.student.user.get_full_name() or enrollment.student.user.username} in '{exam.title}' ({exam.course.code}).",
+                    "/accounts/admin-dashboard/"
                 )
 
         messages.success(request, "Grades saved successfully.")
@@ -1976,6 +1994,64 @@ def enter_grades(request, exam_id):
             'enrollments': enrollments,
             'grades': grades,
             'graded_students': graded_students
+        }
+    )
+@login_required
+@role_required(['faculty'])
+def delete_exam_faculty(request, exam_id):
+
+    try:
+        faculty = request.user.faculty_profile
+    except FacultyProfile.DoesNotExist:
+        return HttpResponseForbidden()
+
+    exam = get_object_or_404(
+        Exam,
+        id=exam_id,
+        course__faculty=faculty
+    )
+
+    if request.method == "POST":
+        exam.delete()
+        messages.success(request, "Exam deleted successfully.")
+        return redirect("faculty_dashboard")
+
+    return render(
+        request,
+        "dashboards/delete_exam_faculty.html",
+        {
+            "exam": exam
+        }
+    )
+@login_required
+@role_required(['faculty'])
+def edit_exam_faculty(request, exam_id):
+
+    try:
+        faculty = request.user.faculty_profile
+    except FacultyProfile.DoesNotExist:
+        return HttpResponseForbidden()
+
+    exam = get_object_or_404(
+        Exam,
+        id=exam_id,
+        course__faculty=faculty
+    )
+
+    if request.method == "POST":
+        exam.title = request.POST.get("title")
+        exam.date = request.POST.get("date")
+        exam.total_marks = request.POST.get("total_marks")
+        exam.save()
+
+        messages.success(request, "Exam updated successfully.")
+        return redirect("enter_grades", exam_id=exam.id)
+
+    return render(
+        request,
+        "dashboards/edit_exam_faculty.html",
+        {
+            "exam": exam
         }
     )
 
@@ -2082,6 +2158,11 @@ def create_quiz(request, course_id):
             title=title,
             description=description,
             total_questions=total_questions
+        )
+        create_admin_notification(
+            "Quiz Created",
+            f"{request.user.get_full_name() or request.user.username} created quiz '{quiz.title}' for {course.code}.",
+            "/accounts/admin-dashboard/"
         )
 
         # Send notification to enrolled students
@@ -2262,6 +2343,14 @@ def attempt_quiz(request, quiz_id):
 
         attempt.score = correct
         attempt.save()
+        # 🔔 Notify faculty when student attempts quiz
+        if quiz.course.faculty and quiz.course.faculty.user:
+            create_notification(
+                quiz.course.faculty.user,
+                "Quiz Attempt Submitted",
+                f"{student.user.get_full_name() or student.user.username} attempted quiz '{quiz.title}' in {quiz.course.code}",
+                "/accounts/faculty-dashboard/"
+            )
 
         return redirect('quiz_result', attempt.id)
 

@@ -85,10 +85,7 @@
                         <th>Username</th>
                         <th>Email</th>
                         <th>Roll</th>
-                        <th>Gender</th>
                         <th>Phone</th>
-                        <th>DOB</th>
-                        <th>Address</th>
                         <th>Year</th>
                         <th>Batch</th>
                         <th>Courses</th>
@@ -103,23 +100,16 @@
                     <td>
                         <div class="fw-medium">{{ s.user.username }}</div>
                         <div class="text-muted small">
-                            {{ s.user.first_name }} {{ s.user.last_name }}
+                            {{ s.user.first_name }} {{ s.user.last_name }} 
+                            <span class="badge bg-info-subtle text-info px-2 py-1">
+                                {{ s.gender|title }}
+                            </span>
                         </div>
                     </td>
                     <td class="small">{{ s.user.email }}</td>
                     <td>{{ s.roll_number }}</td>
-
-                    <td>
-                        <span class="badge bg-info-subtle text-info px-2 py-1">
-                            {{ s.gender|title }}
-                        </span>
-                    </td>
-
                     <td>{{ s.phone }}</td>
-                    <td class="small">{{ s.date_of_birth }}</td>
-                    <td class="text-muted small">{{ s.address }}</td>
                     <td>{{ s.admission_year }}</td>
-
                     <td>
                         {% if s.batch %}
                             <span class="badge bg-success-subtle text-success px-2 py-1">
@@ -131,7 +121,6 @@
                             </span>
                         {% endif %}
                     </td>
-
                     <td>
                         {% for e in s.enrollments.all %}
                             <span class="badge bg-primary-subtle text-primary px-2 py-1 me-1">
@@ -141,18 +130,17 @@
                             <span class="text-muted small">—</span>
                         {% endfor %}
                     </td>
-
-                    <td>
-                        <div class="d-flex gap-1 flex-wrap">
+                    <td style="min-width: 110px;">
+                        <div class="d-flex gap-1 flex-nowrap align-items-center">
 
                             <a href="{% url 'edit_student' s.id %}"
-                               class="btn btn-sm btn-outline-primary">
-                               <i class="bi bi-pencil-square"></i>
+                            class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil-square"></i>
                             </a>
 
                             <a href="{% url 'delete_student' s.id %}"
-                                class="btn btn-sm btn-outline-danger delete-student-btn">
-                                    <i class="bi bi-trash"></i>
+                            class="btn btn-sm btn-outline-danger delete-student-btn">
+                                <i class="bi bi-trash"></i>
                             </a>
 
                         </div>

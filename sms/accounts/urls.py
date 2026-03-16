@@ -109,6 +109,17 @@ urlpatterns = [
     'faculty/exam/<int:exam_id>/grades/',
     views.enter_grades,
     name='enter_grades'),
+    path(
+    'faculty/exam/<int:exam_id>/edit/',
+    views.edit_exam_faculty,
+    name='edit_exam_faculty'
+    ),
+
+    path(
+        'faculty/exam/<int:exam_id>/delete/',
+        views.delete_exam_faculty,
+        name='delete_exam_faculty'
+    ),
     path("grade/edit/<int:grade_id>/", views.edit_grade, name="edit_grade"),
     path("grade/delete/<int:grade_id>/", views.delete_grade, name="delete_grade"),
     path(
