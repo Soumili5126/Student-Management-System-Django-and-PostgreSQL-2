@@ -27,7 +27,7 @@
 <div class="container-fluid">
 
 <!-- PAGE HEADER -->
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-2">
     <div>
         <h2 class="fw-semibold mb-1" style="font-size: 22px;">
             Student Management
@@ -99,14 +99,14 @@
 
                     <td>
                         <div class="fw-medium">{{ s.user.username }}</div>
-                        <div class="text-muted small">
+                        <div class="text-muted">
                             {{ s.user.first_name }} {{ s.user.last_name }} 
                             <span class="badge bg-info-subtle text-info px-2 py-1">
                                 {{ s.gender|title }}
                             </span>
                         </div>
                     </td>
-                    <td class="small">{{ s.user.email }}</td>
+                    <td>{{ s.user.email }}</td>
                     <td>{{ s.roll_number }}</td>
                     <td>{{ s.phone }}</td>
                     <td>{{ s.admission_year }}</td>
@@ -127,7 +127,7 @@
                                 {{ e.course.code }}
                             </span>
                         {% empty %}
-                            <span class="text-muted small">—</span>
+                            <span class="text-muted">—</span>
                         {% endfor %}
                     </td>
                     <td style="min-width: 110px;">

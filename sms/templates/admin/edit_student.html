@@ -49,7 +49,7 @@
                         <label class="form-label fw-semibold">First Name</label>
                         <input name="first_name"
                             value="{{ student.user.first_name }}"
-                            class="form-control form-control-lg">
+                            class="form-control form-control-sm">
                     </div>
 
                     <!-- Last Name -->
@@ -57,7 +57,7 @@
                         <label class="form-label fw-semibold">Last Name</label>
                         <input name="last_name"
                             value="{{ student.user.last_name }}"
-                            class="form-control form-control-lg">
+                            class="form-control form-control-sm">
                     </div>
 
                     <!-- Username -->
@@ -65,7 +65,7 @@
                         <label class="form-label fw-semibold">Username</label>
                         <input name="username"
                                value="{{ student.user.username }}"
-                               class="form-control form-control-lg">
+                               class="form-control form-control-sm">
                     </div>
 
                     <!-- Email -->
@@ -73,7 +73,7 @@
                         <label class="form-label fw-semibold">Email</label>
                         <input name="email"
                                value="{{ student.user.email }}"
-                               class="form-control form-control-lg">
+                               class="form-control form-control-sm">
                     </div>
 
                     <!-- Roll Number -->
@@ -81,14 +81,14 @@
                         <label class="form-label fw-semibold">Roll Number</label>
                         <input name="roll_number"
                                value="{{ student.roll_number }}"
-                               class="form-control form-control-lg">
+                               class="form-control form-control-sm">
                     </div>
 
                     <!-- Gender -->
                     <div class="col-md-6 mb-4">
                         <label class="form-label fw-semibold">Gender</label>
                         <select name="gender"
-                                class="form-select form-select-lg">
+                                class="form-select form-select-sm">
                             <option value="male"
                                 {% if student.gender == "male" %}selected{% endif %}>
                                 Male
@@ -109,7 +109,7 @@
                         <label class="form-label fw-semibold">Phone</label>
                         <input name="phone"
                                value="{{ student.phone }}"
-                               class="form-control form-control-lg">
+                               class="form-control form-control-sm">
                     </div>
 
                     <!-- DOB -->
@@ -118,7 +118,7 @@
                         <input type="date"
                                name="date_of_birth"
                                value="{{ student.date_of_birth|date:'Y-m-d' }}"
-                               class="form-control form-control-lg">
+                               class="form-control form-control-sm">
                     </div>
 
                     <!-- Address -->
@@ -126,7 +126,7 @@
                         <label class="form-label fw-semibold">Address</label>
                         <textarea name="address"
                                   rows="3"
-                                  class="form-control form-control-lg">{{ student.address }}</textarea>
+                                  class="form-control form-control-sm">{{ student.address }}</textarea>
                     </div>
 
                     <!-- Admission Year -->
@@ -134,14 +134,14 @@
                         <label class="form-label fw-semibold">Admission Year</label>
                         <input name="admission_year"
                                value="{{ student.admission_year }}"
-                               class="form-control form-control-lg">
+                               class="form-control form-control-sm">
                     </div>
 
                     <!-- Batch -->
                     <div class="col-md-6 mb-4">
                         <label class="form-label fw-semibold">Batch</label>
                         <select name="batch"
-                                class="form-select form-select-lg">
+                                class="form-select form-select-sm">
                             <option value="">-- No Batch --</option>
                             {% for b in batches %}
                                 <option value="{{ b.id }}"

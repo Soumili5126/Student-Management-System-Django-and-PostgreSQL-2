@@ -40,7 +40,7 @@
                 🔔
 
                 {% if unread_notifications > 0 %}
-                <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
+                <span class="badge bg-danger position-absolute top-0 start-100 translate-middle notification-badge">
                     {{ unread_notifications }}
                 </span>
                 {% endif %}
@@ -349,6 +349,9 @@
             <a href="{% url 'student_dashboard' %}?tab=attempts" class="list-group-item sidebar-link">
                 <i class="bi bi-bar-chart me-2"></i> Quiz Attempts
             </a>
+            <a href="{% url 'student_dashboard' %}?tab=exams" class="list-group-item sidebar-link">
+                <i class="bi bi-file-earmark-text me-2"></i> Exams
+            </a>
 
         </div>
     </div>
@@ -483,7 +486,7 @@ document.addEventListener("DOMContentLoaded", function(){
             .then(data => {
 
                 // remove notification badge
-                const badge = document.querySelector(".badge.bg-danger");
+                const badge = document.querySelector(".notification-badge");
 
                 if(badge){
                     badge.remove();
@@ -512,7 +515,7 @@ function loadNotifications(){
     .then(data => {
 
         // Update bell badge
-        let badge = document.querySelector(".badge.bg-danger");
+        let badge = document.querySelector(".notification-badge");
 
         if(data.unread_count > 0){
 
@@ -520,7 +523,7 @@ function loadNotifications(){
                 const bell = document.querySelector(".nav-link.position-relative");
 
                 badge = document.createElement("span");
-                badge.className = "badge bg-danger position-absolute top-0 start-100 translate-middle";
+                badge.className = "badge bg-danger position-absolute top-0 start-100 translate-middle notification-badge";
 
                 bell.appendChild(badge);
             }

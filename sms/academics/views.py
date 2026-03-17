@@ -464,6 +464,7 @@ def edit_department(request, pk):
 
     department = get_object_or_404(Department, pk=pk)
     courses = Course.objects.filter(department=department)
+    available_courses = Course.objects.exclude(department=department)
 
     if request.method == "POST":
 
@@ -481,16 +482,16 @@ def edit_department(request, pk):
                 course.name = name
                 course.save()
 
-        # ---------- Add New Course (Optional) ----------
-        new_code = request.POST.get("new_code")
-        new_name = request.POST.get("new_name")
+        # ---------- Assign Existing Course ----------
+        selected_course_id = request.POST.get("existing_course")
 
-        if new_code and new_name:
-            Course.objects.create(
-                department=department,
-                code=new_code,
-                name=new_name
+        if selected_course_id:
+            selected_course = get_object_or_404(
+                Course,
+                id=selected_course_id
             )
+            selected_course.department = department
+            selected_course.save()
 
         return redirect("department_list")
 
@@ -499,7 +500,8 @@ def edit_department(request, pk):
         "dashboards/admin/edit_department.html",
         {
             "department": department,
-            "courses": courses
+            "courses": courses,
+            "available_courses": available_courses
         }
     )
 @login_required

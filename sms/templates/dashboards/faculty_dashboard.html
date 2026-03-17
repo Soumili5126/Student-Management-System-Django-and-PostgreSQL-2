@@ -37,14 +37,14 @@
 <!-- ================= PROFILE ================= -->
 <div class="tab-pane fade show active" id="profile">
 
-<div class="row">
+<div class="row align-items-stretch">
 
 <!-- LEFT SIDE PROFILE -->
-<div class="col-md-8">
+<div class="col-md-8 d-flex">
 
-<div class="card modern-card p-4">
+<div class="card modern-card p-4 w-100 h-100">
 
-<div class="d-flex align-items-start gap-4">
+<div class="d-flex align-items-start gap-4 h-100">
 
 <!-- Profile Image -->
 <div>
@@ -63,11 +63,11 @@ class="rounded-circle shadow profile-img">
 </div>
 
 <!-- Profile Information -->
-<div class="flex-grow-1">
+<div class="flex-grow-1 d-flex flex-column justify-content-between">
 
-<h6 class="fw-semibold mb-3 text-secondary">
+<h3 class="fw-semibold mb-3 text-secondary">
 Profile Information
-</h6>
+</h3>
 
 <div class="profile-row">
 <span>Full Name</span>
@@ -102,11 +102,10 @@ Edit Profile
 
 </div>
 
-
 <!-- RIGHT SIDE CALENDAR -->
-<div class="col-md-4">
+<div class="col-md-4 d-flex">
 
-<div class="card modern-card p-3 calendar-card">
+<div class="card modern-card p-3 calendar-card w-100 h-100">
 <h6 class="text-center mb-3 text-secondary fw-semibold">
 Academic Calendar
 </h6>
@@ -123,37 +122,41 @@ Academic Calendar
 <div class="tab-pane" id="exams">
 
 {% if exams %}
-<div class="row">
+<div class="card modern-card p-3">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0 exam-grid">
+            <thead class="table-light">
+                <tr>
+                    <th>Exam Name</th>
+                    <th>Course Code</th>
+                    <th>Course Name</th>
+                    <th>Date</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
 
-{% for exam in exams %}
-<div class="col-md-6 mb-3">
-
-<div class="card modern-card p-3 h-100 exam-card">
-
-<div class="d-flex justify-content-between align-items-center mb-2">
-<span class="badge bg-light text-dark small">
-{{ exam.course.code }}
-</span>
-</div>
-
-
-
-<div class="d-flex justify-content-between align-items-center mt-2">
-    
-    <h6 class="mb-0">{{ exam.title }}</h6>
-
-    <a href="{% url 'enter_grades' exam.id %}"
-       class="btn btn-outline-primary btn-sm">
-        Enter Grades
-    </a>
-
-</div>
-
-</div>
-
-</div>
-{% endfor %}
-
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td class="fw-semibold">{{ exam.title }}</td>
+                    <td>
+                        <span class="badge bg-light text-dark">
+                            {{ exam.course.code }}
+                        </span>
+                    </td>
+                    <td>{{ exam.course.name }}</td>
+                    <td>{{ exam.date }}</td>
+                    <td class="text-center">
+                        <a href="{% url 'enter_grades' exam.id %}"
+                           class="btn btn-outline-primary btn-sm">
+                            Enter Grades
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% else %}
@@ -162,53 +165,113 @@ Academic Calendar
 
 </div>
 
-
 <!-- ================= SUBJECTS ================= -->
 <div class="tab-pane" id="subjects">
 
-<div class="row">
-{% for item in course_data %}
-<div class="col-md-6 mb-4">
-
+{% if course_data %}
 <div class="card modern-card p-3">
+    <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0 subject-grid">
+            <thead class="table-light">
+                <tr>
+                    <th>Course Code</th>
+                    <th>Course Name</th>
+                    <th class="text-center">Students</th>
+                </tr>
+            </thead>
 
-<h6 class="fw-semibold mb-3">
-{{ item.course.code }} — {{ item.course.name }}
-</h6>
+            <tbody>
+                {% for item in course_data %}
+                <tr>
+                    <td>
+                        <span class="badge bg-light text-dark">
+                            {{ item.course.code }}
+                        </span>
+                    </td>
+                    <td class="fw-semibold">{{ item.course.name }}</td>
+                    <td class="text-center">
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#studentsModal{{ item.course.id }}">
+                            View Students
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<p class="text-secondary small fw-medium">
-Students Enrolled
-</p>
+<!-- ================= STUDENT MODALS ================= -->
+{% for item in course_data %}
+<div class="modal fade" id="studentsModal{{ item.course.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
 
-{% if item.enrollments %}
-<ul class="small ps-3 student-list">
+            <div class="modal-header">
+                <h5 class="modal-title fw-semibold">
+                    {{ item.course.code }} — {{ item.course.name }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
 
-{% for e in item.enrollments %}
-<li>
-{{ e.student.user.first_name }}
-{{ e.student.user.last_name }}
-({{ e.student.user.username }})
-</li>
+            <div class="modal-body">
+                <h6 class="text-secondary fw-semibold mb-3">Enrolled Students</h6>
+
+                <div class="mb-3">
+                    <div class="input-group input-group-sm">
+                        <input type="text"
+                               class="form-control student-search-input"
+                               placeholder="Search student by name or username..."
+                               data-course-id="{{ item.course.id }}">
+                        <button class="btn btn-outline-primary" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {% if item.enrollments %}
+                    <ul class="mb-0 ps-3 student-list-modal"
+                        id="studentList{{ item.course.id }}">
+                        {% for e in item.enrollments %}
+                        <li class="mb-2 student-list-item"
+                            data-student-text="{{ e.student.user.first_name|lower }} {{ e.student.user.last_name|lower }} {{ e.student.user.username|lower }}">
+                            {{ e.student.user.first_name }}
+                            {{ e.student.user.last_name }}
+                            ({{ e.student.user.username }})
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <p class="text-muted small mb-0 mt-2 d-none"
+                       id="noResult{{ item.course.id }}">
+                        No matching students found.
+                    </p>
+                {% else %}
+                    <p class="text-muted small mb-0">No students enrolled.</p>
+                {% endif %}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 {% endfor %}
 
-</ul>
-
 {% else %}
-<p class="text-muted small">
-No students enrolled.
-</p>
+<p class="small">No courses assigned.</p>
 {% endif %}
 
 </div>
-
-</div>
-{% empty %}
-<p class="small">No courses assigned.</p>
-{% endfor %}
-</div>
-
-</div>
-
 
 <!-- ================= QUIZZES ================= -->
 <div class="tab-pane" id="quizzes">
@@ -328,6 +391,70 @@ calendar.render();
 });
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.querySelectorAll(".student-search-input").forEach(function (input) {
+
+        input.addEventListener("keyup", function () {
+            const courseId = this.getAttribute("data-course-id");
+            const query = this.value.toLowerCase().trim();
+
+            const list = document.getElementById("studentList" + courseId);
+            const noResult = document.getElementById("noResult" + courseId);
+
+            if (!list) return;
+
+            const items = list.querySelectorAll(".student-list-item");
+            let visibleCount = 0;
+
+            items.forEach(function (item) {
+                const text = item.getAttribute("data-student-text");
+
+                if (text.includes(query)) {
+                    item.classList.remove("d-none");
+                    visibleCount++;
+                } else {
+                    item.classList.add("d-none");
+                }
+            });
+
+            if (noResult) {
+                if (visibleCount === 0) {
+                    noResult.classList.remove("d-none");
+                } else {
+                    noResult.classList.add("d-none");
+                }
+            }
+        });
+
+    });
+
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".modal").forEach(function (modal) {
+        modal.addEventListener("hidden.bs.modal", function () {
+            const input = modal.querySelector(".student-search-input");
+            const items = modal.querySelectorAll(".student-list-item");
+            const noResult = modal.querySelector('[id^="noResult"]');
+
+            if (input) input.value = "";
+
+            items.forEach(function (item) {
+                item.classList.remove("d-none");
+            });
+
+            if (noResult) {
+                noResult.classList.add("d-none");
+            }
+        });
+    });
+});
+</script>
+
 <style>
 
 /* ===== Cards ===== */
@@ -385,7 +512,6 @@ margin-bottom: 4px;
 }
 
 /* ===== Calendar Styling ===== */
-
 .calendar-card {
 border-radius: 18px;
 }
@@ -406,8 +532,8 @@ font-weight: 600 !important;
 .fc a {
 text-decoration: none !important;
 }
-/* ===== Remove FullCalendar Grid ===== */
 
+/* ===== Remove FullCalendar Grid ===== */
 .fc-theme-standard td,
 .fc-theme-standard th {
     border: none !important;
@@ -425,25 +551,54 @@ text-decoration: none !important;
     padding: 6px;
 }
 
-/* optional hover effect (looks nicer) */
 .fc-daygrid-day:hover {
     background: #f1f5f9;
     border-radius: 6px;
     cursor: pointer;
 }
-/* Make calendar dates black */
+
 .fc-daygrid-day-number {
     color: #0f172a !important;
 }
 
-/* Make weekday names black */
 .fc-col-header-cell-cushion {
     color: #0f172a !important;
 }
 
-/* Override link color used by FullCalendar */
 .fc a {
     color: #0f172a !important;
+}
+
+.subject-grid thead th {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    white-space: nowrap;
+}
+
+.subject-grid tbody td {
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.subject-grid .btn {
+    min-width: 120px;
+}
+
+.exam-grid thead th {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    white-space: nowrap;
+}
+
+.exam-grid tbody td {
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.exam-grid .btn {
+    min-width: 120px;
 }
 </style>
 

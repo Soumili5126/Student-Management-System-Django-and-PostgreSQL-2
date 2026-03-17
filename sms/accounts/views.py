@@ -568,6 +568,9 @@ def student_dashboard(request):
     grades = Grade.objects.filter(
         student=student
     ).select_related('exam', 'exam__course')
+    exams = Exam.objects.filter(
+        course__enrollment__student=student
+    ).select_related('course').order_by('date')
 
     timetable = Timetable.objects.filter(
         batch=student.batch
@@ -589,7 +592,7 @@ def student_dashboard(request):
             status='present'
         ).count()
 
-        percentage = round((present / total) * 100, 2) if total > 0 else 0
+        percentage = round((present / total) * 100) if total > 0 else 0
         attendance_summary[enrollment.course.id] = percentage
 
     # ---------------- EXAM PERFORMANCE ----------------
@@ -649,6 +652,7 @@ def student_dashboard(request):
             'attendance_summary': attendance_summary,
             'grades': grades,
             'total_exams': total_exams,
+            'exams': exams,
             'timetable': timetable,
 
             # Quiz data
@@ -780,7 +784,7 @@ def mark_attendance(request, course_id):
                 present_classes = Attendance.objects.filter(
                     student=enrollment.student,
                     course=course,
-                    status="Present"
+                    status="present"
                 ).count()
 
                 if total_classes > 0:

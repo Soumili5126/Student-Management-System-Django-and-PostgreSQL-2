@@ -272,7 +272,7 @@ class QuizAttempt(models.Model):
     def percentage(self):
         if self.total_questions == 0:
             return 0
-        return round((self.score / self.total_questions) * 100, 2)
+        return round((self.score / self.total_questions) * 100)
     
 class QuizAnswer(models.Model):
     attempt = models.ForeignKey(

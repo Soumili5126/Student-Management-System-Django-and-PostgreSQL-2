@@ -33,7 +33,20 @@ h2 {
     color: #2c3e50;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
 }
-
+.nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+   
+}
+.nav-tabs .nav-link {
+    font-size: 15px;        /* 🔽 smaller text */
+    padding: 6px 10px;      /* 🔽 tighter spacing */
+    white-space: nowrap;
+}
+.nav-tabs .nav-item {
+    flex-shrink: 1;
+}
 /* ================= CARDS ================= */
 
 .card {
@@ -156,6 +169,16 @@ canvas {
             Courses
         </button>
     </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link"
+                id="exams-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#exams"
+                type="button"
+                role="tab">
+            Exams
+        </button>
+    </li>
 
     <li class="nav-item" role="presentation">
         <button class="nav-link"
@@ -189,7 +212,7 @@ canvas {
         <div class="col-md-4">
             <div class="card p-3 shadow-sm text-center">
                 <h6>Quiz Performance Summary</h6>
-                <h5>{{ avg_quiz_score|floatformat:2|default:"0" }}%</h5>
+                <h5>{{ avg_quiz_score|floatformat:0|default:"0" }}%</h5>
             </div>
         </div>
 
@@ -332,18 +355,11 @@ canvas {
                 </div>
             </div>
 
-            <div class="mb-3">
-                <strong>Address</strong>
-                <div class="text-muted">
-                    {{ student.address }}
-                </div>
-            </div>
-
             <div class="row">
                 <div class="col-md-6">
-                    <strong>Admission Year</strong>
+                    <strong>Address</strong>
                     <div class="text-muted">
-                        {{ student.admission_year }}
+                        {{ student.address }}
                     </div>
                 </div>
 
@@ -357,6 +373,17 @@ canvas {
                             Not assigned
                         {% endif %}
                     </div>
+                </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Admission Year</strong>
+                    <div class="text-muted">
+                        {{ student.admission_year }}
+                    </div>
+                </div>
+
+                
                 </div>
             </div>
 
@@ -440,10 +467,14 @@ canvas {
         <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
             <h5 class="fw-bold mb-0">Exam Results</h5>
 
+            {% if grades %}
             <a href="{% url 'export_exam_results_pdf' %}"
-               class="btn btn-sm btn-outline-danger px-3">
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-sm btn-outline-danger px-3">
                 Export PDF
             </a>
+            {% endif %}
         </div>
 
         <div class="card-body">
@@ -493,7 +524,7 @@ canvas {
                             <!-- Percentage -->
                             <td>
                                 <strong>
-                                    {{ g.percentage|floatformat:2 }}%
+                                    {{ g.percentage|floatformat:0 }}%
                                 </strong>
                             </td>
 
@@ -535,7 +566,7 @@ canvas {
     </div>
 
 </div>
-
+<!-- ================= ATTENDANCE ================= -->
 <div class="tab-pane fade" id="attendance">
 
     <div class="card shadow-sm border-0 mt-4">
@@ -604,6 +635,7 @@ canvas {
     </div>
 
 </div>
+<!-- ================= COURSES ================= -->
 <div class="tab-pane fade" id="courses">
 
     <div class="card shadow-sm border-0 mt-4">
@@ -657,6 +689,70 @@ canvas {
     </div>
 
 </div>
+<!-- ================= EXAMS ================= -->
+<div class="tab-pane fade" id="exams">
+
+    <div class="card shadow-sm border-0 mt-4">
+
+        <div class="card-header bg-white border-0">
+            <h5 class="fw-bold mb-0">Upcoming / Scheduled Exams</h5>
+        </div>
+
+        <div class="card-body">
+
+            {% if exams %}
+
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Course</th>
+                            <th>Exam</th>
+                            <th>Date</th>
+                            <th>Total Marks</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for exam in exams %}
+                        <tr>
+                            <td class="fw-semibold">
+                                {{ exam.course.code }} - {{ exam.course.name }}
+                            </td>
+
+                            <td class="text-muted">
+                                {{ exam.title }}
+                            </td>
+
+                            <td>
+                                {{ exam.date }}
+                            </td>
+
+                            <td>
+                                <span class="badge bg-secondary px-3 py-2">
+                                    {{ exam.total_marks }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted mb-0">
+                        No exams available.
+                    </p>
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+<!-- ================= QUIZZES ================= -->
 <div class="tab-pane fade" id="quizzes">
 
     <div class="card shadow-sm border-0 mt-4">
@@ -865,7 +961,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: ["Passed", "Failed"],
                 datasets: [{
                     data: [passed, failed],
-                    backgroundColor: ["#e4322c", "#e9ecef"],
+                    backgroundColor: ["#33bb5c", "#f51010"],
                     borderWidth: 0,
                     percentageText: examPercent + "%"
                 }]
@@ -902,7 +998,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: ["Present", "Absent"],
                 datasets: [{
                     data: [presentCount, absentCount],
-                    backgroundColor: ["#6f42c1", "#e9ecef"],
+                    backgroundColor: ["#6f42c1", "#f51010"],
                     borderWidth: 0,
                     percentageText: attendancePercent + "%"
                 }]
@@ -939,7 +1035,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: ["Passed", "Failed"],
                 datasets: [{
                     data: [quizPassed, quizFailed],
-                    backgroundColor: ["#f9fd16", "#e9ecef"],
+                    backgroundColor: ["#fd16ea", "#f51010"],
                     borderWidth: 0,
                     percentageText: quizPercent + "%"
                 }]
@@ -977,7 +1073,7 @@ if (attendanceBarCtx) {
             datasets: [{
                 label: "Attendance %",
                 data: attendanceData,
-                backgroundColor: "#d44ce0",
+                backgroundColor: "#135bf7",
                 borderRadius: 6,
                 barThickness: 30,
             }]
