@@ -18,14 +18,19 @@ h2 {
 
 .nav-tabs {
     border-bottom: none;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 .nav-tabs .nav-link {
     border: none;
     color: #6c757d;
     font-weight: 500;
-    padding: 10px 18px;
+    padding: 6px 10px;
     border-radius: 8px 8px 0 0;
+    font-size: 16px;
+    white-space: nowrap;
 }
 
 .nav-tabs .nav-link.active {
@@ -33,20 +38,16 @@ h2 {
     color: #2c3e50;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
 }
-.nav-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-   
-}
-.nav-tabs .nav-link {
-    font-size: 15px;        /* 🔽 smaller text */
-    padding: 6px 10px;      /* 🔽 tighter spacing */
-    white-space: nowrap;
-}
+
 .nav-tabs .nav-item {
     flex-shrink: 1;
 }
+
+/* Hide the sidebar-controlled tab buttons */
+.hidden-student-tab {
+    display: none !important;
+}
+
 /* ================= CARDS ================= */
 
 .card {
@@ -101,12 +102,13 @@ canvas {
 
 </style>
 
-<h2 class="mb-4">Welcome,  {{ request.user.first_name }} !👋</h2>
+<h2 class="mb-4">Welcome, {{ request.user.first_name }} !👋</h2>
 
 <!-- ================= TABS ================= -->
 <ul class="nav nav-tabs mb-3" id="studentTab" role="tablist">
 
-    <li class="nav-item" role="presentation">
+    <!-- Hidden but required for sidebar navigation -->
+    <li class="nav-item hidden-student-tab" role="presentation">
         <button class="nav-link active"
                 id="dashboard-tab"
                 data-bs-toggle="tab"
@@ -117,7 +119,7 @@ canvas {
         </button>
     </li>
 
-    <li class="nav-item" role="presentation">
+    <li class="nav-item hidden-student-tab" role="presentation">
         <button class="nav-link"
                 id="profile-tab"
                 data-bs-toggle="tab"
@@ -127,6 +129,52 @@ canvas {
             My Profile
         </button>
     </li>
+
+    <li class="nav-item hidden-student-tab" role="presentation">
+        <button class="nav-link"
+                id="quizzes-hidden-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#quizzes"
+                type="button"
+                role="tab">
+            Quizzes
+        </button>
+    </li>
+
+    <li class="nav-item hidden-student-tab" role="presentation">
+        <button class="nav-link"
+                id="attempts-hidden-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#attempts"
+                type="button"
+                role="tab">
+            Quiz Attempts
+        </button>
+    </li>
+
+    <!-- Visible top nav tabs -->
+    <li class="nav-item" role="presentation">
+        <button class="nav-link"
+                id="timetable-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#timetable"
+                type="button"
+                role="tab">
+            My Time Table
+        </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+        <button class="nav-link"
+                id="exams-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#exams"
+                type="button"
+                role="tab">
+            Exams
+        </button>
+    </li>
+
     <li class="nav-item" role="presentation">
         <button class="nav-link"
                 id="performance-tab"
@@ -137,14 +185,15 @@ canvas {
             Performance
         </button>
     </li>
+
     <li class="nav-item" role="presentation">
         <button class="nav-link"
-                id="timetable-tab"
+                id="courses-tab"
                 data-bs-toggle="tab"
-                data-bs-target="#timetable"
+                data-bs-target="#courses"
                 type="button"
                 role="tab">
-            My Time Table
+            Courses
         </button>
     </li>
 
@@ -159,123 +208,79 @@ canvas {
         </button>
     </li>
 
-    <li class="nav-item" role="presentation">
-        <button class="nav-link"
-                id="courses-tab"
-                data-bs-toggle="tab"
-                data-bs-target="#courses"
-                type="button"
-                role="tab">
-            Courses
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link"
-                id="exams-tab"
-                data-bs-toggle="tab"
-                data-bs-target="#exams"
-                type="button"
-                role="tab">
-            Exams
-        </button>
-    </li>
-
-    <li class="nav-item" role="presentation">
-        <button class="nav-link"
-                id="quizzes-tab"
-                data-bs-toggle="tab"
-                data-bs-target="#quizzes"
-                type="button"
-                role="tab">
-            Quizzes
-        </button>
-    </li>
-
-    <li class="nav-item" role="presentation">
-        <button class="nav-link"
-                id="attempts-tab"
-                data-bs-toggle="tab"
-                data-bs-target="#attempts"
-                type="button"
-                role="tab">
-            Quiz Attempts
-        </button>
-    </li>
-
 </ul>
+
 <div class="tab-content">
 
-<!-- ================= DASHBOARD ================= -->
-<div class="tab-pane fade show active" id="dashboard">
+    <!-- ================= DASHBOARD ================= -->
+    <div class="tab-pane fade show active" id="dashboard">
 
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card p-3 shadow-sm text-center">
-                <h6>Quiz Performance Summary</h6>
-                <h5>{{ avg_quiz_score|floatformat:0|default:"0" }}%</h5>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card p-3 shadow-sm text-center">
-                <h6>Total Exams</h6>
-                <h5>{{ total_exams }}</h5>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card p-3 shadow-sm text-center">
-                <h6>Passed Exams</h6>
-                <h5 class="text-success">{{ passed_exams }}</h5>
-            </div>
-        </div>
-    </div>
-    <div class="card mt-4">
-        <div class="card-header">
-            <strong>Attendance By Subject</strong>
-        </div>
-        <div class="card-body">
-            <canvas id="attendanceBarChart" height="100"></canvas>
-        </div>
-    </div>
-    <!-- Exam Chart -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <strong>Exam Performance Overview</strong>
-        </div>
-        <div class="card-body">
-            <div style="height:220px; display:flex; justify-content:center; align-items:center;">
-                <canvas id="examChart" style="max-width:200px; max-height:200px;"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Attendance & Quiz Charts (NOW INSIDE DASHBOARD) -->
-    <div class="row mt-4">
-
-        <!-- Attendance Chart -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <strong>Attendance Overview</strong>
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm text-center">
+                    <h6>Quiz Performance Summary</h6>
+                    <h5>{{ avg_quiz_score|floatformat:0|default:"0" }}%</h5>
                 </div>
-                <div class="card-body">
-                    <div style="height:200px; display:flex; justify-content:center; align-items:center;">
-                        <canvas id="attendanceChart"></canvas>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm text-center">
+                    <h6>Total Exams</h6>
+                    <h5>{{ total_exams }}</h5>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm text-center">
+                    <h6>Passed Exams</h6>
+                    <h5 class="text-success">{{ passed_exams }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <strong>Attendance By Subject</strong>
+            </div>
+            <div class="card-body">
+                <canvas id="attendanceBarChart" height="100"></canvas>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <strong>Exam Performance Overview</strong>
+            </div>
+            <div class="card-body">
+                <div style="height:220px; display:flex; justify-content:center; align-items:center;">
+                    <canvas id="examChart" style="max-width:200px; max-height:200px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Attendance Overview</strong>
+                    </div>
+                    <div class="card-body">
+                        <div style="height:200px; display:flex; justify-content:center; align-items:center;">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Quiz Performance Chart -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <strong>Quiz Performance</strong>
-                </div>
-                <div class="card-body">
-                    <div style="height:200px; display:flex; justify-content:center; align-items:center;">
-                        <canvas id="quizChart"></canvas>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Quiz Performance</strong>
+                    </div>
+                    <div class="card-body">
+                        <div style="height:200px; display:flex; justify-content:center; align-items:center;">
+                            <canvas id="quizChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -283,624 +288,451 @@ canvas {
 
     </div>
 
-</div> <!-- END DASHBOARD TAB -->
+    <!-- ================= PROFILE ================= -->
+    <div class="tab-pane fade" id="profile">
 
+        <div class="card shadow-sm border-0 mt-4 mb-4">
+            <div class="card-body text-center p-4">
 
-<!-- ================= PROFILE ================= -->
+                {% if request.user.profile_image %}
+                    <img src="{{ request.user.profile_image.url }}"
+                         class="rounded-circle shadow mb-3"
+                         width="130"
+                         height="130"
+                         style="object-fit:cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/130"
+                         class="rounded-circle shadow mb-3">
+                {% endif %}
 
-<div class="tab-pane fade" id="profile">
+                <h4 class="fw-bold mb-1">
+                    {{ request.user.first_name }} {{ request.user.last_name }}
+                </h4>
+                <p class="text-muted mb-0">
+                    {{ request.user.username }}
+                </p>
 
-    <!-- PROFILE HEADER CARD -->
-    <div class="card shadow-sm border-0 mt-4 mb-4">
-        <div class="card-body text-center p-4">
+            </div>
+        </div>
 
-            {% if request.user.profile_image %}
-                <img src="{{ request.user.profile_image.url }}"
-                     class="rounded-circle shadow mb-3"
-                     width="130"
-                     height="130"
-                     style="object-fit:cover;">
-            {% else %}
-                <img src="https://via.placeholder.com/130"
-                     class="rounded-circle shadow mb-3">
-            {% endif %}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="fw-bold mb-0">My Profile</h5>
+            </div>
 
-            <h4 class="fw-bold mb-1">
-                {{ request.user.first_name }} {{ request.user.last_name }}
-            </h4>
-            <p class="text-muted mb-0">
-                {{ request.user.username }}
-            </p>
+            <div class="card-body">
 
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Roll Number</strong>
+                        <div class="text-muted">
+                            {{ student.roll_number }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <strong>Date of Birth</strong>
+                        <div class="text-muted">
+                            {{ student.date_of_birth }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Phone</strong>
+                        <div class="text-muted">
+                            {{ student.phone }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <strong>Gender</strong>
+                        <div class="text-muted">
+                            {{ student.gender|title }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Address</strong>
+                        <div class="text-muted">
+                            {{ student.address }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <strong>Batch</strong>
+                        <div class="text-muted">
+                            {% if student.batch %}
+                                {{ student.batch.program }} - {{ student.batch.name }}
+                                ({{ student.batch.academic_year }})
+                            {% else %}
+                                Not assigned
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Admission Year</strong>
+                        <div class="text-muted">
+                            {{ student.admission_year }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end mt-4">
+                    <a href="{% url 'edit_student_profile' %}"
+                       class="btn btn-primary px-4">
+                       Edit Profile
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= TIMETABLE ================= -->
+    <div class="tab-pane fade" id="timetable">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="fw-bold mb-0">My Timetable</h5>
+            </div>
+
+            <div class="card-body">
+                {% if timetable %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Day</th>
+                                <th>Course</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in timetable %}
+                            <tr>
+                                <td class="fw-semibold">{{ t.get_day_display }}</td>
+                                <td>
+                                    <span class="badge bg-secondary px-3 py-2">
+                                        {{ t.course.code }}
+                                    </span>
+                                </td>
+                                <td class="text-muted">{{ t.start_time }} - {{ t.end_time }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No schedule assigned.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
-    <!-- PROFILE DETAILS CARD -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white border-0">
-            <h5 class="fw-bold mb-0">My Profile</h5>
-        </div>
+    <!-- ================= PERFORMANCE ================= -->
+    <div class="tab-pane fade" id="performance">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Exam Results</h5>
 
-        <div class="card-body">
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <strong>Roll Number</strong>
-                    <div class="text-muted">
-                        {{ student.roll_number }}
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <strong>Date of Birth</strong>
-                    <div class="text-muted">
-                        {{ student.date_of_birth }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <strong>Phone</strong>
-                    <div class="text-muted">
-                        {{ student.phone }}
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <strong>Gender</strong>
-                    <div class="text-muted">
-                        {{ student.gender|title }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <strong>Address</strong>
-                    <div class="text-muted">
-                        {{ student.address }}
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <strong>Batch</strong>
-                    <div class="text-muted">
-                        {% if student.batch %}
-                            {{ student.batch.program }} - {{ student.batch.name }}
-                            ({{ student.batch.academic_year }})
-                        {% else %}
-                            Not assigned
-                        {% endif %}
-                    </div>
-                </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <strong>Admission Year</strong>
-                    <div class="text-muted">
-                        {{ student.admission_year }}
-                    </div>
-                </div>
-
-                
-                </div>
-            </div>
-
-            <div class="text-end mt-4">
-                <a href="{% url 'edit_student_profile' %}"
-                   class="btn btn-primary px-4">
-                   Edit Profile
+                {% if grades %}
+                <a href="{% url 'export_exam_results_pdf' %}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn btn-sm btn-outline-danger px-3">
+                    Export PDF
                 </a>
+                {% endif %}
             </div>
 
-        </div>
-    </div>
-
-</div>
-
-<!-- ================= TIMETABLE ================= -->
-<div class="tab-pane fade" id="timetable">
-
-    <div class="card shadow-sm border-0 mt-4">
-
-        <div class="card-header bg-white border-0">
-            <h5 class="fw-bold mb-0">My Timetable</h5>
-        </div>
-
-        <div class="card-body">
-
-            {% if timetable %}
-
-            <div class="table-responsive">
-                <table class="table align-middle table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Day</th>
-                            <th>Course</th>
-                            <th>Time</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for t in timetable %}
-                        <tr>
-                            <td class="fw-semibold">
-                                {{ t.get_day_display }}
-                            </td>
-
-                            <td>
-                                <span class="badge bg-secondary px-3 py-2">
-                                    {{ t.course.code }}
-                                </span>
-                            </td>
-
-                            <td class="text-muted">
-                                {{ t.start_time }} - {{ t.end_time }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            {% else %}
-                <div class="text-center py-4">
-                    <p class="text-muted mb-0">
-                        No schedule assigned.
-                    </p>
+            <div class="card-body">
+                {% if grades %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Course</th>
+                                <th>Exam</th>
+                                <th>Marks</th>
+                                <th>Total</th>
+                                <th>Percentage</th>
+                                <th>Grade</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for g in grades %}
+                            <tr>
+                                <td class="fw-semibold">{{ g.exam.course.code }}</td>
+                                <td class="text-muted">{{ g.exam.title }}</td>
+                                <td>
+                                    <span class="badge bg-secondary px-3 py-2">
+                                        {{ g.marks_obtained }}
+                                    </span>
+                                </td>
+                                <td>{{ g.exam.total_marks }}</td>
+                                <td><strong>{{ g.percentage|floatformat:0 }}%</strong></td>
+                                <td>
+                                    <span class="badge bg-info px-3 py-2">
+                                        {{ g.grade_letter }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if g.is_pass %}
+                                        <span class="badge bg-success px-3 py-2">Pass</span>
+                                    {% else %}
+                                        <span class="badge bg-danger px-3 py-2">Fail</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-            {% endif %}
-
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No exam results available yet.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-
     </div>
 
-</div>
-
-<!-- ================= PERFORMANCE ================= -->
-<div class="tab-pane fade" id="performance">
-
-    <div class="card shadow-sm border-0 mt-4">
-
-        <!-- Header -->
-        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold mb-0">Exam Results</h5>
-
-            {% if grades %}
-            <a href="{% url 'export_exam_results_pdf' %}"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn btn-sm btn-outline-danger px-3">
-                Export PDF
-            </a>
-            {% endif %}
-        </div>
-
-        <div class="card-body">
-
-            {% if grades %}
-
-            <div class="table-responsive">
-                <table class="table align-middle table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Course</th>
-                            <th>Exam</th>
-                            <th>Marks</th>
-                            <th>Total</th>
-                            <th>Percentage</th>
-                            <th>Grade</th>
-                            <th>Result</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for g in grades %}
-                        <tr>
-
-                            <!-- Course -->
-                            <td class="fw-semibold">
-                                {{ g.exam.course.code }}
-                            </td>
-
-                            <!-- Exam Title -->
-                            <td class="text-muted">
-                                {{ g.exam.title }}
-                            </td>
-
-                            <!-- Marks -->
-                            <td>
-                                <span class="badge bg-secondary px-3 py-2">
-                                    {{ g.marks_obtained }}
-                                </span>
-                            </td>
-
-                            <!-- Total -->
-                            <td>
-                                {{ g.exam.total_marks }}
-                            </td>
-
-                            <!-- Percentage -->
-                            <td>
-                                <strong>
-                                    {{ g.percentage|floatformat:0 }}%
-                                </strong>
-                            </td>
-
-                            <!-- Grade -->
-                            <td>
-                                <span class="badge bg-info px-3 py-2">
-                                    {{ g.grade_letter }}
-                                </span>
-                            </td>
-
-                            <!-- Result -->
-                            <td>
-                                {% if g.is_pass %}
-                                    <span class="badge bg-success px-3 py-2">
-                                        Pass
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-danger px-3 py-2">
-                                        Fail
-                                    </span>
-                                {% endif %}
-                            </td>
-
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <!-- ================= ATTENDANCE ================= -->
+    <div class="tab-pane fade" id="attendance">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="fw-bold mb-0">Attendance</h5>
             </div>
 
-            {% else %}
-                <div class="text-center py-4">
-                    <p class="text-muted mb-0">
-                        No exam results available yet.
-                    </p>
+            <div class="card-body">
+                {% if attendance %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Course</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in attendance %}
+                            <tr>
+                                <td class="text-muted">{{ a.date }}</td>
+                                <td class="fw-semibold">{{ a.course.name }}</td>
+                                <td>
+                                    {% if a.status == 'present' %}
+                                        <span class="badge bg-success px-3 py-2">Present</span>
+                                    {% else %}
+                                        <span class="badge bg-danger px-3 py-2">Absent</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-            {% endif %}
-
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No attendance records available.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
-</div>
-<!-- ================= ATTENDANCE ================= -->
-<div class="tab-pane fade" id="attendance">
-
-    <div class="card shadow-sm border-0 mt-4">
-
-        <div class="card-header bg-white border-0">
-            <h5 class="fw-bold mb-0">Attendance</h5>
-        </div>
-
-        <div class="card-body">
-
-            {% if attendance %}
-
-            <div class="table-responsive">
-                <table class="table align-middle table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Date</th>
-                            <th>Course</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for a in attendance %}
-                        <tr>
-
-                            <!-- Date -->
-                            <td class="text-muted">
-                                {{ a.date }}
-                            </td>
-
-                            <!-- Course -->
-                            <td class="fw-semibold">
-                                {{ a.course.name }}
-                            </td>
-
-                            <!-- Status -->
-                            <td>
-                                {% if a.status == 'present' %}
-                                    <span class="badge bg-success px-3 py-2">
-                                        Present
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-danger px-3 py-2">
-                                        Absent
-                                    </span>
-                                {% endif %}
-                            </td>
-
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <!-- ================= COURSES ================= -->
+    <div class="tab-pane fade" id="courses">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="fw-bold mb-0">My Courses</h5>
             </div>
 
-            {% else %}
-                <div class="text-center py-4">
-                    <p class="text-muted mb-0">
-                        No attendance records available.
-                    </p>
-                </div>
-            {% endif %}
-
-        </div>
-
-    </div>
-
-</div>
-<!-- ================= COURSES ================= -->
-<div class="tab-pane fade" id="courses">
-
-    <div class="card shadow-sm border-0 mt-4">
-
-        <div class="card-header bg-white border-0">
-            <h5 class="fw-bold mb-0">My Courses</h5>
-        </div>
-
-        <div class="card-body">
-
-            {% if enrollments %}
-
-            <div class="list-group list-group-flush">
-
-                {% for enrollment in enrollments %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-
-                    <!-- Course Info -->
-                    <div>
-                        <div class="fw-semibold">
-                            {{ enrollment.course.code }}
+            <div class="card-body">
+                {% if enrollments %}
+                <div class="list-group list-group-flush">
+                    {% for enrollment in enrollments %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-semibold">{{ enrollment.course.code }}</div>
+                            <small class="text-muted">{{ enrollment.course.name }}</small>
                         </div>
-                        <small class="text-muted">
-                            {{ enrollment.course.name }}
-                        </small>
-                    </div>
 
-                    <!-- Attendance Badge -->
-                    <div>
-                        <span class="badge bg-info px-3 py-2">
-                            {{ attendance_summary|dict_get:enrollment.course.id }}%
-                            Attendance
-                        </span>
-                    </div>
-
-                </div>
-                {% endfor %}
-
-            </div>
-
-            {% else %}
-                <div class="text-center py-4">
-                    <p class="text-muted mb-0">
-                        You are not enrolled in any courses.
-                    </p>
-                </div>
-            {% endif %}
-
-        </div>
-
-    </div>
-
-</div>
-<!-- ================= EXAMS ================= -->
-<div class="tab-pane fade" id="exams">
-
-    <div class="card shadow-sm border-0 mt-4">
-
-        <div class="card-header bg-white border-0">
-            <h5 class="fw-bold mb-0">Upcoming / Scheduled Exams</h5>
-        </div>
-
-        <div class="card-body">
-
-            {% if exams %}
-
-            <div class="table-responsive">
-                <table class="table align-middle table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Course</th>
-                            <th>Exam</th>
-                            <th>Date</th>
-                            <th>Total Marks</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for exam in exams %}
-                        <tr>
-                            <td class="fw-semibold">
-                                {{ exam.course.code }} - {{ exam.course.name }}
-                            </td>
-
-                            <td class="text-muted">
-                                {{ exam.title }}
-                            </td>
-
-                            <td>
-                                {{ exam.date }}
-                            </td>
-
-                            <td>
-                                <span class="badge bg-secondary px-3 py-2">
-                                    {{ exam.total_marks }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            {% else %}
-                <div class="text-center py-4">
-                    <p class="text-muted mb-0">
-                        No exams available.
-                    </p>
-                </div>
-            {% endif %}
-
-        </div>
-
-    </div>
-
-</div>
-<!-- ================= QUIZZES ================= -->
-<div class="tab-pane fade" id="quizzes">
-
-    <div class="card shadow-sm border-0 mt-4">
-
-        <div class="card-header bg-white border-0">
-            <h5 class="fw-bold mb-0">Available Quizzes</h5>
-        </div>
-
-        <div class="card-body">
-
-            {% if quizzes %}
-
-            <div class="list-group list-group-flush">
-
-                {% for quiz in quizzes %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-
-                    <!-- Quiz Info -->
-                    <div>
-                        <div class="fw-semibold">
-                            {{ quiz.course.code }}
-                        </div>
-                        <small class="text-muted">
-                            {{ quiz.title }}
-                        </small>
-                    </div>
-
-                    <!-- Attempt Button -->
-                    <div>
-                        <a href="{% url 'attempt_quiz' quiz.id %}"
-                           class="btn btn-sm btn-outline-primary px-3">
-                            Attempt Quiz
-                        </a>
-                    </div>
-
-                </div>
-                {% endfor %}
-
-            </div>
-
-            {% else %}
-                <div class="text-center py-4">
-                    <p class="text-muted mb-0">
-                        No quizzes available.
-                    </p>
-                </div>
-            {% endif %}
-
-        </div>
-
-    </div>
-
-</div>
-<div class="tab-pane fade" id="attempts">
-
-<div class="card shadow-sm border-0 mt-4">
-
-    <div class="card-header bg-white border-0">
-        <h5 class="fw-bold mb-0">Quiz Attempts</h5>
-    </div>
-
-    <div class="card-body">
-
-        {% if quiz_attempts %}
-
-        <div class="table-responsive">
-            <table class="table align-middle table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Quiz</th>
-                        <th>Date</th>
-                        <th>Score</th>
-                        <th>Percentage</th>
-                        <th>Status</th>
-                        <th class="text-center">Result</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for attempt in quiz_attempts %}
-                    <tr>
-
-                        <!-- Quiz Title -->
-                        <td class="fw-semibold">
-                            {{ attempt.quiz.title }}
-                        </td>
-
-                        <!-- Date -->
-                        <td class="text-muted">
-                            {{ attempt.attempted_at|date:"M d, Y H:i" }}
-                        </td>
-
-                        <!-- Score -->
-                        <td>
-                            <span class="badge bg-secondary">
-                                {{ attempt.score }}/{{ attempt.total_questions }}
+                        <div>
+                            <span class="badge bg-info px-3 py-2">
+                                {{ attendance_summary|dict_get:enrollment.course.id }}%
+                                Attendance
                             </span>
-                        </td>
-
-                        <!-- Percentage -->
-                        <td>
-                            {% if attempt.total_questions > 0 %}
-                                <strong>{{ attempt.percentage }}%</strong>
-                            {% else %}
-                                0%
-                            {% endif %}
-                        </td>
-
-                        <!-- Status -->
-                        <td>
-                            {% if attempt.percentage >= 40 %}
-                                <span class="badge bg-success px-3">
-                                    PASS
-                                </span>
-                            {% else %}
-                                <span class="badge bg-danger px-3">
-                                    FAIL
-                                </span>
-                            {% endif %}
-                        </td>
-
-                        <!-- View Result -->
-                        <td class="text-center">
-                            <a href="{% url 'quiz_result' attempt.id %}"
-                               class="btn btn-sm btn-outline-primary">
-                                View Result
-                            </a>
-                        </td>
-
-                    </tr>
+                        </div>
+                    </div>
                     {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        {% else %}
-            <div class="text-center py-4">
-                <p class="text-muted mb-0">No quiz attempts yet.</p>
+                </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">You are not enrolled in any courses.</p>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
-
+        </div>
     </div>
-</div>
+
+    <!-- ================= EXAMS ================= -->
+    <div class="tab-pane fade" id="exams">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="fw-bold mb-0">Upcoming / Scheduled Exams</h5>
+            </div>
+
+            <div class="card-body">
+                {% if exams %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Course</th>
+                                <th>Exam</th>
+                                <th>Date</th>
+                                <th>Total Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for exam in exams %}
+                            <tr>
+                                <td class="fw-semibold">{{ exam.course.code }} - {{ exam.course.name }}</td>
+                                <td class="text-muted">{{ exam.title }}</td>
+                                <td>{{ exam.date }}</td>
+                                <td>
+                                    <span class="badge bg-secondary px-3 py-2">
+                                        {{ exam.total_marks }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No exams available.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= QUIZZES ================= -->
+    <div class="tab-pane fade" id="quizzes">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="fw-bold mb-0">Available Quizzes</h5>
+            </div>
+
+            <div class="card-body">
+                {% if quizzes %}
+                <div class="list-group list-group-flush">
+                    {% for quiz in quizzes %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-semibold">{{ quiz.course.code }}</div>
+                            <small class="text-muted">{{ quiz.title }}</small>
+                        </div>
+
+                        <div>
+                            <a href="{% url 'attempt_quiz' quiz.id %}"
+                               class="btn btn-sm btn-outline-primary px-3">
+                                Attempt Quiz
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No quizzes available.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ATTEMPTS ================= -->
+    <div class="tab-pane fade" id="attempts">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-white border-0">
+                <h5 class="fw-bold mb-0">Quiz Attempts</h5>
+            </div>
+
+            <div class="card-body">
+                {% if quiz_attempts %}
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Quiz</th>
+                                <th>Date</th>
+                                <th>Score</th>
+                                <th>Percentage</th>
+                                <th>Status</th>
+                                <th class="text-center">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attempt in quiz_attempts %}
+                            <tr>
+                                <td class="fw-semibold">{{ attempt.quiz.title }}</td>
+                                <td class="text-muted">{{ attempt.attempted_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ attempt.score }}/{{ attempt.total_questions }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if attempt.total_questions > 0 %}
+                                        <strong>{{ attempt.percentage }}%</strong>
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if attempt.percentage >= 40 %}
+                                        <span class="badge bg-success px-3">PASS</span>
+                                    {% else %}
+                                        <span class="badge bg-danger px-3">FAIL</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'quiz_result' attempt.id %}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        View Result
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">No quiz attempts yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -942,10 +774,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-    // =============================
-    // EXAM CHART
-    // =============================
-
     const passed = Number("{{ passed_exams|default:0 }}");
     const total = Number("{{ total_exams|default:0 }}");
     const failed = Math.max(total - passed, 0);
@@ -973,10 +801,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // =============================
-    // ATTENDANCE CHART
-    // =============================
-
     const totalAttendance = Number("{{ attendance|length|default:0 }}");
     let presentCount = 0;
 
@@ -998,7 +822,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: ["Present", "Absent"],
                 datasets: [{
                     data: [presentCount, absentCount],
-                    backgroundColor: ["#6f42c1", "#f51010"],
+                    backgroundColor: ["#6f42c1", "#9c9797"],
                     borderWidth: 0,
                     percentageText: attendancePercent + "%"
                 }]
@@ -1009,10 +833,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-
-    // =============================
-    // QUIZ CHART
-    // =============================
 
     const totalAttempts = Number("{{ quiz_attempts|length|default:0 }}");
     let quizPassed = 0;
@@ -1046,78 +866,64 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-// =============================
-// ATTENDANCE BAR CHART
-// =============================
 
-const attendanceBarCtx = document.getElementById("attendanceBarChart");
+    const attendanceBarCtx = document.getElementById("attendanceBarChart");
 
-if (attendanceBarCtx) {
+    if (attendanceBarCtx) {
+        const subjectLabels = [
+            {% for enrollment in enrollments %}
+                "{{ enrollment.course.code }}",
+            {% endfor %}
+        ];
 
-    const subjectLabels = [
-        {% for enrollment in enrollments %}
-            "{{ enrollment.course.code }}",
-        {% endfor %}
-    ];
+        const attendanceData = [
+            {% for enrollment in enrollments %}
+                {{ attendance_summary|dict_get:enrollment.course.id }},
+            {% endfor %}
+        ];
 
-    const attendanceData = [
-        {% for enrollment in enrollments %}
-            {{ attendance_summary|dict_get:enrollment.course.id }},
-        {% endfor %}
-    ];
-
-    new Chart(attendanceBarCtx, {
-        type: "bar",
-        data: {
-            labels: subjectLabels,
-            datasets: [{
-                label: "Attendance %",
-                data: attendanceData,
-                backgroundColor: "#135bf7",
-                borderRadius: 6,
-                barThickness: 30,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false }
+        new Chart(attendanceBarCtx, {
+            type: "bar",
+            data: {
+                labels: subjectLabels,
+                datasets: [{
+                    label: "Attendance %",
+                    data: attendanceData,
+                    backgroundColor: "#135bf7",
+                    borderRadius: 6,
+                    barThickness: 30,
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
                 }
             }
-        }
-    });
-}
-});
-
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    const params = new URLSearchParams(window.location.search);
-    const tab = params.get("tab");
-
-    if (tab) {
-
-        const triggerEl = document.querySelector(
-            '[data-bs-target="#' + tab + '"]'
-        );
-
-        if (triggerEl) {
-            const tabInstance = new bootstrap.Tab(triggerEl);
-            tabInstance.show();
-        }
+        });
     }
 
 });
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab") || "dashboard";
 
+    const triggerEl = document.querySelector('[data-bs-target="#' + tab + '"]');
+
+    if (triggerEl) {
+        const tabInstance = new bootstrap.Tab(triggerEl);
+        tabInstance.show();
+    }
+});
+</script>
 
 {% endblock %}
-

@@ -321,7 +321,7 @@
     </div>
 
     <!-- ================= STUDENT SIDEBAR ================= -->
-    {% elif request.user.is_authenticated and user.role and user.role.name|lower == "student" %}
+   {% elif request.user.is_authenticated and user.role and user.role.name|lower == "student" %}
     <div id="sidebar-wrapper">
         <div class="sidebar-heading px-4 py-3">Student Panel</div>
         <div class="list-group list-group-flush">
@@ -330,16 +330,8 @@
                 <i class="bi bi-speedometer2 me-2"></i> Dashboard
             </a>
 
-            <a href="{% url 'student_dashboard' %}?tab=courses" class="list-group-item sidebar-link">
-                <i class="bi bi-book me-2"></i> My Courses
-            </a>
-
-            <a href="{% url 'student_dashboard' %}?tab=timetable" class="list-group-item sidebar-link">
-                <i class="bi bi-calendar3 me-2"></i> Time Table
-            </a>
-
-            <a href="{% url 'student_dashboard' %}?tab=attendance" class="list-group-item sidebar-link">
-                <i class="bi bi-check2-square me-2"></i> Attendance
+            <a href="{% url 'student_dashboard' %}?tab=profile" class="list-group-item sidebar-link">
+                <i class="bi bi-person me-2"></i> My Profile
             </a>
 
             <a href="{% url 'student_dashboard' %}?tab=quizzes" class="list-group-item sidebar-link">
@@ -349,14 +341,10 @@
             <a href="{% url 'student_dashboard' %}?tab=attempts" class="list-group-item sidebar-link">
                 <i class="bi bi-bar-chart me-2"></i> Quiz Attempts
             </a>
-            <a href="{% url 'student_dashboard' %}?tab=exams" class="list-group-item sidebar-link">
-                <i class="bi bi-file-earmark-text me-2"></i> Exams
-            </a>
 
         </div>
     </div>
     {% endif %}
-
     <!-- ================= CONTENT ================= -->
     <div id="page-content-wrapper">
 

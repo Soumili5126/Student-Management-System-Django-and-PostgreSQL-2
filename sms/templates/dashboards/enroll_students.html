@@ -140,9 +140,8 @@
                                 <td class="text-end">
 
                                     <a href="{% url 'delete_enrollment' enrollment.id %}"
-                                       class="btn btn-sm btn-outline-danger"
-                                       onclick="return confirm('Remove this student from the course?')">
-                                        Remove
+                                        class="btn btn-sm btn-outline-danger remove-btn">
+                                            Remove
                                     </a>
 
                                 </td>
@@ -175,5 +174,36 @@
     </div>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
+    const removeButtons = document.querySelectorAll(".remove-btn");
+
+    removeButtons.forEach(button => {
+        button.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const url = this.getAttribute("href");
+
+            Swal.fire({
+                title: 'Remove Student?',
+                text: "Are you sure you want to remove this student from the course?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, remove',
+                cancelButtonText: 'Cancel',
+                background: '#fff7ed'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+
+});
+</script>
 {% endblock %}

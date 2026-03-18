@@ -115,7 +115,7 @@ class UserRegisterForm(UserCreationForm):
             'placeholder': 'Enter designation'
         })
     )
-
+    
     # Add placeholders for password fields
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -127,6 +127,8 @@ class UserRegisterForm(UserCreationForm):
         self.fields['password2'].widget.attrs.update({
             'placeholder': 'Confirm password'
         })
+        self.fields['password1'].help_text = ""
+        self.fields['password2'].help_text = ""
      # -------- UNIQUE EMAIL VALIDATION --------
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -139,7 +141,7 @@ class UserRegisterForm(UserCreationForm):
         return email
     # -------- PASSWORD VALIDATION --------
     def clean_password1(self):
-        password = self.cleaned_data.get('password1')
+        password = self.cleaned_data.get('password1', '')
 
         first_name = self.cleaned_data.get('first_name', '').lower()
         last_name = self.cleaned_data.get('last_name', '').lower()
@@ -156,6 +158,11 @@ class UserRegisterForm(UserCreationForm):
                 "Password must contain at least one uppercase letter."
             )
 
+        if not re.search(r'[a-z]', password):
+            raise forms.ValidationError(
+                "Password must contain at least one lowercase letter."
+            )
+
         if not re.search(r'[0-9]', password):
             raise forms.ValidationError(
                 "Password must contain at least one number."
@@ -166,7 +173,6 @@ class UserRegisterForm(UserCreationForm):
                 "Password must contain at least one special symbol."
             )
 
-        # Check similarity with personal information
         personal_info = [first_name, last_name, username, email]
 
         for info in personal_info:

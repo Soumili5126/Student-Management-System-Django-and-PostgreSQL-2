@@ -104,7 +104,33 @@
     background: transparent;
     margin-right: 8px;
 }
+.password-rules {
+    display: none;
+    margin-top: 8px;
+    padding: 12px 14px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: left;
+}
 
+.password-rules ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.password-rules li {
+    margin-bottom: 6px;
+}
+
+.password-rules li.valid {
+    color: green;
+}
+
+.password-rules li.invalid {
+    color: red;
+}
 </style>
 
 <div class="auth-wrapper">
@@ -122,9 +148,38 @@
 
                 <form method="post">
                     {% csrf_token %}
-                    {{ form|crispy }}
 
-                    <button class="btn btn-register mt-2">
+                    {{ form.first_name|as_crispy_field }}
+                    {{ form.last_name|as_crispy_field }}
+                    {{ form.username|as_crispy_field }}
+                    {{ form.email|as_crispy_field }}
+
+                    {{ form.password1|as_crispy_field }}
+
+                    <div id="passwordRules" class="password-rules">
+                        <strong>Password must contain:</strong>
+                        <ul class="mt-2">
+                            <li id="rule-length" class="invalid">At least 8 characters</li>
+                            <li id="rule-uppercase" class="invalid">At least 1 uppercase letter</li>
+                            <li id="rule-lowercase" class="invalid">At least 1 lowercase letter</li>
+                            <li id="rule-number" class="invalid">At least 1 number</li>
+                            <li id="rule-symbol" class="invalid">At least 1 special character</li>
+                        </ul>
+                    </div>
+
+                    {{ form.password2|as_crispy_field }}
+                    {{ form.role|as_crispy_field }}
+
+                    {{ form.phone|as_crispy_field }}
+                    {{ form.date_of_birth|as_crispy_field }}
+                    {{ form.gender|as_crispy_field }}
+                    {{ form.address|as_crispy_field }}
+                    {{ form.admission_year|as_crispy_field }}
+
+                    {{ form.department|as_crispy_field }}
+                    {{ form.designation|as_crispy_field }}
+
+                    <button class="btn btn-register mt-3">
                         Register
                     </button>
                 </form>
@@ -147,9 +202,126 @@
 
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.querySelector("form");
+    const passwordInput = document.getElementById("id_password1");
+    const confirmPasswordInput = document.getElementById("id_password2");
+    const passwordRules = document.getElementById("passwordRules");
+
+    const ruleLength = document.getElementById("rule-length");
+    const ruleUppercase = document.getElementById("rule-uppercase");
+    const ruleLowercase = document.getElementById("rule-lowercase");
+    const ruleNumber = document.getElementById("rule-number");
+    const ruleSymbol = document.getElementById("rule-symbol");
+
+    function setRuleState(element, isValid) {
+        if (!element) return;
+
+        if (isValid) {
+            element.classList.remove("invalid");
+            element.classList.add("valid");
+        } else {
+            element.classList.remove("valid");
+            element.classList.add("invalid");
+        }
+    }
+
+    function getPasswordChecks() {
+        const password = passwordInput ? passwordInput.value || "" : "";
+        const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value || "" : "";
+
+        const hasLength = password.length >= 8;
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasLowercase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        const passwordsMatch = confirmPasswordInput
+            ? (password === confirmPassword && confirmPassword.length > 0)
+            : true;
+
+        return {
+            password,
+            hasLength,
+            hasUppercase,
+            hasLowercase,
+            hasNumber,
+            hasSymbol,
+            passwordsMatch
+        };
+    }
+
+    function updatePasswordRules() {
+        if (!passwordInput) return false;
+
+        const checks = getPasswordChecks();
+
+        setRuleState(ruleLength, checks.hasLength);
+        setRuleState(ruleUppercase, checks.hasUppercase);
+        setRuleState(ruleLowercase, checks.hasLowercase);
+        setRuleState(ruleNumber, checks.hasNumber);
+        setRuleState(ruleSymbol, checks.hasSymbol);
+
+        const passwordRulesValid =
+            checks.hasLength &&
+            checks.hasUppercase &&
+            checks.hasLowercase &&
+            checks.hasNumber &&
+            checks.hasSymbol;
+
+        if (checks.password.length === 0) {
+            passwordRules.style.display = "none";
+        } else if (passwordRulesValid) {
+            passwordRules.style.display = "none";
+        } else {
+            passwordRules.style.display = "block";
+        }
+
+        return passwordRulesValid && checks.passwordsMatch;
+    }
+
+    if (passwordInput) {
+        passwordInput.addEventListener("input", updatePasswordRules);
+
+        passwordInput.addEventListener("focus", function () {
+            const checks = getPasswordChecks();
+            const passwordRulesValid =
+                checks.hasLength &&
+                checks.hasUppercase &&
+                checks.hasLowercase &&
+                checks.hasNumber &&
+                checks.hasSymbol;
+
+            if (checks.password.length > 0 && !passwordRulesValid) {
+                passwordRules.style.display = "block";
+            }
+        });
+
+        passwordInput.addEventListener("blur", updatePasswordRules);
+    }
+
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener("input", updatePasswordRules);
+    }
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            if (!updatePasswordRules()) {
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Password',
+                    text: 'Please enter a valid password and make sure both passwords match.',
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'OK',
+                    background: '#fff7ed'
+                });
+            }
+        });
+    }
 
     const roleField = document.getElementById("id_role");
 
@@ -163,32 +335,36 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
 
     function toggleFields() {
+        if (!roleField) return;
 
-        const selectedText =
-            roleField.options[roleField.selectedIndex]
-            .text.toLowerCase();
+        const selectedText = roleField.options[roleField.selectedIndex].text.toLowerCase();
 
         studentFields.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
-                el.closest(".form-group, .mb-3, div").style.display =
-                    selectedText === "student" ? "block" : "none";
+                const wrapper = el.closest(".form-group, .mb-3") || el.parentElement;
+                if (wrapper) {
+                    wrapper.style.display = selectedText === "student" ? "block" : "none";
+                }
             }
         });
 
         facultyFields.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
-                el.closest(".form-group, .mb-3, div").style.display =
-                    selectedText === "faculty" ? "block" : "none";
+                const wrapper = el.closest(".form-group, .mb-3") || el.parentElement;
+                if (wrapper) {
+                    wrapper.style.display = selectedText === "faculty" ? "block" : "none";
+                }
             }
         });
     }
 
-    roleField.addEventListener("change", toggleFields);
-    toggleFields();
+    if (roleField) {
+        roleField.addEventListener("change", toggleFields);
+        toggleFields();
+    }
 
 });
 </script>
-
 {% endblock %}
