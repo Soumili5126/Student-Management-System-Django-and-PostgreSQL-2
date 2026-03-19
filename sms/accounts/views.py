@@ -42,6 +42,12 @@ from django.core.paginator import Paginator
 from django.views.decorators.cache import never_cache
 from accounts.utils import create_notification, create_admin_notification
 from django.http import JsonResponse
+from accounts.tasks import (
+    send_exam_scheduled_email,
+    send_marks_uploaded_email,
+    send_marks_updated_email,
+    send_quiz_created_email,
+)
 # -------- REGISTER --------
 def register_view(request):
     if request.method == 'POST':
@@ -1902,6 +1908,14 @@ def create_exam(request, course_id):
                 f"An exam '{exam.title}' has been scheduled for {course.code}",
                 "/accounts/student-dashboard/"
             )
+            send_exam_scheduled_email.delay(
+                enrollment.student.user.id,
+                course.code,
+                course.name,
+                exam.title,
+                str(exam.date),
+                exam.total_marks
+            )
 
         messages.success(request, "Exam created successfully.")
         return redirect('faculty_dashboard')
@@ -1980,6 +1994,14 @@ def enter_grades(request, exam_id):
                     "Exam Result Published",
                     f"Your result for {exam.title} is now available",
                     "/accounts/student-dashboard/"
+                )
+                send_marks_uploaded_email.delay(
+                    enrollment.student.user.id,
+                    exam.title,
+                    exam.course.code,
+                    exam.course.name,
+                    grade.marks_obtained,
+                    exam.total_marks
                 )
                 create_admin_notification(
                     "Grade Entered",
@@ -2063,21 +2085,39 @@ def edit_exam_faculty(request, exam_id):
 @role_required(['faculty'])
 def edit_grade(request, grade_id):
 
-    grade = get_object_or_404(Grade, id=grade_id)
+    grade = get_object_or_404(
+    Grade,
+    id=grade_id,
+    exam__course__faculty=request.user.faculty_profile)
 
     exam = grade.exam
-
+    
     if request.method == "POST":
-
+        old_marks = grade.marks_obtained
         marks = request.POST.get("marks")
 
         grade.marks_obtained = marks
         grade.save()
 
+        create_notification(
+            grade.student.user,
+            "Marks Updated",
+            f"Your marks for {exam.title} have been updated",
+            "/accounts/student-dashboard/"
+        )
+
+        send_marks_updated_email.delay(
+            grade.student.user.id,
+            exam.title,
+            exam.course.code,
+            exam.course.name,
+            old_marks,
+            grade.marks_obtained,
+            exam.total_marks
+        )
+
         messages.success(request, "Grade updated successfully.")
-
         return redirect("enter_grades", exam_id=exam.id)
-
     return render(
         request,
         "dashboards/edit_grade.html",
@@ -2179,6 +2219,13 @@ def create_quiz(request, course_id):
                 student.user,
                 "New Quiz Available",
                 f"A new quiz '{quiz.title}' has been added for {quiz.course.code}"
+            )
+            send_quiz_created_email.delay(
+                student.user.id,
+                quiz.title,
+                quiz.course.code,
+                quiz.course.name,
+                quiz.description
             )
 
         messages.success(request, "Quiz created successfully.")

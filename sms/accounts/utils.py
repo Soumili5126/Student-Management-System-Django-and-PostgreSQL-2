@@ -5,6 +5,7 @@ from datetime import timedelta
 import uuid
 from .models import Notification,User
 
+
 def generate_otp():
     return str(random.randint(100000, 999999))
 
@@ -38,3 +39,5 @@ def create_admin_notification(title, message, link=None):
     ]
 
     Notification.objects.bulk_create(notifications)
+
+

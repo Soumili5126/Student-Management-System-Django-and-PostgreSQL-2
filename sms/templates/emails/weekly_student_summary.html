@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Weekly Academic Summary</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, sans-serif; color:#222;">
+
+    <table width="100%" cellspacing="0" cellpadding="0" border="0" style="padding:40px 0;">
+        <tr>
+            <td align="center">
+
+                <!-- MAIN CARD -->
+                <table width="100%" cellspacing="0" cellpadding="0" border="0"
+                       style="max-width:700px; background:#ffffff; border-radius:18px; padding:40px 36px; box-shadow:0 8px 24px rgba(0,0,0,0.08);">
+
+                    <!-- HEADER -->
+                    <tr>
+                        <td style="padding-bottom:24px;">
+                            <h1 style="margin:0; font-size:28px; font-weight:700;">
+                                📈 Weekly Academic Summary
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- GREETING -->
+                    <tr>
+                        <td style="font-size:16px; padding-bottom:16px;">
+                            Hi <span style="font-weight:600; color:#7c3aed;">{{ user.first_name }}</span>,
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="font-size:15px; color:#444; padding-bottom:24px;">
+                            Here's a quick overview of your academic performance this week.
+                        </td>
+                    </tr>
+
+                    <!-- ================= ATTENDANCE ================= -->
+                    <tr>
+                        <td style="padding-bottom:26px;">
+                            <h3 style="margin:0 0 12px 0;">📅 Attendance Summary</h3>
+
+                            <table width="100%" style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:16px;">
+                                {% if attendance_summary %}
+                                    {% for a in attendance_summary %}
+                                    <tr>
+                                        <td style="padding:8px 0; font-size:14px;">
+                                            <strong>{{ a.course.name }}</strong><br>
+                                            {{ a.present_classes }}/{{ a.total_classes }}
+                                            ({{ a.percentage }}%)
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td style="padding:8px 0; font-size:14px; color:#777;">
+                                            No attendance data available.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- ================= EXAMS ================= -->
+                    <tr>
+                        <td style="padding-bottom:26px;">
+                            <h3 style="margin:0 0 12px 0;">📊 Exam Performance</h3>
+
+                            <table width="100%" style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:16px;">
+                                {% if exam_summary %}
+                                    {% for e in exam_summary %}
+                                    <tr>
+                                        <td style="padding:8px 0; font-size:14px;">
+                                            <strong>{{ e.course.code }} - {{ e.exam_title }}</strong><br>
+                                            {{ e.marks }}/{{ e.total_marks }}
+                                            ({{ e.percentage }}%) - {{ e.grade_letter }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td style="padding:8px 0; font-size:14px; color:#777;">
+                                            No exam data available.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- ================= QUIZZES ================= -->
+                    <tr>
+                        <td style="padding-bottom:26px;">
+                            <h3 style="margin:0 0 12px 0;">📝 Quiz Performance</h3>
+
+                            <table width="100%" style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:16px;">
+                                {% if quiz_summary %}
+                                    {% for q in quiz_summary %}
+                                    <tr>
+                                        <td style="padding:8px 0; font-size:14px;">
+                                            <strong>{{ q.quiz_title }}</strong><br>
+                                            {{ q.score }}/{{ q.total_questions }}
+                                            ({{ q.percentage }}%)
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td style="padding:8px 0; font-size:14px; color:#777;">
+                                            No quiz data available.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER MESSAGE -->
+                    <tr>
+                        <td style="font-size:15px; padding-bottom:24px;">
+                            Keep up the good work! 🚀
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="border-top:1px solid #e5e7eb; padding-top:16px; font-size:12px; color:#888;">
+                            © {{ year }} Student Management System
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

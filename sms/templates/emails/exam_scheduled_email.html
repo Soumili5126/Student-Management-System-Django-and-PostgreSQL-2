@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Exam Scheduled</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, sans-serif; color:#222;">
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f4f6f8; padding:40px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:680px; background:#ffffff; border-radius:18px; padding:40px 36px; box-shadow:0 8px 24px rgba(0,0,0,0.08);">
+                    
+                    <!-- Heading -->
+                    <tr>
+                        <td style="padding-bottom:24px;">
+                            <h1 style="margin:0; font-size:30px; font-weight:700; color:#111;">
+                                📅 Exam Scheduled
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Greeting -->
+                    <tr>
+                        <td style="font-size:16px; line-height:1.7; color:#333; padding-bottom:18px;">
+                            Hi <span style="font-weight:600; color:#7c3aed;">{{ user.first_name }}</span>,
+                        </td>
+                    </tr>
+
+                    <!-- Intro -->
+                    <tr>
+                        <td style="font-size:16px; line-height:1.8; color:#444; padding-bottom:24px;">
+                            Your exam has been scheduled. Please find the details below and make sure you are prepared on time.
+                        </td>
+                    </tr>
+
+                    <!-- Details Card -->
+                    <tr>
+                        <td style="padding-bottom:28px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:14px; padding:20px;">
+                                <tr>
+                                    <td style="padding:10px 0; font-size:15px; color:#333;">
+                                        <strong style="color:#111;">Course:</strong> {{ course_code }} - {{ course_name }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:10px 0; font-size:15px; color:#333;">
+                                        <strong style="color:#111;">Exam:</strong> {{ exam_title }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:10px 0; font-size:15px; color:#333;">
+                                        <strong style="color:#111;">Date:</strong> {{ exam_date }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:10px 0; font-size:15px; color:#333;">
+                                        <strong style="color:#111;">Total Marks:</strong> {{ total_marks }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Message -->
+                    <tr>
+                        <td style="font-size:16px; line-height:1.8; color:#444; padding-bottom:22px;">
+                            Please prepare accordingly and reach the exam venue on time.
+                        </td>
+                    </tr>
+
+                    <!-- Closing -->
+                    <tr>
+                        <td style="font-size:16px; line-height:1.8; color:#444; padding-bottom:30px;">
+                            Best of luck! 🎯
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="border-top:1px solid #e5e7eb; padding-top:18px; font-size:12px; color:#888;">
+                            © {{ year }} Student Management System
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

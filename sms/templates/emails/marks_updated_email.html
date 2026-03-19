@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Marks Updated</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, sans-serif; color:#222;">
+
+    <table width="100%" cellspacing="0" cellpadding="0" border="0" style="padding:40px 0;">
+        <tr>
+            <td align="center">
+
+                <!-- MAIN CARD -->
+                <table width="100%" cellspacing="0" cellpadding="0" border="0"
+                       style="max-width:680px; background:#ffffff; border-radius:18px; padding:40px 36px; box-shadow:0 8px 24px rgba(0,0,0,0.08);">
+
+                    <!-- HEADER -->
+                    <tr>
+                        <td style="padding-bottom:24px;">
+                            <h1 style="margin:0; font-size:28px; font-weight:700;">
+                                ✏️ Marks Updated
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- GREETING -->
+                    <tr>
+                        <td style="font-size:16px; padding-bottom:16px;">
+                            Hi <span style="font-weight:600; color:#7c3aed;">{{ user.first_name }}</span>,
+                        </td>
+                    </tr>
+
+                    <!-- INTRO -->
+                    <tr>
+                        <td style="font-size:15px; color:#444; padding-bottom:24px;">
+                            Your marks have been updated. Please review the latest changes below.
+                        </td>
+                    </tr>
+
+                    <!-- DETAILS CARD -->
+                    <tr>
+                        <td style="padding-bottom:28px;">
+                            <table width="100%" cellspacing="0" cellpadding="0" border="0"
+                                   style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:14px; padding:20px;">
+
+                                <tr>
+                                    <td style="padding:10px 0; font-size:14px;">
+                                        <strong>Course:</strong><br>
+                                        {{ course_code }} - {{ course_name }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:10px 0; font-size:14px;">
+                                        <strong>Exam:</strong><br>
+                                        {{ exam_title }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:10px 0; font-size:14px;">
+                                        <strong>Previous Marks:</strong><br>
+                                        <span style="color:#ef4444; font-weight:600;">
+                                            {{ old_marks }}
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:10px 0; font-size:14px;">
+                                        <strong>Updated Marks:</strong><br>
+                                        <span style="color:#10b981; font-weight:600;">
+                                            {{ new_marks }} / {{ total_marks }}
+                                        </span>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- MESSAGE -->
+                    <tr>
+                        <td style="font-size:15px; color:#444; padding-bottom:24px;">
+                            If you have any concerns regarding your marks, please contact your faculty.
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="border-top:1px solid #e5e7eb; padding-top:16px; font-size:12px; color:#888;">
+                            © {{ year }} Student Management System
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

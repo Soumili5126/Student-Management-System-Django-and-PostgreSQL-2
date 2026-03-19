@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>New Quiz Available</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, sans-serif; color:#222;">
+
+    <table width="100%" cellspacing="0" cellpadding="0" border="0" style="padding:40px 0;">
+        <tr>
+            <td align="center">
+
+                <!-- MAIN CARD -->
+                <table width="100%" cellspacing="0" cellpadding="0" border="0"
+                       style="max-width:680px; background:#ffffff; border-radius:18px; padding:40px 36px; box-shadow:0 8px 24px rgba(0,0,0,0.08);">
+
+                    <!-- HEADER -->
+                    <tr>
+                        <td style="padding-bottom:24px;">
+                            <h1 style="margin:0; font-size:28px; font-weight:700;">
+                                📝 New Quiz Available
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- GREETING -->
+                    <tr>
+                        <td style="font-size:16px; padding-bottom:16px;">
+                            Hi <span style="font-weight:600; color:#7c3aed;">{{ user.first_name }}</span>,
+                        </td>
+                    </tr>
+
+                    <!-- INTRO -->
+                    <tr>
+                        <td style="font-size:15px; color:#444; padding-bottom:24px;">
+                            A new quiz has been created for your course. Please review the details below and attempt it on time.
+                        </td>
+                    </tr>
+
+                    <!-- DETAILS CARD -->
+                    <tr>
+                        <td style="padding-bottom:28px;">
+                            <table width="100%" cellspacing="0" cellpadding="0" border="0"
+                                   style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:14px; padding:20px;">
+
+                                <tr>
+                                    <td style="padding:10px 0; font-size:14px;">
+                                        <strong>Course:</strong><br>
+                                        {{ course_code }} - {{ course_name }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="padding:10px 0; font-size:14px;">
+                                        <strong>Quiz:</strong><br>
+                                        {{ quiz_title }}
+                                    </td>
+                                </tr>
+
+                                {% if description %}
+                                <tr>
+                                    <td style="padding:10px 0; font-size:14px;">
+                                        <strong>Description:</strong><br>
+                                        <span style="color:#555;">
+                                            {{ description }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- MESSAGE -->
+                    <tr>
+                        <td style="font-size:15px; color:#444; padding-bottom:24px;">
+                            Make sure to complete the quiz before the deadline. Good luck! 🚀
+                        </td>
+                    </tr>
+
+                    <!-- CTA BUTTON -->
+                    <tr>
+                        <td style="padding-bottom:30px;">
+                            <a href="{{ dashboard_url }}"
+                               style="background:#7c3aed; color:#ffffff; text-decoration:none; padding:12px 20px; border-radius:8px; font-size:14px; font-weight:600; display:inline-block;">
+                                Attempt Quiz
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="border-top:1px solid #e5e7eb; padding-top:16px; font-size:12px; color:#888;">
+                            © {{ year }} Student Management System
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
