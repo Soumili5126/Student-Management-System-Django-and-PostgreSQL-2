@@ -6,7 +6,7 @@ from django.utils.html import strip_tags
 from django.utils import timezone
 
 from accounts.models import User, StudentProfile
-from academics.models import Attendance, Grade, QuizAttempt, Enrollment
+from academics.models import Attendance, Grade, QuizAttempt, Enrollment, Timetable
 
 
 @shared_task
@@ -208,3 +208,65 @@ def send_weekly_student_summary():
         print(f"Sending weekly summary to {user.email}")
         email.send()
         print(f"Weekly summary sent to {user.email}")
+
+@shared_task
+def send_enrollment_confirmed_email(student_user_id, course_code, course_name):
+    user = User.objects.get(id=student_user_id)
+
+    subject = f"Enrollment Confirmed: {course_code}"
+
+    html_content = render_to_string(
+        "emails/enrollment_confirmed_email.html",
+        {
+            "user": user,
+            "course_code": course_code,
+            "course_name": course_name,
+            "year": timezone.now().year,
+        }
+    )
+    text_content = strip_tags(html_content)
+
+    email = EmailMultiAlternatives(
+        subject,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email]
+    )
+    email.attach_alternative(html_content, "text/html")
+    print(f"Sending enrollment email to {user.email}")
+    email.send()
+    print(f"Enrollment email sent to {user.email}")
+
+
+@shared_task
+def send_timetable_created_email(student_user_id, batch_name, course_code, course_name, day, start_time, end_time):
+    user = User.objects.get(id=student_user_id)
+
+    subject = f"Timetable Created: {course_code}"
+
+    html_content = render_to_string(
+        "emails/timetable_created_email.html",
+        {
+            "user": user,
+            "batch_name": batch_name,
+            "course_code": course_code,
+            "course_name": course_name,
+            "day": day,
+            "start_time": start_time,
+            "end_time": end_time,
+            "year": timezone.now().year,
+        }
+    )
+    text_content = strip_tags(html_content)
+
+    email = EmailMultiAlternatives(
+        subject,
+        text_content,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email]
+    )
+    email.attach_alternative(html_content, "text/html")
+    print(f"Sending timetable email to {user.email}")
+    email.send()
+    print(f"Timetable email sent to {user.email}")
+

@@ -12,6 +12,12 @@ from django.contrib import messages
 from accounts.decorators import permission_required
 from django.db.models import Q
 from django.core.paginator import Paginator
+from accounts.utils import create_notification, create_admin_notification
+from accounts.tasks import (
+    send_exam_scheduled_email,
+    send_marks_updated_email,
+    send_timetable_created_email,
+)
 # Create your views here.
 @login_required
 @role_required(['student'])
@@ -172,13 +178,39 @@ def admin_manage_grades(request, exam_id):
             if mark_value:
                 mark_value = int(mark_value)
 
-                Grade.objects.update_or_create(
+                existing_grade = Grade.objects.filter(
                     exam=exam,
-                    student=student,
-                    defaults={
-                        'marks_obtained': mark_value
-                    }
-                )
+                    student=student
+                ).first()
+
+                if existing_grade:
+                    old_marks = existing_grade.marks_obtained
+                    existing_grade.marks_obtained = mark_value
+                    existing_grade.save()
+
+                    create_notification(
+                        student.user,
+                        "Marks Updated",
+                        f"Your marks for {exam.title} have been updated",
+                        "/accounts/student-dashboard/"
+                    )
+
+                    send_marks_updated_email.delay(
+                        student.user.id,
+                        exam.title,
+                        exam.course.code,
+                        exam.course.name,
+                        old_marks,
+                        mark_value,
+                        exam.total_marks
+                    )
+
+                else:
+                    Grade.objects.create(
+                        exam=exam,
+                        student=student,
+                        marks_obtained=mark_value
+                    )
 
         return redirect(
             'admin_manage_grades',
@@ -217,11 +249,31 @@ def add_exam(request):
             id=course_id
         )
 
-        Exam.objects.create(
+        exam = Exam.objects.create(
             course=course,
             title=title,
             date=date,
             total_marks=total_marks
+        )
+        enrollments = Enrollment.objects.filter(
+        course=course
+    ).select_related("student__user")
+
+    for enrollment in enrollments:
+        create_notification(
+            enrollment.student.user,
+            "Exam Scheduled",
+            f"An exam '{exam.title}' has been scheduled for {course.code}",
+            "/accounts/student-dashboard/"
+        )
+
+        send_exam_scheduled_email.delay(
+            enrollment.student.user.id,
+            course.code,
+            course.name,
+            exam.title,
+            str(exam.date),
+            exam.total_marks
         )
 
         return redirect('admin_exam_list')
@@ -535,7 +587,7 @@ def faculty_timetable(request):
 
     if request.method == "POST":
 
-        Timetable.objects.create(
+        timetable = Timetable.objects.create(
             batch_id=request.POST.get("batch"),
             course_id=request.POST.get("course"),
             faculty=faculty,
@@ -543,6 +595,28 @@ def faculty_timetable(request):
             start_time=request.POST.get("start_time"),
             end_time=request.POST.get("end_time"),
         )
+
+        students = StudentProfile.objects.filter(
+            batch=timetable.batch
+        ).select_related("user")
+
+        for student in students:
+            create_notification(
+                student.user,
+                "Timetable Updated",
+                f"A new timetable entry for {timetable.course.code} has been added",
+                "/accounts/student-dashboard/"
+            )
+
+            send_timetable_created_email.delay(
+                student.user.id,
+                timetable.batch.name,
+                timetable.course.code,
+                timetable.course.name,
+                timetable.day,
+                str(timetable.start_time),
+                str(timetable.end_time)
+            )
 
         return redirect("faculty_timetable")
 
@@ -577,7 +651,7 @@ def admin_timetable(request):
 
     if request.method == "POST":
 
-        Timetable.objects.create(
+        timetable = Timetable.objects.create(
             batch_id=request.POST.get("batch"),
             course_id=request.POST.get("course"),
             faculty_id=request.POST.get("faculty"),
@@ -585,6 +659,27 @@ def admin_timetable(request):
             start_time=request.POST.get("start_time"),
             end_time=request.POST.get("end_time"),
         )
+        students = StudentProfile.objects.filter(
+            batch=timetable.batch
+        ).select_related("user")
+
+        for student in students:
+            create_notification(
+                student.user,
+                "Timetable Updated",
+                f"A new timetable entry for {timetable.course.code} has been added",
+                "/accounts/student-dashboard/"
+            )
+
+            send_timetable_created_email.delay(
+                student.user.id,
+                timetable.batch.name,
+                timetable.course.code,
+                timetable.course.name,
+                timetable.day,
+                str(timetable.start_time),
+                str(timetable.end_time)
+            )
 
         return redirect('admin_timetable')
 

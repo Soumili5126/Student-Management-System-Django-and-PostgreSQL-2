@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif;">
+
+<h2>📅 Timetable Created</h2>
+
+<p>Hi {{ user.first_name }},</p>
+
+<p>A new timetable entry has been created for your batch:</p>
+
+<ul>
+    <li><strong>Batch:</strong> {{ batch_name }}</li>
+    <li><strong>Course:</strong> {{ course_code }} - {{ course_name }}</li>
+    <li><strong>Day:</strong> {{ day }}</li>
+    <li><strong>Time:</strong> {{ start_time }} - {{ end_time }}</li>
+</ul>
+
+<p>Please check your dashboard for the latest schedule.</p>
+
+<hr>
+<p style="font-size:12px;color:gray;">
+© {{ year }} Student Management System
+</p>
+
+</body>
+</html>

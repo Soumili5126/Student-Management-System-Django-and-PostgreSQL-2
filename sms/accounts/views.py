@@ -47,7 +47,7 @@ from accounts.tasks import (
     send_marks_uploaded_email,
     send_marks_updated_email,
     send_quiz_created_email,
-)
+    send_enrollment_confirmed_email,)
 # -------- REGISTER --------
 def register_view(request):
     if request.method == 'POST':
@@ -961,6 +961,11 @@ def enroll_students(request, course_id):
                     "Course Enrollment",
                     f"You have been enrolled in {course.code}",
                     "/accounts/student-dashboard/"
+                )
+                send_enrollment_confirmed_email.delay(
+                    student.user.id,
+                    course.code,
+                    course.name
                 )
 
                 # 🔔 Notify faculty assigned to this course
