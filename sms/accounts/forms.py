@@ -183,8 +183,6 @@ class UserRegisterForm(UserCreationForm):
 
         return password
     
-
-
 class LoginForm(AuthenticationForm):
 
     username = forms.CharField(

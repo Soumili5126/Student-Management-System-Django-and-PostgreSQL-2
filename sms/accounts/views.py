@@ -11,11 +11,11 @@ from datetime import timedelta
 from django.contrib import messages
 from .models import User, FacultyProfile
 from .forms import UserRegisterForm, EnrollmentEditForm,CourseForm
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from .utils import generate_otp, get_otp_expiry,generate_reset_token
 from django.urls import reverse
 from .decorators import admin_only, faculty_only, student_only
 from .decorators import role_required
-from django.http import HttpResponseForbidden
 from .models import User, FacultyProfile, StudentProfile,Role, Permission,Notification
 from academics.models import Course, Enrollment,Attendance,Batch,Exam,Grade,Quiz,QuizQuestion,QuizAnswer,QuizAttempt,Department,Timetable
 from datetime import date
@@ -23,12 +23,8 @@ from datetime import datetime
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 import csv
-from django.http import HttpResponse
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from django.http import HttpResponse
-from academics.models import Grade
-from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.conf import settings
 from django.db.models import Avg, Max
@@ -41,13 +37,14 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from django.views.decorators.cache import never_cache
 from accounts.utils import create_notification, create_admin_notification
-from django.http import JsonResponse
 from accounts.tasks import (
     send_exam_scheduled_email,
     send_marks_uploaded_email,
     send_marks_updated_email,
     send_quiz_created_email,
     send_enrollment_confirmed_email,)
+
+
 # -------- REGISTER --------
 def register_view(request):
     if request.method == 'POST':
@@ -188,22 +185,6 @@ def dashboard(request):
     messages.error(request, "Invalid role.")
     return redirect('login')
 
-
-# -------- ROLE DASHBOARDS --------
-@login_required
-def admin_dashboard(request):
-    return render(request, 'dashboards/admin_dashboard.html')
-
-
-@login_required
-def faculty_dashboard(request):
-    return render(request, 'dashboards/faculty_dashboard.html')
-
-
-@login_required
-def student_dashboard(request):
-    return render(request, 'dashboards/student_dashboard.html')
-
 # -------- OTP VERIFICATION VIEW--------
 def verify_otp(request):
     user_id = request.session.get('verify_user_id')
@@ -229,7 +210,7 @@ def verify_otp(request):
             messages.error(request, "OTP expired.")
             return redirect("register")
 
-        # ✅ SUCCESS
+        # SUCCESS
         user.is_active = True
         user.is_email_verified = True
         user.otp = None
@@ -258,8 +239,7 @@ def forgot_password(request):
             user.save()
 
             reset_link = request.build_absolute_uri(
-            reverse('reset_password', args=[token])
-)
+            reverse('reset_password', args=[token]))
 
 
             subject = "Password Reset - Student Management System"
@@ -339,37 +319,6 @@ def reset_password(request, token):
             return redirect('login')
 
     return render(request, 'accounts/reset_password.html')
-
-# -----Role-based access-----
-@login_required
-@admin_only
-def admin_dashboard(request):
-    return render(request, 'dashboards/admin_dashboard.html')
-
-@login_required
-@faculty_only
-def faculty_dashboard(request):
-    return render(request, 'dashboards/faculty_dashboard.html')
-
-@login_required
-@student_only
-def student_dashboard(request):
-    return render(request, 'dashboards/student_dashboard.html')
-
-@login_required
-@role_required(['admin'])
-def admin_dashboard(request):
-    return render(request, 'dashboards/admin_dashboard.html')
-
-@login_required
-@role_required(['faculty'])
-def faculty_dashboard(request):
-    return render(request, 'dashboards/faculty_dashboard.html')
-
-@login_required
-@role_required(['student'])
-def student_dashboard(request):
-    return render(request, 'dashboards/student_dashboard.html')
 
 # -----Admin,Faculty and Student Dashboards-----
 def approve_user(request, user_id):
@@ -457,6 +406,7 @@ def edit_profile(request):
         return redirect("edit_profile")
 
     return render(request, "accounts/edit_profile.html")
+
 @login_required
 @never_cache
 def faculty_dashboard(request):
@@ -878,6 +828,7 @@ def assign_faculty(request, course_id):
             'faculties': faculties
         }
     )
+
 @login_required
 def remove_faculty(request, course_id):
 
@@ -1096,7 +1047,6 @@ def export_attendance_csv(request, course_id):
     return response
 
 #-------------Batch Management CRUD----------------
-
 @login_required
 @role_required(['admin'])
 def create_batch(request):
@@ -2336,6 +2286,7 @@ def delete_quiz_question(request, question_id):
         'add_quiz_question',
         quiz_id=quiz_id
     )
+
 @login_required
 @role_required(['student'])
 def attempt_quiz(request, quiz_id):
@@ -2387,7 +2338,7 @@ def attempt_quiz(request, quiz_id):
 
         attempt.score = correct
         attempt.save()
-        # 🔔 Notify faculty when student attempts quiz
+        # Notify faculty when student attempts quiz
         if quiz.course.faculty and quiz.course.faculty.user:
             create_notification(
                 quiz.course.faculty.user,
@@ -2418,7 +2369,7 @@ def quiz_result(request, attempt_id):
     attempt = get_object_or_404(
         QuizAttempt,
         id=attempt_id,
-        student=student   # 🔐 Only own attempt
+        student=student   # Only own attempt
     )
 
     answers = attempt.answers.select_related('question')
