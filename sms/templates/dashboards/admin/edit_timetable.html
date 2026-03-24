@@ -1,17 +1,129 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Edit Timetable</h2>
+<style>
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2d3d;
+        margin-bottom: 4px;
+    }
 
-<div class="card p-4">
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
+
+    .timetable-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1f2d3d;
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #344054;
+        margin-bottom: 8px;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 12px;
+        min-height: 45px;
+        border: 1px solid #d0d5dd;
+        box-shadow: none;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    }
+
+    .info-strip {
+        background: #f8f9fc;
+        border: 1px solid #e9ecef;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 22px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #6c757d;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2d3d;
+    }
+
+    .action-btn {
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+    .back-btn {
+        border-radius: 12px;
+        padding: 10px 18px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="mb-4">
+    <h2 class="page-title">Edit Timetable</h2>
+    <p class="page-subtitle mb-0">
+        Update the selected schedule details for batch, course, faculty, day, and timing.
+    </p>
+</div>
+
+<div class="card timetable-card p-4">
+    <h5 class="section-title">Update Schedule</h5>
+
+    <div class="info-strip">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="info-label">Current Batch</div>
+                <div class="info-value">{{ timetable.batch.program }} | {{ timetable.batch.section }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-label">Current Course</div>
+                <div class="info-value">{{ timetable.course.code }} - {{ timetable.course.name }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-label">Current Faculty</div>
+                <div class="info-value">{{ timetable.faculty.user.username }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-label">Current Day</div>
+                <div class="info-value">{{ timetable.get_day_display }}</div>
+            </div>
+        </div>
+    </div>
+
     <form method="POST">
         {% csrf_token %}
 
-        <div class="row">
+        <div class="row g-3">
 
-            <div class="col-md-4 mb-3">
-                <label>Batch</label>
-                <select name="batch" class="form-control">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">Batch</label>
+                <select name="batch" class="form-select" required>
                     {% for batch in batches %}
                         <option value="{{ batch.id }}"
                             {% if batch.id == timetable.batch.id %}selected{% endif %}>
@@ -21,9 +133,9 @@
                 </select>
             </div>
 
-            <div class="col-md-4 mb-3">
-                <label>Course</label>
-                <select name="course" class="form-control">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">Course</label>
+                <select name="course" class="form-select" required>
                     {% for course in courses %}
                         <option value="{{ course.id }}"
                             {% if course.id == timetable.course.id %}selected{% endif %}>
@@ -33,9 +145,9 @@
                 </select>
             </div>
 
-            <div class="col-md-4 mb-3">
-                <label>Faculty</label>
-                <select name="faculty" class="form-control">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">Faculty</label>
+                <select name="faculty" class="form-select" required>
                     {% for faculty in faculties %}
                         <option value="{{ faculty.id }}"
                             {% if faculty.id == timetable.faculty.id %}selected{% endif %}>
@@ -45,10 +157,10 @@
                 </select>
             </div>
 
-            <div class="col-md-4 mb-3">
-                <label>Day</label>
-                <select name="day" class="form-control">
-                    {%for value,label in day_choices %}
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">Day</label>
+                <select name="day" class="form-select" required>
+                    {% for value, label in day_choices %}
                         <option value="{{ value }}"
                             {% if value == timetable.day %}selected{% endif %}>
                             {{ label }}
@@ -57,29 +169,41 @@
                 </select>
             </div>
 
-            <div class="col-md-4 mb-3">
-                <label>Start Time</label>
-                <input type="time" name="start_time"
-                       value="{{ timetable.start_time }}"
-                       class="form-control">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">Start Time</label>
+                <input type="time"
+                       name="start_time"
+                       value="{{ timetable.start_time|time:'H:i' }}"
+                       class="form-control"
+                       required>
             </div>
 
-            <div class="col-md-4 mb-3">
-                <label>End Time</label>
-                <input type="time" name="end_time"
-                       value="{{ timetable.end_time }}"
-                       class="form-control">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">End Time</label>
+                <input type="time"
+                       name="end_time"
+                       value="{{ timetable.end_time|time:'H:i' }}"
+                       class="form-control"
+                       required>
             </div>
 
         </div>
 
-        <button class="btn btn-success mt-3">Save Changes</button>
-        <a href="{% url 'admin_timetable' %}" class="btn btn-secondary mt-3">Cancel</a>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <button class="btn btn-success action-btn">
+                <i class="bi bi-check-circle me-1"></i>
+                Save Changes
+            </button>
 
+            <a href="{% url 'admin_timetable' %}" class="btn btn-secondary action-btn">
+                Cancel
+            </a>
+        </div>
     </form>
 </div>
-<a href="{% url 'admin_timetable' %}"
-       class="btn btn-secondary mt-3">
-       ← Go Back
+
+<a href="{% url 'admin_timetable' %}" class="btn btn-outline-secondary back-btn mt-4">
+    ← Go Back
 </a>
+
 {% endblock %}

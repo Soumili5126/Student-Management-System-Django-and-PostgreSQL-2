@@ -71,18 +71,19 @@
 
 <!-- ================= ENROLLMENT SECTION ================= -->
 
-<div class="card border-0 shadow-sm">
-    <div class="card-body">
+<div class="card dashboard-card">
+    <div class="card-body p-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-semibold mb-0">Enrollment Overview</h5>
-              <form method="get" class="d-flex">
-                <div class="input-group input-group-sm">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <h5 class="section-title">Enrollment Overview</h5>
+
+            <form method="get" class="d-flex flex-wrap gap-2">
+                <div class="input-group">
                     <input type="text"
-                        name="search"
-                        class="form-control"
-                        placeholder="Search by course code or name..."
-                        value="{{ search_query }}">
+                           name="search"
+                           class="form-control"
+                           placeholder="Search by course code or name..."
+                           value="{{ search_query }}">
                     <button class="btn btn-outline-primary" type="submit">
                         <i class="bi bi-search"></i>
                     </button>
@@ -90,17 +91,16 @@
 
                 {% if search_query %}
                 <a href="{% url 'admin_dashboard' %}"
-                class="btn btn-outline-secondary btn-sm ms-2">
+                   class="btn btn-outline-secondary">
                     Clear
                 </a>
                 {% endif %}
             </form>
         </div>
 
-        <div class="table-responsive">
-            <table class="table align-middle table-hover mb-0">
-
-                <thead class="table-light">
+        <div class="table-wrapper">
+            <table class="table custom-table align-middle">
+                <thead>
                     <tr>
                         <th>Course</th>
                         <th>Faculty</th>
@@ -113,82 +113,89 @@
                     {% for item in course_data %}
                     <tr>
 
-                        <!-- Course -->
                         <td>
-                            <div class="fw-semibold">
+                            <div class="course-code">
                                 {{ item.course.code }}
                             </div>
-                            <div class="text-muted small">
+                            <div class="course-name">
                                 {{ item.course.name }}
                             </div>
                         </td>
 
-                        <!-- Faculty -->
                         <td>
                             {% if item.course.faculty %}
-                                <span class="badge bg-success-subtle text-success px-3 py-2">
+                                <span class="faculty-badge">
                                     {{ item.course.faculty.user.username }}
                                 </span>
                             {% else %}
-                                <span class="badge bg-danger-subtle text-danger px-3 py-2">
+                                <span class="not-assigned-badge">
                                     Not Assigned
                                 </span>
                             {% endif %}
                         </td>
 
-                        <!-- Students -->
                         <td>
                             {% if item.enrollments %}
-                                <div class="d-flex flex-wrap gap-1">
+                                <div class="d-flex flex-wrap">
                                     {% for e in item.enrollments %}
-                                        <span class="badge bg-primary-subtle text-primary">
+                                        <span class="student-badge">
                                             {{ e.student.user.username }}
                                         </span>
                                     {% endfor %}
                                 </div>
                             {% else %}
-                                <span class="text-muted small">No students enrolled</span>
+                                <span class="empty-text">No students enrolled</span>
                             {% endif %}
                         </td>
 
-                        <!-- Actions -->
-                        <td>
+                        <td style="min-width: 340px;">
                             <div class="d-flex flex-wrap gap-2">
 
                                 <a href="{% url 'assign_faculty' item.course.id %}"
-                                   class="btn btn-sm btn-primary">
+                                   class="btn btn-sm btn-primary action-btn">
                                    <i class="bi bi-person-plus me-1"></i>
                                    Assign
                                 </a>
 
                                 <a href="{% url 'enroll_students' item.course.id %}"
-                                   class="btn btn-sm btn-warning">
+                                   class="btn btn-sm btn-warning action-btn">
                                    <i class="bi bi-plus-circle me-1"></i>
                                    Enroll
                                 </a>
 
                                 <a href="{% url 'admin_attendance_management' item.course.id %}"
-                                   class="btn btn-sm btn-secondary">
+                                   class="btn btn-sm btn-secondary action-btn">
                                    <i class="bi bi-calendar-check me-1"></i>
                                    Attendance
                                 </a>
 
                                 <a href="{% url 'admin_exam_list' %}"
-                                   class="btn btn-sm btn-dark">
+                                   class="btn btn-sm btn-dark action-btn">
                                    <i class="bi bi-file-earmark-text me-1"></i>
                                    Exams
                                 </a>
-                                
-                                
+
+                                <a href="{% url 'admin_timetable' %}"
+                                   class="btn btn-sm btn-success action-btn">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    Timetable
+                                </a>
+
                                 <a href="{% url 'delete_course' item.course.id %}"
-                                    class="btn btn-sm btn-outline-danger delete-course-btn">
-                                        <i class="bi bi-trash me-1"></i>
-                                        Delete
+                                   class="btn btn-sm btn-danger delete-course-btn action-btn">
+                                    <i class="bi bi-trash me-1"></i>
+                                    Delete
                                 </a>
 
                             </div>
                         </td>
 
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            No courses found.
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -196,46 +203,47 @@
             </table>
         </div>
     </div>
-{% if page_obj.has_other_pages %}
-<nav class="mt-3">
-    <ul class="pagination pagination-sm justify-content-center">
 
-        {% if page_obj.has_previous %}
-        <li class="page-item">
-            <a class="page-link"
-               href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
-                Previous
-            </a>
-        </li>
-        {% endif %}
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-3 mb-4">
+        <ul class="pagination pagination-sm justify-content-center">
 
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-            <li class="page-item active">
-                <span class="page-link">{{ num }}</span>
-            </li>
-            {% else %}
+            {% if page_obj.has_previous %}
             <li class="page-item">
                 <a class="page-link"
-                   href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">
-                    {{ num }}
+                   href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    Previous
                 </a>
             </li>
             {% endif %}
-        {% endfor %}
 
-        {% if page_obj.has_next %}
-        <li class="page-item">
-            <a class="page-link"
-               href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
-                Next
-            </a>
-        </li>
-        {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endif %}
+            {% endfor %}
 
-    </ul>
-</nav>
-{% endif %}
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    Next
+                </a>
+            </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -276,6 +284,124 @@ document.addEventListener("DOMContentLoaded", function(){
 
 });
 </script>
+<style>
+    .dashboard-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1f2d3d;
+        margin-bottom: 0;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        min-height: 44px;
+        border: 1px solid #d0d5dd;
+        box-shadow: none;
+    }
+
+    .form-control:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: 14px;
+    }
+
+    .custom-table {
+        min-width: 1100px;
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .custom-table thead th {
+        background: #f8fafc;
+        color: #344054;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 1px solid #e9ecef;
+        padding: 14px;
+        white-space: nowrap;
+    }
+
+    .custom-table tbody td {
+        padding: 14px;
+        color: #212529;
+        vertical-align: middle;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #f9fbfd;
+    }
+
+    .course-code {
+        display: inline-block;
+        background: #eef4ff;
+        color: #155eef;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .course-name {
+        color: #667085;
+        font-size: 13px;
+    }
+
+    .faculty-badge {
+        display: inline-block;
+        background: #ecfdf3;
+        color: #027a48;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .not-assigned-badge {
+        display: inline-block;
+        background: #fef3f2;
+        color: #d92d20;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .student-badge {
+        display: inline-block;
+        background: #eef4ff;
+        color: #155eef;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        margin: 2px 4px 2px 0;
+    }
+
+    .action-btn {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 4px 10px;   
+    font-size: 12px;     
+    line-height: 1.2;
+    white-space: nowrap; /
+}
+    .empty-text {
+        color: #6c757d;
+        font-size: 14px;
+    }
+</style>
 {% endblock %}
 
 

@@ -14,117 +14,195 @@
     </ol>
 </nav>
 {% endblock %}
+
 {% block content %}
 
-<!-- ================= HEADER ================= -->
+<style>
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2d3d;
+        margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
+
+    .analytics-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f2d3d;
+        margin-bottom: 18px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: 14px;
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+        min-width: 700px;
+    }
+
+    .custom-table thead th {
+        background: #f8fafc;
+        color: #344054;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        padding: 14px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .custom-table tbody td {
+        padding: 14px;
+        vertical-align: middle;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #f9fbfd;
+    }
+
+    .student-name {
+        font-weight: 600;
+        color: #1f2d3d;
+    }
+
+    .attempt-badge {
+        background: #eef4ff;
+        color: #155eef;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .score-text {
+        font-weight: 600;
+        color: #344054;
+    }
+
+    .percentage-badge {
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .pass {
+        background: #ecfdf3;
+        color: #027a48;
+    }
+
+    .fail {
+        background: #fef3f2;
+        color: #b42318;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 36px 20px;
+        color: #6c757d;
+        font-size: 15px;
+    }
+
+    .back-btn {
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+</style>
+
 <div class="mb-4">
-    <h2 class="fw-semibold mb-1" style="font-size:22px;">
-        {{ quiz.title }} — Analytics
-    </h2>
-    <p class="text-muted small mb-0">
+    <h2 class="page-title">{{ quiz.title }} — Analytics</h2>
+    <p class="page-subtitle mb-0">
         {{ quiz.course.code }} — {{ quiz.course.name }}
     </p>
 </div>
 
-<!-- ================= SUMMARY CARD ================= -->
-<div class="card shadow-sm border-0 mb-4">
-    <div class="card-body p-4">
+<div class="card analytics-card p-4 mb-4">
 
-        <h6 class="fw-semibold text-secondary mb-3">
-            Student Performance Overview
-        </h6>
+    <h5 class="section-title">
+        Student Performance Overview
+    </h5>
 
-        <div class="table-responsive">
-            <table class="table align-middle modern-table mb-0">
+    <div class="table-wrapper">
+        <table class="table custom-table align-middle">
 
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Attempts</th>
-                        <th>Best Score</th>
-                        <th>Best Percentage</th>
-                    </tr>
-                </thead>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Attempts</th>
+                    <th>Best Score</th>
+                    <th>Best Percentage</th>
+                </tr>
+            </thead>
 
-                <tbody>
-                    {% for stat in student_stats %}
-                    <tr>
-                        <td class="fw-medium">
+            <tbody>
+                {% for stat in student_stats %}
+                <tr>
+
+                    <td>
+                        <span class="student-name">
                             {{ stat.student.user.username }}
-                        </td>
+                        </span>
+                    </td>
 
-                        <td>
-                            <span class="badge bg-secondary">
-                                {{ stat.attempts }}
-                            </span>
-                        </td>
+                    <td>
+                        <span class="attempt-badge">
+                            {{ stat.attempts }}
+                        </span>
+                    </td>
 
-                        <td>
+                    <td>
+                        <span class="score-text">
                             {{ stat.best_score }}
-                        </td>
+                        </span>
+                    </td>
 
-                        <td>
-                            <span class="badge 
-                                {% if stat.best_percentage >= 40 %}
-                                    bg-success
-                                {% else %}
-                                    bg-danger
-                                {% endif %}
-                            ">
-                                {{ stat.best_percentage|floatformat:2 }}%
-                            </span>
-                        </td>
-                    </tr>
+                    <td>
+                        <span class="percentage-badge 
+                            {% if stat.best_percentage >= 40 %}
+                                pass
+                            {% else %}
+                                fail
+                            {% endif %}
+                        ">
+                            {{ stat.best_percentage|floatformat:2 }}%
+                        </span>
+                    </td>
 
-                    {% empty %}
-                    <tr>
-                        <td colspan="4"
-                            class="text-center text-muted py-4">
-                            No attempts yet.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+                </tr>
 
-            </table>
-        </div>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="empty-state">
+                        No attempts yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
 
+        </table>
     </div>
+
 </div>
 
 <a href="{% url 'faculty_dashboard' %}"
-   class="btn btn-outline-secondary btn-sm">
+   class="btn btn-outline-secondary back-btn">
    <i class="bi bi-arrow-left me-1"></i>
    Back to Dashboard
 </a>
-
-<style>
-
-/* Modern table style */
-.modern-table {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.modern-table thead {
-    background: #f8fafc;
-    font-size: 13px;
-    text-transform: uppercase;
-    color: #64748b;
-}
-
-.modern-table td,
-.modern-table th {
-    vertical-align: middle;
-}
-
-.badge {
-    font-size: 12px;
-    padding: 5px 8px;
-    border-radius: 8px;
-}
-
-</style>
 
 {% endblock %}

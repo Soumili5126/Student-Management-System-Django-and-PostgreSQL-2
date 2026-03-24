@@ -12,36 +12,130 @@
         </li>
 
         <li class="breadcrumb-item active">
-            Edit exam
+            Edit Exam
         </li>
 
     </ol>
 </nav>
 {% endblock %}
+
 {% block content %}
 
-<div class="container mt-4" style="max-width: 700px;">
+<style>
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2d3d;
+        margin-bottom: 4px;
+    }
 
-    <div class="card shadow-sm border-0">
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
 
-        <!-- Header -->
-        <div class="card-header bg-white border-0">
-            <h4 class="fw-bold mb-0">Edit Exam</h4>
+    .exam-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1f2d3d;
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #344054;
+        margin-bottom: 8px;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 12px;
+        min-height: 48px;
+        border: 1px solid #d0d5dd;
+        box-shadow: none;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    }
+
+    .info-strip {
+        background: #f8f9fc;
+        border: 1px solid #e9ecef;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 24px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #6c757d;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2d3d;
+    }
+
+    .action-btn {
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container mt-4" style="max-width: 800px;">
+
+    <div class="mb-4">
+        <h2 class="page-title">Edit Exam</h2>
+        <p class="page-subtitle mb-0">
+            Update the exam details such as course, title, date, and total marks.
+        </p>
+    </div>
+
+    <div class="card exam-card p-4">
+        <h5 class="section-title">Update Exam Details</h5>
+
+        <div class="info-strip">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="info-label">Current Course</div>
+                    <div class="info-value">{{ exam.course.code }} - {{ exam.course.name }}</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-label">Current Title</div>
+                    <div class="info-value">{{ exam.title }}</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-label">Current Date</div>
+                    <div class="info-value">{{ exam.date|date:"d M Y" }}</div>
+                </div>
+            </div>
         </div>
 
-        <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
 
-            <form method="post">
-                {% csrf_token %}
+            <div class="row g-3">
 
-                <!-- Course -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">
-                        Course
-                    </label>
-
-                    <select name="course_id"
-                            class="form-select form-select-lg">
+                <div class="col-md-12">
+                    <label class="form-label">Course</label>
+                    <select name="course_id" class="form-select" required>
                         {% for c in courses %}
                             <option value="{{ c.id }}"
                                 {% if c.id == exam.course.id %}selected{% endif %}>
@@ -51,60 +145,48 @@
                     </select>
                 </div>
 
-                <!-- Title -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">
-                        Exam Title
-                    </label>
-
+                <div class="col-md-12">
+                    <label class="form-label">Exam Title</label>
                     <input type="text"
                            name="title"
                            value="{{ exam.title }}"
-                           class="form-control form-control-lg">
+                           class="form-control"
+                           required>
                 </div>
 
-                <!-- Date -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">
-                        Exam Date
-                    </label>
-
+                <div class="col-md-6">
+                    <label class="form-label">Exam Date</label>
                     <input type="date"
                            name="date"
                            value="{{ exam.date|date:'Y-m-d' }}"
-                           class="form-control form-control-lg">
+                           class="form-control"
+                           required>
                 </div>
 
-                <!-- Total Marks -->
-                <div class="mb-4">
-                    <label class="form-label fw-semibold">
-                        Total Marks
-                    </label>
-
+                <div class="col-md-6">
+                    <label class="form-label">Total Marks</label>
                     <input type="number"
                            name="total_marks"
                            value="{{ exam.total_marks }}"
-                           class="form-control form-control-lg">
+                           class="form-control"
+                           required>
                 </div>
 
-                <!-- Buttons -->
-                <div class="d-flex justify-content-between mt-4">
+            </div>
 
-                    <a href="{% url 'admin_exam_list' %}"
-                       class="btn btn-outline-secondary">
-                        ← Back
-                    </a>
+            <div class="d-flex flex-wrap justify-content-between gap-2 mt-4">
+                <a href="{% url 'admin_exam_list' %}"
+                   class="btn btn-outline-secondary action-btn">
+                    ← Back
+                </a>
 
-                    <button class="btn btn-primary px-4">
-                        Save Changes
-                    </button>
+                <button class="btn btn-primary action-btn">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Save Changes
+                </button>
+            </div>
 
-                </div>
-
-            </form>
-
-        </div>
-
+        </form>
     </div>
 
 </div>

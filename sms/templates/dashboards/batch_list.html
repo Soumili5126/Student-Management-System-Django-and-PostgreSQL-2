@@ -10,8 +10,6 @@
 
         {% elif request.user.role.name|lower == "faculty" %}
             <a href="{% url 'faculty_dashboard' %}">Dashboard</a>
-
-        
         {% endif %}
 
         </li>
@@ -23,138 +21,263 @@
     </ol>
 </nav>
 {% endblock %}
+
 {% block content %}
 
-<!-- PAGE HEADER -->
-<div class="d-flex justify-content-between align-items-center mb-2">
+<style>
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2d3d;
+        margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
+
+    .batch-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1f2d3d;
+        margin-bottom: 18px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .info-badge {
+        display: inline-block;
+        background: #eef4ff;
+        color: #155eef;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .success-badge {
+        display: inline-block;
+        background: #ecfdf3;
+        color: #027a48;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .danger-badge {
+        display: inline-block;
+        background: #fef3f2;
+        color: #d92d20;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .table-wrapper {
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .custom-table thead th {
+        background: #f8fafc;
+        color: #344054;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 1px solid #e9ecef;
+        padding: 14px;
+    }
+
+    .custom-table tbody td {
+        padding: 14px;
+        color: #212529;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #f9fbfd;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        min-height: 44px;
+        border: 1px solid #d0d5dd;
+        box-shadow: none;
+    }
+
+    .form-control:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    }
+
+    .action-btn,
+    .back-btn,
+    .create-btn {
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    .create-btn {
+        padding: 10px 18px;
+    }
+
+    .back-btn {
+        padding: 10px 18px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 35px 20px;
+        color: #6c757d;
+        font-size: 15px;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
     <div>
-        <h2 class="fw-semibold mb-1" style="font-size: 22px;">Batch Management</h2>
-        <p class="text-muted mb-0">Manage student assignments and batches</p>
+        <h2 class="page-title">Batch Management</h2>
+        <p class="page-subtitle mb-0">Manage student assignments and batches</p>
     </div>
+
+    <a href="{% url 'create_batch' %}" class="btn btn-primary create-btn">
+        <i class="bi bi-plus-circle me-1"></i>
+        Create New Batch
+    </a>
 </div>
-<a href="{% url 'create_batch' %}" class="btn btn-primary btn-sm mb-3">
 
-    <i class="bi bi-person-plus me-1"></i> Create New Batch
-</a>
 <!-- ================= BATCH SECTION ================= -->
-<div class="card shadow-sm border-0 mb-5">
-    <div class="card-body">
+<div class="card batch-card p-4 mb-5">
+    <div class="section-header">
+        <h5 class="section-title mb-0">Available Batches</h5>
+        <span class="info-badge">Total: {{ batches|length }}</span>
+    </div>
 
-        <h5 class="fw-semibold mb-3">Available Batches</h5>
-        <span class="badge bg-primary-subtle text-primary px-3 py-2">
-            Total: {{ batches|length }}
-        </span>
+    <div class="table-responsive table-wrapper">
+        <table class="table custom-table align-middle">
+            <thead>
+                <tr>
+                    <th>Program</th>
+                    <th>Name</th>
+                    <th>Academic Year</th>
+                    <th>Section</th>
+                    <th>Total Students</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
 
-        <div class="table-responsive">
-            <table class="table align-middle table-hover mb-0">
-
-                <thead class="table-light">
-                    <tr>
-                        <th>Program</th>
-                        <th>Name</th>
-                        <th>Academic Year</th>
-                        <th>Section</th>
-                        <th>Total Students</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
+            <tbody>
                 {% for batch in batches %}
                 <tr>
                     <td>{{ batch.program }}</td>
-                    <td class="fw-medium">{{ batch.name }}</td>
+                    <td class="fw-semibold">{{ batch.name }}</td>
                     <td>{{ batch.academic_year }}</td>
                     <td>{{ batch.section }}</td>
                     <td>
-                        <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                        <span class="info-badge">
                             {{ batch.students.count }}
                         </span>
                     </td>
                     <td>
-                        <div class="d-flex gap-2">
-
+                        <div class="d-flex gap-2 flex-wrap">
                             <a href="{% url 'edit_batch' batch.id %}"
-                            class="btn btn-sm btn-outline-warning">
-                            <i class="bi bi-pencil-square me-1"></i>
-                            Edit
+                               class="btn btn-sm btn-outline-warning action-btn">
+                                <i class="bi bi-pencil-square me-1"></i>
+                                Edit
                             </a>
 
                             <a href="{% url 'delete_batch' batch.id %}"
-                            class="btn btn-sm btn-outline-danger delete-batch-btn">
-                            <i class="bi bi-trash me-1"></i>
-                            Delete
+                               class="btn btn-sm btn-outline-danger delete-batch-btn action-btn">
+                                <i class="bi bi-trash me-1"></i>
+                                Delete
                             </a>
-
                         </div>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-muted text-center py-4">
+                    <td colspan="6" class="empty-state">
                         No batches available.
                     </td>
                 </tr>
                 {% endfor %}
-                </tbody>
-
-            </table>
-        </div>
-
+            </tbody>
+        </table>
     </div>
 </div>
+
 <!-- ================= STUDENT SECTION ================= -->
-<div class="card shadow-sm border-0 mb-5">
-    <div class="card-body">
+<div class="card batch-card p-4 mb-5">
+    <div class="section-header">
+        <h5 class="section-title mb-0">Students</h5>
+    </div>
 
-        <h5 class="fw-semibold mb-3">Students</h5>
-        <form method="get" class="row mb-3">
-            <div class="col-md-4">
-                <div class="input-group input-group-sm">
-                    <input type="text"
-                        name="search"
-                        class="form-control"
-                        placeholder="Search by username..."
-                        value="{{ search_query }}">
-                    <button class="btn btn-outline-primary" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
+    <form method="get" class="row g-2 mb-4 align-items-center">
+        <div class="col-md-4">
+            <div class="input-group">
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Search by username..."
+                       value="{{ search_query }}">
+                <button class="btn btn-outline-primary" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
             </div>
+        </div>
 
-            {% if search_query %}
-            <div class="col-md-auto">
-                <a href="{% url 'batch_list' %}"
-                class="btn btn-outline-secondary btn-sm">
-                    Clear
-                </a>
-            </div>
-            {% endif %}
-        </form>
+        {% if search_query %}
+        <div class="col-md-auto">
+            <a href="{% url 'batch_list' %}"
+               class="btn btn-outline-secondary">
+                Clear
+            </a>
+        </div>
+        {% endif %}
+    </form>
 
-        <div class="table-responsive">
-            <table class="table align-middle table-hover mb-0">
+    <div class="table-responsive table-wrapper">
+        <table class="table custom-table align-middle">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Current Batch</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
 
-                <thead class="table-light">
-                    <tr>
-                        <th>Student</th>
-                        <th>Current Batch</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
+            <tbody>
                 {% for s in students %}
                 <tr>
-                    <td class="fw-medium">{{ s.user.username }}</td>
+                    <td class="fw-semibold">{{ s.user.username }}</td>
 
                     <td>
                         {% if s.batch %}
-                            <span class="badge bg-success-subtle text-success px-3 py-2">
+                            <span class="success-badge">
                                 {{ s.batch }}
                             </span>
                         {% else %}
-                            <span class="badge bg-danger-subtle text-danger px-3 py-2">
+                            <span class="danger-badge">
                                 Not Assigned
                             </span>
                         {% endif %}
@@ -162,31 +285,32 @@
 
                     <td>
                         <div class="d-flex gap-2 flex-wrap">
-
                             <a href="{% url 'assign_batch' s.id %}"
-                               class="btn btn-sm btn-warning">
+                               class="btn btn-sm btn-warning action-btn">
                                 <i class="bi bi-person-plus me-1"></i>
                                 Assign
                             </a>
 
                             {% if s.batch %}
                             <a href="{% url 'remove_student_from_batch' s.id %}"
-                                class="btn btn-sm btn-outline-danger"
-                                onclick="confirmRemove(event, this.href)">
-                                    <i class="bi bi-x-circle me-1"></i>
-                                    Remove
+                               class="btn btn-sm btn-outline-danger action-btn"
+                               onclick="confirmRemove(event, this.href)">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Remove
                             </a>
                             {% endif %}
-
                         </div>
                     </td>
                 </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="empty-state">
+                        No students found.
+                    </td>
+                </tr>
                 {% endfor %}
-                </tbody>
-
-            </table>
-        </div>
-
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -212,7 +336,7 @@
             <li class="page-item">
                 <a class="page-link"
                    href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">
-                   {{ num }}
+                    {{ num }}
                 </a>
             </li>
             {% endif %}
@@ -231,13 +355,11 @@
 </nav>
 {% endif %}
 
-
-<a href="{% url 'admin_dashboard' %}"
-   class="btn btn-outline-secondary mt-4">
+<a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary back-btn mt-4">
    <i class="bi bi-arrow-left me-1"></i>
    Go to Admin Dashboard
 </a>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function confirmRemove(event, url) {
@@ -260,14 +382,12 @@ function confirmRemove(event, url) {
 </script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", function () {
 
     const buttons = document.querySelectorAll(".delete-batch-btn");
 
-    buttons.forEach(function(button){
-
-        button.addEventListener("click", function(e){
-
+    buttons.forEach(function(button) {
+        button.addEventListener("click", function(e) {
             e.preventDefault();
 
             const url = this.getAttribute("href");
@@ -281,16 +401,12 @@ document.addEventListener("DOMContentLoaded", function(){
                 cancelButtonColor: "#6c757d",
                 confirmButtonText: "Yes, delete",
                 cancelButtonText: "Cancel"
-            }).then((result)=>{
-
-                if(result.isConfirmed){
+            }).then((result) => {
+                if (result.isConfirmed) {
                     window.location.href = url;
                 }
-
             });
-
         });
-
     });
 
 });

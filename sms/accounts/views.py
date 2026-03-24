@@ -995,8 +995,6 @@ def enroll_students(request, course_id):
         }
     )
 
-
-
 @login_required
 def edit_enrollment(request, enrollment_id):
 
@@ -1274,8 +1272,6 @@ def add_student(request):
 
         # ================= SEND EMAIL =================
 
-      # ================= SEND EMAIL =================
-
         subject = "Your Student Account Has Been Created"
 
         login_url = request.build_absolute_uri(reverse("login"))
@@ -1370,7 +1366,6 @@ def edit_student(request, student_id):
             'batches': batches
         }
     )
-
 
 @login_required
 def delete_student(request, student_id):
@@ -1723,7 +1718,6 @@ def remove_course_from_faculty(request, course_id):
 
 
 # -----------Course Management CRUD--------------
-
 @login_required
 @role_required(['admin'])
 def course_management(request):
@@ -1799,12 +1793,6 @@ def add_course(request):
             "faculties": faculties
         }
     )
-
-class CourseForm(forms.ModelForm):
-    class Meta:
-        model = Course
-        fields = ['code', 'name', 'department', 'faculty']
-
 
 @login_required
 @role_required(['admin'])
@@ -1901,7 +1889,7 @@ def create_exam(request, course_id):
             "/accounts/admin-dashboard/"
         )
 
-        # 🔔 Notify enrolled students
+        # Notify enrolled students
         enrollments = Enrollment.objects.filter(
             course=course
         ).select_related("student__user")
@@ -1993,7 +1981,7 @@ def enter_grades(request, exam_id):
                     marks_obtained=marks
                 )
 
-                # 🔔 Send notification to the student
+                # Send notification to the student
                 create_notification(
                     enrollment.student.user,
                     "Exam Result Published",

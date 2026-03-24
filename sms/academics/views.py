@@ -18,6 +18,8 @@ from accounts.tasks import (
     send_marks_updated_email,
     send_timetable_created_email,
 )
+from django.db.models import Q
+
 # Create your views here.
 @login_required
 @role_required(['student'])
@@ -133,22 +135,28 @@ def admin_attendance_management(request, course_id):
             'selected_date': date
         }
     )
+
 @login_required
 @role_required(['admin'])
 def admin_exam_list(request):
 
-    exams = (
-        Exam.objects
-        .select_related('course')
-        .all()
-        .order_by('-date')
-    )
+    search_query = request.GET.get("search", "")
 
-    return render(
-        request,
-        'dashboards/admin/exam_list.html',
-        {'exams': exams}
-    )
+    exams = Exam.objects.select_related('course').order_by('-date')
+
+    # 🔍 SEARCH LOGIC
+    if search_query:
+        exams = exams.filter(
+            Q(title__icontains=search_query) |
+            Q(course__code__icontains=search_query)
+        )
+
+    context = {
+        "exams": exams,
+        "search_query": search_query
+    }
+
+    return render(request, "dashboards/admin/exam_list.html", context)
 
 @login_required
 @role_required(['admin'])

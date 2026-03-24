@@ -14,65 +14,245 @@
     </ol>
 </nav>
 {% endblock %}
+
 {% block content %}
 
-<h2>Assign Faculty</h2>
+<style>
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2d3d;
+        margin-bottom: 4px;
+    }
 
-<p><b>Course:</b> {{ course.name }}</p>
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
 
-<form method="post">
-    {% csrf_token %}
+    .faculty-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
 
-    <label>Select Faculty:</label>
-    <select name="faculty" class="form-control">
-        {% for faculty in faculties %}
-            <option value="{{ faculty.id }}">
-                {{ faculty.user.username }} — {{ faculty.department }}
-            </option>
-        {% endfor %}
-    </select>
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1f2d3d;
+        margin-bottom: 20px;
+    }
 
-    <button class="btn btn-success mt-3">
-        Assign
-    </button>
-</form>
-<hr class="my-4">
+    .form-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #344054;
+        margin-bottom: 8px;
+    }
 
-<h5>Assigned Faculty</h5>
+    .form-control,
+    .form-select {
+        border-radius: 12px;
+        min-height: 46px;
+        border: 1px solid #d0d5dd;
+        box-shadow: none;
+    }
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Faculty</th>
-            <th>Department</th>
-            <th>Action</th>
-        </tr>
-    </thead>
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    }
 
-    <tbody>
-        {% if course.faculty %}
-            <tr>
-                <td>{{ course.faculty.user.username }}</td>
-                <td>{{ course.faculty.department }}</td>
-                <td>
-                    <a href="{% url 'remove_faculty' course.id %}"
-                       class="btn btn-sm btn-danger"
-                       onclick="return confirm('Remove faculty from this course?')">
-                        Remove
-                    </a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="3" class="text-center text-muted">
-                    No faculty assigned
-                </td>
-            </tr>
-        {% endif %}
-    </tbody>
-</table>
+    .info-strip {
+        background: #f8f9fc;
+        border: 1px solid #e9ecef;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 24px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #6c757d;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2d3d;
+    }
+
+    .table-wrapper {
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .custom-table thead th {
+        background: #f8fafc;
+        color: #344054;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 1px solid #e9ecef;
+        padding: 14px;
+    }
+
+    .custom-table tbody td {
+        padding: 14px;
+        color: #212529;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #f9fbfd;
+    }
+
+    .faculty-badge {
+        display: inline-block;
+        background: #eef4ff;
+        color: #155eef;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .dept-badge {
+        display: inline-block;
+        background: #ecfdf3;
+        color: #027a48;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .action-btn {
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+    .back-btn {
+        border-radius: 12px;
+        padding: 10px 18px;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 35px 20px;
+        color: #6c757d;
+        font-size: 15px;
+    }
+</style>
+
+<div class="mb-4">
+    <h2 class="page-title">Assign Faculty</h2>
+    <p class="page-subtitle mb-0">
+        Assign a faculty member to the selected course and manage the current assignment.
+    </p>
+</div>
+
+<div class="card faculty-card p-4 mb-4">
+    <h5 class="section-title">Course Details</h5>
+
+    <div class="info-strip">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="info-label">Course Name</div>
+                <div class="info-value">{{ course.name }}</div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-label">Course Code</div>
+                <div class="info-value">{{ course.code }}</div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="row g-3 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label">Select Faculty</label>
+                <select name="faculty" class="form-select" required>
+                    {% for faculty in faculties %}
+                        <option value="{{ faculty.id }}">
+                            {{ faculty.user.username }} — {{ faculty.department }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <button class="btn btn-success action-btn w-100">
+                    <i class="bi bi-person-check me-1"></i>
+                    Assign Faculty
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="card faculty-card p-4">
+    <h5 class="section-title">Assigned Faculty</h5>
+
+    <div class="table-responsive table-wrapper">
+        <table class="table custom-table align-middle">
+            <thead>
+                <tr>
+                    <th>Faculty</th>
+                    <th>Department</th>
+                    <th style="min-width: 140px;">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% if course.faculty %}
+                    <tr>
+                        <td>
+                            <span class="faculty-badge">
+                                {{ course.faculty.user.username }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="dept-badge">
+                                {{ course.faculty.department }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'remove_faculty' course.id %}"
+                               class="btn btn-sm btn-danger action-btn"
+                               onclick="return confirm('Remove faculty from this course?')">
+                                Remove
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="empty-state">
+                            No faculty assigned to this course yet.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <a href="{% url 'admin_dashboard' %}"
-    class="btn btn-secondary mt-3">
+   class="btn btn-outline-secondary back-btn mt-4">
     ← Go to Admin Dashboard
 </a>
+
 {% endblock %}

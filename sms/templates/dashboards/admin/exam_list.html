@@ -28,8 +28,39 @@
                class="btn btn-primary px-3">
                 + Add Exam
             </a>
+            <!-- SEARCH BAR -->
+            
         </div>
+        <div class="card-body pt-2">
+            <form method="get" class="d-flex flex-wrap gap-2 mt-2 mb-2">
 
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm">
+
+                            <input type="text"
+                                name="search"
+                                class="form-control"
+                                placeholder="Search by exam title or course code..."
+                                value="{{ search_query }}">
+
+                            <button class="btn btn-outline-primary" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+
+                        </div>
+                    </div>
+
+                    {% if search_query %}
+                    <div class="col-md-auto">
+                        <a href="{% url 'admin_exam_list' %}"
+                        class="btn btn-outline-secondary btn-sm">
+                            Clear
+                        </a>
+                    </div>
+                    {% endif %}
+
+            </form>
+        </div>
         <div class="card-body">
 
             {% if exams %}

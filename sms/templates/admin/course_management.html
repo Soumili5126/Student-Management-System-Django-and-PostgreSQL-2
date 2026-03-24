@@ -14,27 +14,185 @@
     </ol>
 </nav>
 {% endblock %}
+
 {% block content %}
 
-<!-- PAGE HEADER -->
-<div class="d-flex justify-content-between align-items-center mb-2">
+<style>
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2d3d;
+        margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
+
+    .course-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1f2d3d;
+        margin-bottom: 18px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .count-badge {
+        display: inline-block;
+        background: #eef4ff;
+        color: #155eef;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .code-badge {
+        display: inline-block;
+        background: #eef4ff;
+        color: #155eef;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .dept-badge {
+        display: inline-block;
+        background: #eff8ff;
+        color: #175cd3;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .faculty-badge {
+        display: inline-block;
+        background: #ecfdf3;
+        color: #027a48;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .danger-badge {
+        display: inline-block;
+        background: #fef3f2;
+        color: #d92d20;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        min-height: 44px;
+        border: 1px solid #d0d5dd;
+        box-shadow: none;
+    }
+
+    .form-control:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: 14px;
+    }
+
+    .custom-table {
+        min-width: 900px;
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .custom-table thead th {
+        background: #f8fafc;
+        color: #344054;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 1px solid #e9ecef;
+        padding: 14px;
+        white-space: nowrap;
+    }
+
+    .custom-table tbody td {
+        padding: 14px;
+        color: #212529;
+        vertical-align: middle;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #f9fbfd;
+    }
+
+    .course-name {
+        font-weight: 600;
+        color: #1f2d3d;
+    }
+
+    .action-btn,
+    .add-btn,
+    .back-btn {
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    .add-btn,
+    .back-btn {
+        padding: 10px 18px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 35px 20px;
+        color: #6c757d;
+        font-size: 15px;
+    }
+
+    .delete-course-form {
+        margin: 0;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
     <div>
-        <h2 class="fw-semibold mb-1" style="font-size: 22px;">
-            Course Management
-        </h2>
-        <p class="text-muted mb-0 small">
+        <h2 class="page-title">Course Management</h2>
+        <p class="page-subtitle mb-0">
             Manage courses and faculty assignments
         </p>
     </div>
+
+    <a href="{% url 'add_course' %}" class="btn btn-primary add-btn">
+        <i class="bi bi-plus-circle me-1"></i>
+        Add New Course
+    </a>
 </div>
 
-<a href="{% url 'add_course' %}" class="btn btn-primary btn-sm mb-3">
-    <i class="bi bi-plus-circle me-1"></i> Add New Course
-</a>
-
-<form method="get" class="row mb-3">
+<form method="get" class="row g-2 mb-4 align-items-center">
     <div class="col-md-4">
-        <div class="input-group input-group-sm">
+        <div class="input-group">
             <input type="text"
                    name="search"
                    class="form-control"
@@ -49,105 +207,92 @@
     {% if search_query %}
     <div class="col-md-auto">
         <a href="{% url 'course_management' %}"
-           class="btn btn-outline-secondary btn-sm">
+           class="btn btn-outline-secondary">
             Clear
         </a>
     </div>
     {% endif %}
 </form>
-<!-- TABLE CARD -->
-<div class="card shadow-sm border-0">
-    <div class="card-body p-3">
-        <!-- Top Right Count -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="mb-0 fw-semibold">Course List</h6>
 
-            <span class="badge bg-primary-subtle text-primary px-3 py-2">
-                Total: {{ total_courses }}
-            </span>
-        </div>
+<div class="card course-card p-4">
+    <div class="section-header">
+        <h5 class="section-title mb-0">Course List</h5>
+        <span class="count-badge">Total: {{ total_courses }}</span>
+    </div>
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+    <div class="table-wrapper">
+        <table class="table custom-table align-middle">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Faculty</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
 
-                <thead class="table-light">
-                    <tr>
-                        <th>Code</th>
-                        <th>Name</th>
-                        <th>Department</th>
-                        <th>Faculty</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+            <tbody>
+                {% for course in page_obj %}
+                <tr>
+                    <td>
+                        <span class="code-badge">
+                            {{ course.code }}
+                        </span>
+                    </td>
 
-                <tbody>
-                    {% for course in  page_obj %}
-                    <tr>
+                    <td>
+                        <div class="course-name">{{ course.name }}</div>
+                    </td>
 
-                        <td>
-                            <span class="badge bg-primary-subtle text-primary px-2 py-1">
-                                {{ course.code }}
+                    <td>
+                        <span class="dept-badge">
+                            {{ course.department }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {% if course.faculty %}
+                            <span class="faculty-badge">
+                                {{ course.faculty.user.username }}
                             </span>
-                        </td>
-
-                        <td class="fw-medium">{{ course.name }}</td>
-
-                        <td>
-                            <span class="badge bg-info-subtle text-info px-2 py-1">
-                                {{ course.department }}
+                        {% else %}
+                            <span class="danger-badge">
+                                Not Assigned
                             </span>
-                        </td>
+                        {% endif %}
+                    </td>
 
-                        <td>
-                            {% if course.faculty %}
-                                <span class="badge bg-success-subtle text-success px-2 py-1">
-                                    {{ course.faculty.user.username }}
-                                </span>
-                            {% else %}
-                                <span class="badge bg-danger-subtle text-danger px-2 py-1">
-                                    Not Assigned
-                                </span>
-                            {% endif %}
-                        </td>
+                    <td style="min-width: 120px;">
+                        <div class="d-flex gap-2 flex-nowrap align-items-center">
+                            <a href="{% url 'edit_course' course.id %}"
+                               class="btn btn-sm btn-outline-primary action-btn">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
 
-                        <td>
-                            <div class="d-flex gap-1">
-
-                                <a href="{% url 'edit_course' course.id %}"
-                                   class="btn btn-sm btn-outline-primary">
-                                   <i class="bi bi-pencil-square"></i>
-                                </a>
-
-                                <form method="POST"
-                                    action="{% url 'delete_course' course.id %}"
-                                    class="delete-course-form">
-
-                                    {% csrf_token %}
-
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-
-                                </form>
-
-                            </div>
-                        </td>
-
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted small">
-                            No courses available.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-
-            </table>
-        </div>
-
+                            <form method="POST"
+                                  action="{% url 'delete_course' course.id %}"
+                                  class="delete-course-form">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger action-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        No courses available.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
 {% if page_obj.has_other_pages %}
 <nav class="mt-3">
     <ul class="pagination pagination-sm justify-content-center">
@@ -188,40 +333,34 @@
     </ul>
 </nav>
 {% endif %}
-<a href="{% url 'admin_dashboard' %}"
-   class="btn btn-outline-secondary btn-sm mt-3">
+
+<a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary back-btn mt-4">
     <i class="bi bi-arrow-left me-1"></i>
     Back to Admin Dashboard
 </a>
-<!-- SweetAlert2 -->
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-document.querySelectorAll(".delete-course-form").forEach(function(form){
+document.querySelectorAll(".delete-course-form").forEach(function(form) {
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
 
-form.addEventListener("submit", function(e){
-
-e.preventDefault();
-
-Swal.fire({
-    title: "Delete this course?",
-    text: "This will permanently remove the course.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#dc3545",
-    cancelButtonColor: "#6c757d",
-    confirmButtonText: "Yes, delete",
-    cancelButtonText: "Cancel"
-}).then((result)=>{
-
-    if(result.isConfirmed){
-        form.submit();
-    }
-
-});
-
-});
-
+        Swal.fire({
+            title: "Delete this course?",
+            text: "This will permanently remove the course.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#dc3545",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
 });
 </script>
 {% endblock %}

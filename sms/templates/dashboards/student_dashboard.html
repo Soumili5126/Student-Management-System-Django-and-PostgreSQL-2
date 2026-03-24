@@ -291,103 +291,183 @@ canvas {
     <!-- ================= PROFILE ================= -->
     <div class="tab-pane fade" id="profile">
 
-        <div class="card shadow-sm border-0 mt-4 mb-4">
-            <div class="card-body text-center p-4">
+        <style>
+            .profile-card {
+                border: none;
+                border-radius: 18px;
+                box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+                background: #ffffff;
+            }
+
+            .profile-header {
+                text-align: center;
+                padding: 28px 20px;
+            }
+
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                object-fit: cover;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+                margin-bottom: 12px;
+            }
+
+            .profile-name {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1f2d3d;
+                margin-bottom: 2px;
+            }
+
+            .profile-username {
+                color: #6c757d;
+                font-size: 14px;
+            }
+
+            .section-title {
+                font-size: 20px;
+                font-weight: 600;
+                color: #1f2d3d;
+                margin-bottom: 20px;
+            }
+
+            .info-box {
+                background: #f8f9fc;
+                border: 1px solid #e9ecef;
+                border-radius: 14px;
+                padding: 14px 16px;
+                margin-bottom: 14px;
+                height: 100%;
+            }
+
+            .info-label {
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                color: #6c757d;
+                margin-bottom: 4px;
+            }
+
+            .info-value {
+                font-size: 14px;
+                font-weight: 600;
+                color: #1f2d3d;
+                word-break: break-word;
+            }
+
+            .edit-btn {
+                border-radius: 12px;
+                padding: 10px 22px;
+                font-weight: 600;
+            }
+        </style>
+
+        <!-- PROFILE HEADER -->
+        <div class="card profile-card mt-4 mb-4">
+            <div class="profile-header">
 
                 {% if request.user.profile_image %}
                     <img src="{{ request.user.profile_image.url }}"
-                         class="rounded-circle shadow mb-3"
-                         width="130"
-                         height="130"
-                         style="object-fit:cover;">
+                        class="profile-avatar">
                 {% else %}
-                    <img src="https://via.placeholder.com/130"
-                         class="rounded-circle shadow mb-3">
+                    <img src="https://via.placeholder.com/120"
+                        class="profile-avatar">
                 {% endif %}
 
-                <h4 class="fw-bold mb-1">
+                <div class="profile-name">
                     {{ request.user.first_name }} {{ request.user.last_name }}
-                </h4>
-                <p class="text-muted mb-0">
+                </div>
+
+                <div class="profile-username">
                     {{ request.user.username }}
-                </p>
+                </div>
 
             </div>
         </div>
 
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-white border-0">
-                <h5 class="fw-bold mb-0">My Profile</h5>
-            </div>
+        <!-- PROFILE DETAILS -->
+        <div class="card profile-card mb-4">
+            <div class="card-body p-4">
 
-            <div class="card-body">
+                <h5 class="section-title">My Profile</h5>
 
-                <div class="row mb-3">
+                <div class="row g-3">
+
                     <div class="col-md-6">
-                        <strong>Roll Number</strong>
-                        <div class="text-muted">
-                            {{ student.roll_number }}
+                        <div class="info-box">
+                            <div class="info-label">Roll Number</div>
+                            <div class="info-value">
+                                {{ student.roll_number }}
+                            </div>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <strong>Date of Birth</strong>
-                        <div class="text-muted">
-                            {{ student.date_of_birth }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Phone</strong>
-                        <div class="text-muted">
-                            {{ student.phone }}
+                        <div class="info-box">
+                            <div class="info-label">Date of Birth</div>
+                            <div class="info-value">
+                                {{ student.date_of_birth }}
+                            </div>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <strong>Gender</strong>
-                        <div class="text-muted">
-                            {{ student.gender|title }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Address</strong>
-                        <div class="text-muted">
-                            {{ student.address }}
+                        <div class="info-box">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value">
+                                {{ student.phone }}
+                            </div>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <strong>Batch</strong>
-                        <div class="text-muted">
-                            {% if student.batch %}
-                                {{ student.batch.program }} - {{ student.batch.name }}
-                                ({{ student.batch.academic_year }})
-                            {% else %}
-                                Not assigned
-                            {% endif %}
+                        <div class="info-box">
+                            <div class="info-label">Gender</div>
+                            <div class="info-value">
+                                {{ student.gender|title }}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="row mb-3">
                     <div class="col-md-6">
-                        <strong>Admission Year</strong>
-                        <div class="text-muted">
-                            {{ student.admission_year }}
+                        <div class="info-box">
+                            <div class="info-label">Address</div>
+                            <div class="info-value">
+                                {{ student.address }}
+                            </div>
                         </div>
                     </div>
+
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-label">Batch</div>
+                            <div class="info-value">
+                                {% if student.batch %}
+                                    {{ student.batch.program }} - {{ student.batch.name }}
+                                    ({{ student.batch.academic_year }})
+                                {% else %}
+                                    Not assigned
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <div class="info-label">Admission Year</div>
+                            <div class="info-value">
+                                {{ student.admission_year }}
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="text-end mt-4">
                     <a href="{% url 'edit_student_profile' %}"
-                       class="btn btn-primary px-4">
-                       Edit Profile
+                    class="btn btn-primary edit-btn">
+                        Edit Profile
                     </a>
                 </div>
 
@@ -398,40 +478,148 @@ canvas {
 
     <!-- ================= TIMETABLE ================= -->
     <div class="tab-pane fade" id="timetable">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-white border-0">
-                <h5 class="fw-bold mb-0">My Timetable</h5>
-            </div>
 
-            <div class="card-body">
-                {% if timetable %}
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Day</th>
-                                <th>Course</th>
-                                <th>Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for t in timetable %}
-                            <tr>
-                                <td class="fw-semibold">{{ t.get_day_display }}</td>
-                                <td>
-                                    <span class="badge bg-secondary px-3 py-2">
-                                        {{ t.course.code }}
-                                    </span>
-                                </td>
-                                <td class="text-muted">{{ t.start_time }} - {{ t.end_time }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <style>
+            .timetable-card {
+                border: none;
+                border-radius: 18px;
+                box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+                background: #ffffff;
+            }
+
+            .timetable-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1f2d3d;
+                margin-bottom: 4px;
+            }
+
+            .timetable-subtitle {
+                color: #6c757d;
+                font-size: 14px;
+                margin-bottom: 0;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+                border-radius: 14px;
+            }
+
+            .custom-timetable-table {
+                margin-bottom: 0;
+                vertical-align: middle;
+                min-width: 600px;
+            }
+
+            .custom-timetable-table thead th {
+                background: #f8fafc;
+                color: #344054;
+                font-weight: 600;
+                font-size: 13px;
+                border-bottom: 1px solid #e9ecef;
+                padding: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                white-space: nowrap;
+            }
+
+            .custom-timetable-table tbody td {
+                padding: 14px;
+                color: #212529;
+                vertical-align: middle;
+            }
+
+            .custom-timetable-table tbody tr:hover {
+                background: #f9fbfd;
+            }
+
+            .day-badge {
+                display: inline-block;
+                background: #eff8ff;
+                color: #175cd3;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .course-badge {
+                display: inline-block;
+                background: #f2f4f7;
+                color: #344054;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .time-badge {
+                display: inline-block;
+                background: #ecfdf3;
+                color: #027a48;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 36px 20px;
+                color: #6c757d;
+            }
+
+            .empty-state p {
+                margin-bottom: 0;
+                font-size: 15px;
+            }
+        </style>
+
+        <div class="card timetable-card mt-4">
+            <div class="card-body p-4">
+                <div class="mb-4">
+                    <h5 class="timetable-title">My Timetable</h5>
+                    <p class="timetable-subtitle">
+                        View your scheduled classes by day, course, and time.
+                    </p>
                 </div>
+
+                {% if timetable %}
+                    <div class="table-wrapper">
+                        <table class="table custom-timetable-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Course</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in timetable %}
+                                <tr>
+                                    <td>
+                                        <span class="day-badge">
+                                            {{ t.get_day_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="course-badge">
+                                            {{ t.course.code }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="time-badge">
+                                            {{ t.start_time }} - {{ t.end_time }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% else %}
-                    <div class="text-center py-4">
-                        <p class="text-muted mb-0">No schedule assigned.</p>
+                    <div class="empty-state">
+                        <p>No schedule assigned.</p>
                     </div>
                 {% endif %}
             </div>
@@ -439,297 +627,1004 @@ canvas {
     </div>
 
     <!-- ================= PERFORMANCE ================= -->
-    <div class="tab-pane fade" id="performance">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0">Exam Results</h5>
+   <div class="tab-pane fade" id="performance">
 
-                {% if grades %}
-                <a href="{% url 'export_exam_results_pdf' %}"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   class="btn btn-sm btn-outline-danger px-3">
-                    Export PDF
-                </a>
-                {% endif %}
-            </div>
+        <style>
+            .performance-card {
+                border: none;
+                border-radius: 18px;
+                box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+                background: #ffffff;
+            }
 
-            <div class="card-body">
-                {% if grades %}
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Course</th>
-                                <th>Exam</th>
-                                <th>Marks</th>
-                                <th>Total</th>
-                                <th>Percentage</th>
-                                <th>Grade</th>
-                                <th>Result</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for g in grades %}
-                            <tr>
-                                <td class="fw-semibold">{{ g.exam.course.code }}</td>
-                                <td class="text-muted">{{ g.exam.title }}</td>
-                                <td>
-                                    <span class="badge bg-secondary px-3 py-2">
-                                        {{ g.marks_obtained }}
-                                    </span>
-                                </td>
-                                <td>{{ g.exam.total_marks }}</td>
-                                <td><strong>{{ g.percentage|floatformat:0 }}%</strong></td>
-                                <td>
-                                    <span class="badge bg-info px-3 py-2">
-                                        {{ g.grade_letter }}
-                                    </span>
-                                </td>
-                                <td>
-                                    {% if g.is_pass %}
-                                        <span class="badge bg-success px-3 py-2">Pass</span>
-                                    {% else %}
-                                        <span class="badge bg-danger px-3 py-2">Fail</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            .performance-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1f2d3d;
+                margin-bottom: 4px;
+            }
+
+            .performance-subtitle {
+                color: #6c757d;
+                font-size: 14px;
+                margin-bottom: 0;
+            }
+
+            .export-btn {
+                border-radius: 10px;
+                font-weight: 600;
+                padding: 6px 14px;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+                border-radius: 14px;
+            }
+
+            .custom-table {
+                margin-bottom: 0;
+                vertical-align: middle;
+                min-width: 900px;
+            }
+
+            .custom-table thead th {
+                background: #f8fafc;
+                color: #344054;
+                font-weight: 600;
+                font-size: 13px;
+                border-bottom: 1px solid #e9ecef;
+                padding: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                white-space: nowrap;
+            }
+
+            .custom-table tbody td {
+                padding: 14px;
+                color: #212529;
+                vertical-align: middle;
+            }
+
+            .custom-table tbody tr:hover {
+                background: #f9fbfd;
+            }
+
+            .course-badge {
+                background: #eef4ff;
+                color: #155eef;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .marks-badge {
+                background: #f2f4f7;
+                color: #344054;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .grade-badge {
+                background: #eff8ff;
+                color: #175cd3;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .pass-badge {
+                background: #ecfdf3;
+                color: #027a48;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .fail-badge {
+                background: #fef3f2;
+                color: #d92d20;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .percentage-text {
+                font-weight: 700;
+                color: #1f2d3d;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 36px 20px;
+                color: #6c757d;
+            }
+
+            .empty-state p {
+                margin-bottom: 0;
+                font-size: 15px;
+            }
+        </style>
+
+        <div class="card performance-card mt-4">
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <div>
+                        <h5 class="performance-title">Exam Results</h5>
+                        <p class="performance-subtitle">
+                            View your academic performance across exams.
+                        </p>
+                    </div>
+
+                    {% if grades %}
+                    <a href="{% url 'export_exam_results_pdf' %}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-outline-danger export-btn">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>
+                        Export PDF
+                    </a>
+                    {% endif %}
                 </div>
+
+                {% if grades %}
+                    <div class="table-wrapper">
+                        <table class="table custom-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Exam</th>
+                                    <th>Marks</th>
+                                    <th>Total</th>
+                                    <th>Percentage</th>
+                                    <th>Grade</th>
+                                    <th>Result</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for g in grades %}
+                                <tr>
+
+                                    <td>
+                                        <span class="course-badge">
+                                            {{ g.exam.course.code }}
+                                        </span>
+                                    </td>
+
+                                    <td class="text-muted">
+                                        {{ g.exam.title }}
+                                    </td>
+
+                                    <td>
+                                        <span class="marks-badge">
+                                            {{ g.marks_obtained }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {{ g.exam.total_marks }}
+                                    </td>
+
+                                    <td>
+                                        <span class="percentage-text">
+                                            {{ g.percentage|floatformat:0 }}%
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="grade-badge">
+                                            {{ g.grade_letter }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {% if g.is_pass %}
+                                            <span class="pass-badge">Pass</span>
+                                        {% else %}
+                                            <span class="fail-badge">Fail</span>
+                                        {% endif %}
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% else %}
-                    <div class="text-center py-4">
-                        <p class="text-muted mb-0">No exam results available yet.</p>
+                    <div class="empty-state">
+                        <p>No exam results available yet.</p>
                     </div>
                 {% endif %}
+
             </div>
         </div>
     </div>
 
     <!-- ================= ATTENDANCE ================= -->
     <div class="tab-pane fade" id="attendance">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-white border-0">
-                <h5 class="fw-bold mb-0">Attendance</h5>
-            </div>
 
-            <div class="card-body">
-                {% if attendance %}
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Date</th>
-                                <th>Course</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for a in attendance %}
-                            <tr>
-                                <td class="text-muted">{{ a.date }}</td>
-                                <td class="fw-semibold">{{ a.course.name }}</td>
-                                <td>
-                                    {% if a.status == 'present' %}
-                                        <span class="badge bg-success px-3 py-2">Present</span>
-                                    {% else %}
-                                        <span class="badge bg-danger px-3 py-2">Absent</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <style>
+            .attendance-card {
+                border: none;
+                border-radius: 18px;
+                box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+                background: #ffffff;
+            }
+
+            .attendance-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1f2d3d;
+                margin-bottom: 4px;
+            }
+
+            .attendance-subtitle {
+                color: #6c757d;
+                font-size: 14px;
+                margin-bottom: 0;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+                border-radius: 14px;
+            }
+
+            .custom-table {
+                margin-bottom: 0;
+                vertical-align: middle;
+                min-width: 600px;
+            }
+
+            .custom-table thead th {
+                background: #f8fafc;
+                color: #344054;
+                font-weight: 600;
+                font-size: 13px;
+                border-bottom: 1px solid #e9ecef;
+                padding: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                white-space: nowrap;
+            }
+
+            .custom-table tbody td {
+                padding: 14px;
+                color: #212529;
+                vertical-align: middle;
+            }
+
+            .custom-table tbody tr:hover {
+                background: #f9fbfd;
+            }
+
+            .date-text {
+                color: #6c757d;
+                font-size: 13px;
+            }
+
+            .course-badge {
+                display: inline-block;
+                background: #eef4ff;
+                color: #155eef;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .present-badge {
+                background: #ecfdf3;
+                color: #027a48;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .absent-badge {
+                background: #fef3f2;
+                color: #d92d20;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 36px 20px;
+                color: #6c757d;
+            }
+
+            .empty-state p {
+                margin-bottom: 0;
+                font-size: 15px;
+            }
+        </style>
+
+        <div class="card attendance-card mt-4">
+            <div class="card-body p-4">
+
+                <div class="mb-4">
+                    <h5 class="attendance-title">Attendance</h5>
+                    <p class="attendance-subtitle">
+                        Track your attendance records by date and course.
+                    </p>
                 </div>
+
+                {% if attendance %}
+                    <div class="table-wrapper">
+                        <table class="table custom-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Course</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for a in attendance %}
+                                <tr>
+
+                                    <td>
+                                        <span class="date-text">
+                                            {{ a.date }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="course-badge">
+                                            {{ a.course.name }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {% if a.status == 'present' %}
+                                            <span class="present-badge">Present</span>
+                                        {% else %}
+                                            <span class="absent-badge">Absent</span>
+                                        {% endif %}
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% else %}
-                    <div class="text-center py-4">
-                        <p class="text-muted mb-0">No attendance records available.</p>
+                    <div class="empty-state">
+                        <p>No attendance records available.</p>
                     </div>
                 {% endif %}
+
             </div>
         </div>
     </div>
-
     <!-- ================= COURSES ================= -->
     <div class="tab-pane fade" id="courses">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-white border-0">
-                <h5 class="fw-bold mb-0">My Courses</h5>
-            </div>
 
-            <div class="card-body">
-                {% if enrollments %}
-                <div class="list-group list-group-flush">
-                    {% for enrollment in enrollments %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-semibold">{{ enrollment.course.code }}</div>
-                            <small class="text-muted">{{ enrollment.course.name }}</small>
-                        </div>
+        <style>
+            .courses-card {
+                border: none;
+                border-radius: 18px;
+                box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+                background: #ffffff;
+            }
 
-                        <div>
-                            <span class="badge bg-info px-3 py-2">
-                                {{ attendance_summary|dict_get:enrollment.course.id }}%
-                                Attendance
-                            </span>
-                        </div>
-                    </div>
-                    {% endfor %}
+            .courses-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1f2d3d;
+                margin-bottom: 4px;
+            }
+
+            .courses-subtitle {
+                color: #6c757d;
+                font-size: 14px;
+                margin-bottom: 0;
+            }
+
+            .course-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px;
+                border-bottom: 1px solid #f1f3f5;
+            }
+
+            .course-item:last-child {
+                border-bottom: none;
+            }
+
+            .course-code {
+                display: inline-block;
+                background: #eef4ff;
+                color: #155eef;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+
+            .course-name {
+                font-size: 13px;
+                color: #667085;
+            }
+
+            .attendance-badge {
+                background: #eff8ff;
+                color: #175cd3;
+                padding: 6px 14px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 36px 20px;
+                color: #6c757d;
+            }
+
+            .empty-state p {
+                margin-bottom: 0;
+                font-size: 15px;
+            }
+        </style>
+
+        <div class="card courses-card mt-4">
+            <div class="card-body p-4">
+
+                <div class="mb-4">
+                    <h5 class="courses-title">My Courses</h5>
+                    <p class="courses-subtitle">
+                        View your enrolled courses and attendance summary.
+                    </p>
                 </div>
-                {% else %}
-                    <div class="text-center py-4">
-                        <p class="text-muted mb-0">You are not enrolled in any courses.</p>
+
+                {% if enrollments %}
+
+                    <div class="list-group list-group-flush">
+
+                        {% for enrollment in enrollments %}
+                        <div class="course-item">
+
+                            <div>
+                                <div class="course-code">
+                                    {{ enrollment.course.code }}
+                                </div>
+                                <div class="course-name">
+                                    {{ enrollment.course.name }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="attendance-badge">
+                                    {{ attendance_summary|dict_get:enrollment.course.id }}% Attendance
+                                </span>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+
                     </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+                        <p>You are not enrolled in any courses.</p>
+                    </div>
+
                 {% endif %}
+
             </div>
         </div>
     </div>
-
     <!-- ================= EXAMS ================= -->
     <div class="tab-pane fade" id="exams">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-white border-0">
-                <h5 class="fw-bold mb-0">Upcoming / Scheduled Exams</h5>
-            </div>
 
-            <div class="card-body">
-                {% if exams %}
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Course</th>
-                                <th>Exam</th>
-                                <th>Date</th>
-                                <th>Total Marks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for exam in exams %}
-                            <tr>
-                                <td class="fw-semibold">{{ exam.course.code }} - {{ exam.course.name }}</td>
-                                <td class="text-muted">{{ exam.title }}</td>
-                                <td>{{ exam.date }}</td>
-                                <td>
-                                    <span class="badge bg-secondary px-3 py-2">
-                                        {{ exam.total_marks }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <style>
+            .exam-card {
+                border: none;
+                border-radius: 18px;
+                box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+                background: #ffffff;
+            }
+
+            .exam-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1f2d3d;
+                margin-bottom: 4px;
+            }
+
+            .exam-subtitle {
+                color: #6c757d;
+                font-size: 14px;
+                margin-bottom: 0;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+                border-radius: 14px;
+            }
+
+            .custom-table {
+                margin-bottom: 0;
+                vertical-align: middle;
+                min-width: 700px;
+            }
+
+            .custom-table thead th {
+                background: #f8fafc;
+                color: #344054;
+                font-weight: 600;
+                font-size: 13px;
+                border-bottom: 1px solid #e9ecef;
+                padding: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                white-space: nowrap;
+            }
+
+            .custom-table tbody td {
+                padding: 14px;
+                color: #212529;
+                vertical-align: middle;
+            }
+
+            .custom-table tbody tr:hover {
+                background: #f9fbfd;
+            }
+
+            .course-badge {
+                display: inline-block;
+                background: #eef4ff;
+                color: #155eef;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .exam-name {
+                color: #6c757d;
+                font-size: 13px;
+            }
+
+            .date-badge {
+                background: #eff8ff;
+                color: #175cd3;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .marks-badge {
+                background: #f2f4f7;
+                color: #344054;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 36px 20px;
+                color: #6c757d;
+            }
+
+            .empty-state p {
+                margin-bottom: 0;
+                font-size: 15px;
+            }
+        </style>
+
+        <div class="card exam-card mt-4">
+            <div class="card-body p-4">
+
+                <div class="mb-4">
+                    <h5 class="exam-title">Upcoming / Scheduled Exams</h5>
+                    <p class="exam-subtitle">
+                        View all your upcoming exams and schedules.
+                    </p>
                 </div>
+
+                {% if exams %}
+                    <div class="table-wrapper">
+                        <table class="table custom-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Exam</th>
+                                    <th>Date</th>
+                                    <th>Total Marks</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for exam in exams %}
+                                <tr>
+
+                                    <td>
+                                        <span class="course-badge">
+                                            {{ exam.course.code }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold">
+                                            {{ exam.title }}
+                                        </div>
+                                        <div class="exam-name">
+                                            {{ exam.course.name }}
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="date-badge">
+                                            {{ exam.date }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="marks-badge">
+                                            {{ exam.total_marks }}
+                                        </span>
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% else %}
-                    <div class="text-center py-4">
-                        <p class="text-muted mb-0">No exams available.</p>
+                    <div class="empty-state">
+                        <p>No exams available.</p>
                     </div>
                 {% endif %}
+
             </div>
         </div>
     </div>
-
     <!-- ================= QUIZZES ================= -->
     <div class="tab-pane fade" id="quizzes">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-white border-0">
-                <h5 class="fw-bold mb-0">Available Quizzes</h5>
-            </div>
 
-            <div class="card-body">
-                {% if quizzes %}
-                <div class="list-group list-group-flush">
-                    {% for quiz in quizzes %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-semibold">{{ quiz.course.code }}</div>
-                            <small class="text-muted">{{ quiz.title }}</small>
-                        </div>
+        <style>
+            .quiz-card {
+                border: none;
+                border-radius: 18px;
+                box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+                background: #ffffff;
+            }
 
-                        <div>
-                            <a href="{% url 'attempt_quiz' quiz.id %}"
-                               class="btn btn-sm btn-outline-primary px-3">
-                                Attempt Quiz
-                            </a>
-                        </div>
-                    </div>
-                    {% endfor %}
+            .quiz-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1f2d3d;
+                margin-bottom: 4px;
+            }
+
+            .quiz-subtitle {
+                color: #6c757d;
+                font-size: 14px;
+                margin-bottom: 0;
+            }
+
+            .quiz-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px;
+                border-bottom: 1px solid #f1f3f5;
+            }
+
+            .quiz-item:last-child {
+                border-bottom: none;
+            }
+
+            .course-badge {
+                display: inline-block;
+                background: #eef4ff;
+                color: #155eef;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+
+            .quiz-name {
+                font-size: 13px;
+                color: #667085;
+            }
+
+            .attempt-btn {
+                border-radius: 10px;
+                font-weight: 600;
+                padding: 6px 14px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 36px 20px;
+                color: #6c757d;
+            }
+
+            .empty-state p {
+                margin-bottom: 0;
+                font-size: 15px;
+            }
+        </style>
+
+        <div class="card quiz-card mt-4">
+            <div class="card-body p-4">
+
+                <div class="mb-4">
+                    <h5 class="quiz-title">Available Quizzes</h5>
+                    <p class="quiz-subtitle">
+                        Attempt quizzes assigned to your courses.
+                    </p>
                 </div>
-                {% else %}
-                    <div class="text-center py-4">
-                        <p class="text-muted mb-0">No quizzes available.</p>
+
+                {% if quizzes %}
+
+                    <div class="list-group list-group-flush">
+
+                        {% for quiz in quizzes %}
+                        <div class="quiz-item">
+
+                            <div>
+                                <div class="course-badge">
+                                    {{ quiz.course.code }}
+                                </div>
+                                <div class="quiz-name">
+                                    {{ quiz.title }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <a href="{% url 'attempt_quiz' quiz.id %}"
+                                class="btn btn-outline-primary attempt-btn">
+                                    Attempt Quiz
+                                </a>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+
                     </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+                        <p>No quizzes available.</p>
+                    </div>
+
                 {% endif %}
+
             </div>
         </div>
     </div>
 
     <!-- ================= ATTEMPTS ================= -->
     <div class="tab-pane fade" id="attempts">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-white border-0">
-                <h5 class="fw-bold mb-0">Quiz Attempts</h5>
-            </div>
 
-            <div class="card-body">
-                {% if quiz_attempts %}
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Quiz</th>
-                                <th>Date</th>
-                                <th>Score</th>
-                                <th>Percentage</th>
-                                <th>Status</th>
-                                <th class="text-center">Result</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for attempt in quiz_attempts %}
-                            <tr>
-                                <td class="fw-semibold">{{ attempt.quiz.title }}</td>
-                                <td class="text-muted">{{ attempt.attempted_at|date:"M d, Y H:i" }}</td>
-                                <td>
-                                    <span class="badge bg-secondary">
-                                        {{ attempt.score }}/{{ attempt.total_questions }}
-                                    </span>
-                                </td>
-                                <td>
-                                    {% if attempt.total_questions > 0 %}
-                                        <strong>{{ attempt.percentage }}%</strong>
-                                    {% else %}
-                                        0%
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if attempt.percentage >= 40 %}
-                                        <span class="badge bg-success px-3">PASS</span>
-                                    {% else %}
-                                        <span class="badge bg-danger px-3">FAIL</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    <a href="{% url 'quiz_result' attempt.id %}"
-                                       class="btn btn-sm btn-outline-primary">
-                                        View Result
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <style>
+            .attempt-card {
+                border: none;
+                border-radius: 18px;
+                box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+                background: #ffffff;
+            }
+
+            .attempt-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1f2d3d;
+                margin-bottom: 4px;
+            }
+
+            .attempt-subtitle {
+                color: #6c757d;
+                font-size: 14px;
+                margin-bottom: 0;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+                border-radius: 14px;
+            }
+
+            .custom-table {
+                margin-bottom: 0;
+                vertical-align: middle;
+                min-width: 850px;
+            }
+
+            .custom-table thead th {
+                background: #f8fafc;
+                color: #344054;
+                font-weight: 600;
+                font-size: 13px;
+                border-bottom: 1px solid #e9ecef;
+                padding: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                white-space: nowrap;
+            }
+
+            .custom-table tbody td {
+                padding: 14px;
+                color: #212529;
+                vertical-align: middle;
+            }
+
+            .custom-table tbody tr:hover {
+                background: #f9fbfd;
+            }
+
+            .quiz-name {
+                font-weight: 600;
+                color: #1f2d3d;
+            }
+
+            .date-text {
+                font-size: 13px;
+                color: #6c757d;
+            }
+
+            .score-badge {
+                background: #f2f4f7;
+                color: #344054;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .percentage-text {
+                font-weight: 700;
+                color: #1f2d3d;
+            }
+
+            .pass-badge {
+                background: #ecfdf3;
+                color: #027a48;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .fail-badge {
+                background: #fef3f2;
+                color: #d92d20;
+                padding: 6px 12px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .result-btn {
+                border-radius: 10px;
+                font-weight: 600;
+                padding: 6px 12px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 36px 20px;
+                color: #6c757d;
+            }
+
+            .empty-state p {
+                margin-bottom: 0;
+                font-size: 15px;
+            }
+        </style>
+
+        <div class="card attempt-card mt-4">
+            <div class="card-body p-4">
+
+                <div class="mb-4">
+                    <h5 class="attempt-title">Quiz Attempts</h5>
+                    <p class="attempt-subtitle">
+                        Track your quiz performance and results.
+                    </p>
                 </div>
+
+                {% if quiz_attempts %}
+                    <div class="table-wrapper">
+                        <table class="table custom-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Quiz</th>
+                                    <th>Date</th>
+                                    <th>Score</th>
+                                    <th>Percentage</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Result</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for attempt in quiz_attempts %}
+                                <tr>
+
+                                    <td>
+                                        <div class="quiz-name">
+                                            {{ attempt.quiz.title }}
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="date-text">
+                                            {{ attempt.attempted_at|date:"M d, Y H:i" }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="score-badge">
+                                            {{ attempt.score }}/{{ attempt.total_questions }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {% if attempt.total_questions > 0 %}
+                                            <span class="percentage-text">
+                                                {{ attempt.percentage }}%
+                                            </span>
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {% if attempt.percentage >= 40 %}
+                                            <span class="pass-badge">Pass</span>
+                                        {% else %}
+                                            <span class="fail-badge">Fail</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="text-center">
+                                        <a href="{% url 'quiz_result' attempt.id %}"
+                                        class="btn btn-outline-primary result-btn">
+                                            View Result
+                                        </a>
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% else %}
-                    <div class="text-center py-4">
-                        <p class="text-muted mb-0">No quiz attempts yet.</p>
+                    <div class="empty-state">
+                        <p>No quiz attempts yet.</p>
                     </div>
                 {% endif %}
+
             </div>
         </div>
     </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

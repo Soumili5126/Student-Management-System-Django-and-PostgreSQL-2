@@ -14,166 +14,332 @@
     </ol>
 </nav>
 {% endblock %}
+
 {% block content %}
 
-<div class="container mt-4" style="max-width: 900px;">
+<style>
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2d3d;
+        margin-bottom: 4px;
+    }
 
-    <div class="card shadow-sm border-0">
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
 
-        <!-- HEADER -->
-        <div class="card-header bg-white border-0">
-            <h4 class="fw-bold mb-1">Enroll Students</h4>
-            <p class="text-muted mb-0">
-                Course: <strong>{{ course.name }}</strong>
-            </p>
+    .enroll-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1f2d3d;
+        margin-bottom: 20px;
+    }
+
+    .subsection-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #344054;
+        margin-bottom: 14px;
+    }
+
+    .info-strip {
+        background: #f8f9fc;
+        border: 1px solid #e9ecef;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 24px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #6c757d;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2d3d;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 12px;
+        min-height: 46px;
+        border: 1px solid #d0d5dd;
+        box-shadow: none;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    }
+
+    .student-list {
+        border: 1px solid #eaecf0;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .student-item {
+        padding: 14px 16px;
+        border-bottom: 1px solid #f1f3f5;
+        transition: background 0.2s ease;
+    }
+
+    .student-item:last-child {
+        border-bottom: none;
+    }
+
+    .student-item:hover {
+        background: #f9fbfd;
+    }
+
+    .student-name {
+        font-weight: 600;
+        color: #1f2d3d;
+    }
+
+    .student-meta {
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .roll-badge {
+        display: inline-block;
+        background: #eef4ff;
+        color: #155eef;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .table-wrapper {
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .custom-table thead th {
+        background: #f8fafc;
+        color: #344054;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 1px solid #e9ecef;
+        padding: 14px;
+    }
+
+    .custom-table tbody td {
+        padding: 14px;
+        color: #212529;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #f9fbfd;
+    }
+
+    .action-btn {
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+    .back-btn {
+        border-radius: 12px;
+        padding: 10px 18px;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 28px 20px;
+        color: #6c757d;
+        font-size: 15px;
+        border: 1px dashed #d0d5dd;
+        border-radius: 14px;
+        background: #fcfcfd;
+    }
+</style>
+
+<div class="container mt-4" style="max-width: 1000px;">
+
+    <div class="mb-4">
+        <h2 class="page-title">Enroll Students</h2>
+        <p class="page-subtitle mb-0">
+            Add students to the selected course and manage existing enrollments.
+        </p>
+    </div>
+
+    <div class="card enroll-card p-4">
+
+        <h5 class="section-title">Course Enrollment Management</h5>
+
+        <div class="info-strip">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="info-label">Course Name</div>
+                    <div class="info-value">{{ course.name }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-label">Course Code</div>
+                    <div class="info-value">{{ course.code }}</div>
+                </div>
+            </div>
         </div>
 
-        <div class="card-body">
+        <!-- SEARCH -->
+        <form method="get" class="mb-4">
+            <div class="input-group">
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Search by name or roll number..."
+                       value="{{ search_query }}">
 
-            <!-- SEARCH -->
-            <form method="get" class="mb-3">
-                <div class="input-group input-group-sm">
+                <button class="btn btn-outline-primary" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
 
-                    <input type="text"
-                           name="search"
-                           class="form-control"
-                           placeholder="Search by name or roll number..."
-                           value="{{ search_query }}">
+                {% if search_query %}
+                    <a href="{% url 'enroll_students' course.id %}"
+                       class="btn btn-outline-secondary">
+                        Clear
+                    </a>
+                {% endif %}
+            </div>
+        </form>
 
-                    <button class="btn btn-outline-primary" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-
-                    {% if search_query %}
-                        <a href="{% url 'enroll_students' course.id %}"
-                           class="btn btn-outline-secondary">
-                            Clear
-                        </a>
-                    {% endif %}
-
-                </div>
-            </form>
-
-            <!-- AVAILABLE STUDENTS -->
-            <h6 class="fw-semibold mb-3">Available Students</h6>
+        <!-- AVAILABLE STUDENTS -->
+        <div class="mb-4">
+            <h6 class="subsection-title">Available Students</h6>
 
             <form method="post">
                 {% csrf_token %}
 
                 {% if students %}
-
-                    <div class="list-group list-group-flush">
+                    <div class="student-list">
 
                         {% for student in students %}
-                            <label class="list-group-item d-flex align-items-center justify-content-between">
-
+                            <label class="student-item d-flex align-items-center justify-content-between w-100">
                                 <div class="d-flex align-items-center">
-
                                     <input type="checkbox"
                                            name="students"
                                            value="{{ student.id }}"
                                            class="form-check-input me-3">
 
                                     <div>
-                                        <div class="fw-semibold">
+                                        <div class="student-name">
                                             {{ student.user.username }}
                                         </div>
 
-                                        <small class="text-muted">
+                                        <div class="student-meta">
                                             Roll No: {{ student.roll_number }}
-                                        </small>
+                                        </div>
                                     </div>
-
                                 </div>
 
+                                <span class="roll-badge">
+                                    {{ student.roll_number }}
+                                </span>
                             </label>
                         {% endfor %}
 
                     </div>
 
-                    <button type="submit"
-                            class="btn btn-primary mt-3 px-4">
+                    <button type="submit" class="btn btn-primary action-btn mt-3">
+                        <i class="bi bi-person-plus me-1"></i>
                         Enroll Selected
                     </button>
-
                 {% else %}
-
-                    <p class="text-muted">
+                    <div class="empty-state">
                         No students available for enrollment.
-                    </p>
-
+                    </div>
                 {% endif %}
-
             </form>
+        </div>
 
-            <hr class="my-4">
+        <hr class="my-4">
 
-            <!-- ENROLLED STUDENTS -->
-            <h6 class="fw-semibold mb-3">Enrolled Students</h6>
+        <!-- ENROLLED STUDENTS -->
+        <div>
+            <h6 class="subsection-title">Enrolled Students</h6>
 
             {% if enrolled_students %}
+                <div class="table-responsive table-wrapper">
+                    <table class="table custom-table align-middle">
 
-                <table class="table table-sm align-middle">
-
-                    <thead class="table-light">
-                        <tr>
-                            <th>Student</th>
-                            <th>Roll Number</th>
-                            <th class="text-end">Action</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {% for enrollment in enrolled_students %}
-
+                        <thead>
                             <tr>
-
-                                <td>
-                                    {{ enrollment.student.user.username }}
-                                </td>
-
-                                <td>
-                                    {{ enrollment.student.roll_number }}
-                                </td>
-
-                                <td class="text-end">
-
-                                    <a href="{% url 'delete_enrollment' enrollment.id %}"
-                                        class="btn btn-sm btn-outline-danger remove-btn">
-                                            Remove
-                                    </a>
-
-                                </td>
-
+                                <th>Student</th>
+                                <th>Roll Number</th>
+                                <th class="text-end">Action</th>
                             </tr>
+                        </thead>
 
-                        {% endfor %}
+                        <tbody>
+                            {% for enrollment in enrolled_students %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">
+                                            {{ enrollment.student.user.username }}
+                                        </div>
+                                    </td>
 
-                    </tbody>
+                                    <td>
+                                        <span class="roll-badge">
+                                            {{ enrollment.student.roll_number }}
+                                        </span>
+                                    </td>
 
-                </table>
+                                    <td class="text-end">
+                                        <a href="{% url 'delete_enrollment' enrollment.id %}"
+                                           class="btn btn-sm btn-outline-danger remove-btn">
+                                            Remove
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
 
+                    </table>
+                </div>
             {% else %}
-
-                <p class="text-muted">
+                <div class="empty-state">
                     No students enrolled yet.
-                </p>
-
+                </div>
             {% endif %}
 
-            <div class="mt-3">
+            <div class="mt-4">
                 <a href="{% url 'admin_dashboard' %}"
-                   class="btn btn-outline-secondary">
+                   class="btn btn-outline-secondary back-btn">
                     ← Go to Admin Dashboard
                 </a>
             </div>
-
         </div>
 
     </div>
 
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {

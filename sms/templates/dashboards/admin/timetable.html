@@ -2,18 +2,146 @@
 
 {% block content %}
 
-<h2>Admin Timetable Management</h2>
+<style>
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2d3d;
+        margin-bottom: 4px;
+    }
 
-<div class="card p-4 mb-4">
-    <h5>Add New Schedule</h5>
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
+
+    .timetable-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1f2d3d;
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #344054;
+        margin-bottom: 8px;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 12px;
+        min-height: 45px;
+        border: 1px solid #d0d5dd;
+        box-shadow: none;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    }
+
+    .btn-add-schedule {
+        border-radius: 12px;
+        padding: 10px 22px;
+        font-weight: 600;
+    }
+
+    .table-wrapper {
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+    .custom-table thead th {
+        background: #f8fafc;
+        color: #344054;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 1px solid #e9ecef;
+        padding: 14px;
+    }
+
+    .custom-table tbody td {
+        padding: 14px;
+        color: #212529;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #f9fbfd;
+    }
+
+    .badge-soft {
+        display: inline-block;
+        background: #eef4ff;
+        color: #155eef;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .time-badge {
+        display: inline-block;
+        background: #ecfdf3;
+        color: #027a48;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .action-btn {
+        border-radius: 10px;
+        font-weight: 500;
+        padding: 6px 14px;
+    }
+
+    .back-btn {
+        border-radius: 12px;
+        padding: 10px 18px;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 35px 20px;
+        color: #6c757d;
+        font-size: 15px;
+    }
+</style>
+
+<div class="mb-4">
+    <h2 class="page-title">Admin Timetable Management</h2>
+    <p class="page-subtitle mb-0">
+        Create, manage, and update class schedules for batches and faculty.
+    </p>
+</div>
+
+<div class="card timetable-card p-4 mb-4">
+    <h5 class="section-title">Add New Schedule</h5>
 
     <form method="POST">
         {% csrf_token %}
 
-        <div class="row">
-            <div class="col">
-                <label>Batch</label>
-                <select name="batch" class="form-control">
+        <div class="row g-3">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">Batch</label>
+                <select name="batch" class="form-select" required>
                     {% for batch in batches %}
                         <option value="{{ batch.id }}">
                             {{ batch.program }} | {{ batch.section }} | {{ batch.academic_year }}
@@ -22,9 +150,9 @@
                 </select>
             </div>
 
-            <div class="col">
-                <label>Course</label>
-                <select name="course" class="form-control">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">Course</label>
+                <select name="course" class="form-select" required>
                     {% for course in courses %}
                         <option value="{{ course.id }}">
                             {{ course.code }} - {{ course.name }}
@@ -33,9 +161,9 @@
                 </select>
             </div>
 
-            <div class="col">
-                <label>Faculty</label>
-                <select name="faculty" class="form-control">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">Faculty</label>
+                <select name="faculty" class="form-select" required>
                     {% for faculty in faculties %}
                         <option value="{{ faculty.id }}">
                             {{ faculty.user.username }}
@@ -44,9 +172,9 @@
                 </select>
             </div>
 
-            <div class="col">
-                <label>Day</label>
-                <select name="day" class="form-control">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">Day</label>
+                <select name="day" class="form-select" required>
                     <option value="Mon">Mon</option>
                     <option value="Tue">Tue</option>
                     <option value="Wed">Wed</option>
@@ -56,57 +184,87 @@
                 </select>
             </div>
 
-            <div class="col">
-                <label>Start</label>
-                <input type="time" name="start_time" class="form-control">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">Start Time</label>
+                <input type="time" name="start_time" class="form-control" required>
             </div>
 
-            <div class="col">
-                <label>End</label>
-                <input type="time" name="end_time" class="form-control">
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label">End Time</label>
+                <input type="time" name="end_time" class="form-control" required>
             </div>
         </div>
 
-        <button class="btn btn-success mt-3">Add</button>
+        <button class="btn btn-success btn-add-schedule mt-4">
+            <i class="bi bi-plus-circle me-1"></i> Add Schedule
+        </button>
     </form>
 </div>
 
+<div class="card timetable-card p-4">
+    <h5 class="section-title">All Schedules</h5>
 
-<div class="card p-4">
-    <h5>All Schedules</h5>
+    <div class="table-responsive table-wrapper">
+        <table class="table custom-table align-middle">
+            <thead>
+                <tr>
+                    <th>Batch</th>
+                    <th>Course</th>
+                    <th>Faculty</th>
+                    <th>Day</th>
+                    <th>Time</th>
+                    <th style="min-width: 150px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in timetables %}
+                <tr>
+                    <td>
+                        <div class="fw-semibold">{{ t.batch.program }}</div>
+                        <div class="text-muted small">{{ t.batch.section }}</div>
+                    </td>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Batch</th>
-                <th>Course</th>
-                <th>Faculty</th>
-                <th>Day</th>
-                <th>Time</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+                    <td>
+                        <span class="badge-soft">{{ t.course.code }}</span>
+                    </td>
 
-        {% for t in timetables %}
-        <tr>
-            <td>{{ t.batch.program }} | {{ t.batch.section }}</td>
-            <td>{{ t.course.code }}</td>
-            <td>{{ t.faculty.user.username }}</td>
-            <td>{{ t.get_day_display }}</td>
-            <td>{{ t.start_time }} - {{ t.end_time }}</td>
-            <td>
-                <a href="{% url 'edit_timetable' t.id %}" class="btn btn-sm btn-warning">Edit</a>
-                <a href="{% url 'delete_timetable' t.id %}" class="btn btn-sm btn-danger">Delete</a>
-            </td>
-        </tr>
-        {% endfor %}
+                    <td>{{ t.faculty.user.username }}</td>
 
-        </tbody>
-    </table>
+                    <td>{{ t.get_day_display }}</td>
+
+                    <td>
+                        <span class="time-badge">
+                            {{ t.start_time }} - {{ t.end_time }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{% url 'edit_timetable' t.id %}"
+                               class="btn btn-sm btn-warning action-btn">
+                                Edit
+                            </a>
+                            <a href="{% url 'delete_timetable' t.id %}"
+                               class="btn btn-sm btn-danger action-btn">
+                                Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        No timetable schedules added yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-<a href="{% url 'admin_dashboard' %}"
-   class="btn btn-secondary mt-3">
-   ← Back to Admin Dashboard
+
+<a href="{% url 'admin_dashboard' %}" class="btn btn-secondary back-btn mt-4">
+    ← Back to Admin Dashboard
 </a>
+
 {% endblock %}

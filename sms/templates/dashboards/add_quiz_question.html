@@ -14,229 +14,358 @@
     </ol>
 </nav>
 {% endblock %}
+
 {% block content %}
 
-<!-- ================= HEADER ================= -->
+<style>
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2d3d;
+        margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
+
+    .quiz-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        background: #ffffff;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f2d3d;
+        margin-bottom: 18px;
+    }
+
+    .info-strip {
+        background: #f8f9fc;
+        border: 1px solid #e9ecef;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 24px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #6c757d;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2d3d;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #344054;
+        margin-bottom: 8px;
+    }
+
+    .form-control,
+    .form-select,
+    textarea.form-control {
+        border-radius: 12px;
+        border: 1px solid #d0d5dd;
+        box-shadow: none;
+        min-height: 46px;
+    }
+
+    textarea.form-control {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+    .form-control:focus,
+    .form-select:focus,
+    textarea.form-control:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    }
+
+    .submit-btn,
+    .back-btn,
+    .action-btn {
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    .submit-btn,
+    .back-btn {
+        padding: 10px 20px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: 14px;
+    }
+
+    .custom-table {
+        margin-bottom: 0;
+        vertical-align: middle;
+        min-width: 950px;
+    }
+
+    .custom-table thead th {
+        background: #f8fafc;
+        color: #344054;
+        font-weight: 600;
+        font-size: 13px;
+        border-bottom: 1px solid #e9ecef;
+        padding: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+    }
+
+    .custom-table tbody td {
+        padding: 14px;
+        color: #212529;
+        vertical-align: top;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #f9fbfd;
+    }
+
+    .question-number {
+        display: inline-block;
+        background: #eef4ff;
+        color: #155eef;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .question-text {
+        font-weight: 600;
+        color: #1f2d3d;
+    }
+
+    .option-list div {
+        margin-bottom: 4px;
+        color: #667085;
+        font-size: 13px;
+    }
+
+    .correct-badge {
+        display: inline-block;
+        background: #ecfdf3;
+        color: #027a48;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 36px 20px;
+        color: #6c757d;
+        font-size: 15px;
+    }
+</style>
+
 <div class="mb-4">
-    <h2 class="fw-semibold mb-1" style="font-size:22px;">
-        Add Questions
-    </h2>
-    <p class="text-muted small mb-0">
-        {{ quiz.course.code }} — {{ quiz.course.name }}
+    <h2 class="page-title">Add Questions</h2>
+    <p class="page-subtitle mb-0">
+        Manage quiz questions for <strong>{{ quiz.course.code }}</strong> — {{ quiz.course.name }}.
     </p>
 </div>
 
-<!-- ================= ADD QUESTION CARD ================= -->
-<div class="card shadow-sm border-0 mb-4">
-    <div class="card-body p-4">
+<div class="card quiz-card p-4 mb-4">
+    <h5 class="section-title">Add New Question — {{ quiz.title }}</h5>
 
-        <h6 class="fw-semibold mb-3 text-secondary">
-            Add New Question — {{ quiz.title }}
-        </h6>
-
-        <form method="post">
-            {% csrf_token %}
-
-            <!-- Question -->
-            <div class="mb-3">
-                <label class="form-label small fw-medium">
-                    Question
-                </label>
-                <textarea name="question_text"
-                          class="form-control form-control-sm"
-                          rows="3"
-                          required></textarea>
+    <div class="info-strip">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="info-label">Course</div>
+                <div class="info-value">{{ quiz.course.code }} — {{ quiz.course.name }}</div>
             </div>
-
-            <!-- Options -->
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <input name="option_a"
-                           class="form-control form-control-sm"
-                           placeholder="Option A"
-                           required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <input name="option_b"
-                           class="form-control form-control-sm"
-                           placeholder="Option B"
-                           required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <input name="option_c"
-                           class="form-control form-control-sm"
-                           placeholder="Option C"
-                           required>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <input name="option_d"
-                           class="form-control form-control-sm"
-                           placeholder="Option D"
-                           required>
-                </div>
+            <div class="col-md-6">
+                <div class="info-label">Quiz</div>
+                <div class="info-value">{{ quiz.title }}</div>
             </div>
-
-            <!-- Correct Option -->
-            <div class="mb-4">
-                <label class="form-label small fw-medium">
-                    Correct Option
-                </label>
-                <select name="correct_option"
-                        class="form-select form-select-sm"
-                        required>
-                    <option value="">Select</option>
-                    <option value="A">Option A</option>
-                    <option value="B">Option B</option>
-                    <option value="C">Option C</option>
-                    <option value="D">Option D</option>
-                </select>
-            </div>
-
-            <button class="btn btn-primary btn-sm px-4">
-                <i class="bi bi-plus-circle me-1"></i>
-                Add Question
-            </button>
-
-        </form>
-
+        </div>
     </div>
-</div>
 
-<!-- ================= QUESTIONS TABLE ================= -->
-<div class="card shadow-sm border-0">
-    <div class="card-body p-4">
+    <form method="post">
+        {% csrf_token %}
 
-        <h6 class="fw-semibold mb-3 text-secondary">
-            Existing Questions
-        </h6>
-
-        <div class="table-responsive">
-            <table class="table align-middle modern-table">
-
-                <thead>
-                    <tr>
-                        <th style="width:5%">#</th>
-                        <th style="width:35%">Question</th>
-                        <th style="width:35%">Options</th>
-                        <th style="width:10%">Correct</th>
-                        <th style="width:15%">Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for q in questions %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-
-                        <td class="fw-medium">
-                            {{ q.question_text }}
-                        </td>
-
-                        <td class="small text-muted">
-                            <div><strong>A.</strong> {{ q.option_a }}</div>
-                            <div><strong>B.</strong> {{ q.option_b }}</div>
-                            <div><strong>C.</strong> {{ q.option_c }}</div>
-                            <div><strong>D.</strong> {{ q.option_d }}</div>
-                        </td>
-
-                        <td>
-                            <span class="badge bg-success">
-                                {{ q.correct_option }}
-                            </span>
-                        </td>
-
-                        <td>
-                            <div class="d-flex gap-2">
-                                <a href="{% url 'edit_quiz_question' q.id %}"
-                                   class="btn btn-sm btn-outline-primary">
-                                    Edit
-                                </a>
-
-                                <a href="{% url 'delete_quiz_question' q.id %}"
-                                    class="btn btn-sm btn-outline-danger delete-btn">
-                                    Delete
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5"
-                            class="text-center text-muted py-4">
-                            No questions added yet.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-
-            </table>
+        <div class="mb-3">
+            <label class="form-label">Question</label>
+            <textarea name="question_text"
+                      class="form-control"
+                      rows="3"
+                      placeholder="Enter question text"
+                      required></textarea>
         </div>
 
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Option A</label>
+                <input name="option_a"
+                       class="form-control"
+                       placeholder="Enter option A"
+                       required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Option B</label>
+                <input name="option_b"
+                       class="form-control"
+                       placeholder="Enter option B"
+                       required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Option C</label>
+                <input name="option_c"
+                       class="form-control"
+                       placeholder="Enter option C"
+                       required>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Option D</label>
+                <input name="option_d"
+                       class="form-control"
+                       placeholder="Enter option D"
+                       required>
+            </div>
+        </div>
+
+        <div class="mt-3 mb-4">
+            <label class="form-label">Correct Option</label>
+            <select name="correct_option"
+                    class="form-select"
+                    required>
+                <option value="">Select correct option</option>
+                <option value="A">Option A</option>
+                <option value="B">Option B</option>
+                <option value="C">Option C</option>
+                <option value="D">Option D</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary submit-btn">
+            <i class="bi bi-plus-circle me-1"></i>
+            Add Question
+        </button>
+    </form>
+</div>
+
+<div class="card quiz-card p-4">
+    <h5 class="section-title">Existing Questions</h5>
+
+    <div class="table-wrapper">
+        <table class="table custom-table align-middle">
+            <thead>
+                <tr>
+                    <th style="width:6%">#</th>
+                    <th style="width:30%">Question</th>
+                    <th style="width:36%">Options</th>
+                    <th style="width:10%">Correct</th>
+                    <th style="width:18%">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for q in questions %}
+                <tr>
+                    <td>
+                        <span class="question-number">
+                            {{ forloop.counter }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="question-text">
+                            {{ q.question_text }}
+                        </div>
+                    </td>
+
+                    <td class="option-list">
+                        <div><strong>A.</strong> {{ q.option_a }}</div>
+                        <div><strong>B.</strong> {{ q.option_b }}</div>
+                        <div><strong>C.</strong> {{ q.option_c }}</div>
+                        <div><strong>D.</strong> {{ q.option_d }}</div>
+                    </td>
+
+                    <td>
+                        <span class="correct-badge">
+                            {{ q.correct_option }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{% url 'edit_quiz_question' q.id %}"
+                               class="btn btn-sm btn-outline-primary action-btn">
+                                Edit
+                            </a>
+
+                            <a href="{% url 'delete_quiz_question' q.id %}"
+                               class="btn btn-sm btn-outline-danger delete-btn action-btn">
+                                Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        No questions added yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
 <a href="{% url 'faculty_dashboard' %}"
-   class="btn btn-outline-secondary btn-sm mt-3">
+   class="btn btn-outline-secondary back-btn mt-4">
    <i class="bi bi-arrow-left me-1"></i>
    Back to Faculty Dashboard
 </a>
 
-<style>
-
-/* Modern table */
-.modern-table {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.modern-table thead {
-    background: #f8fafc;
-    font-size: 13px;
-    text-transform: uppercase;
-    color: #64748b;
-}
-
-/* Cleaner inputs */
-.form-control-sm,
-.form-select-sm {
-    border-radius: 8px;
-}
-
-</style>
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-document.querySelectorAll(".delete-btn").forEach(function(button){
+document.querySelectorAll(".delete-btn").forEach(function(button) {
+    button.addEventListener("click", function(e) {
+        e.preventDefault();
 
-button.addEventListener("click", function(e){
+        let url = this.getAttribute("href");
 
-e.preventDefault();
-
-let url = this.getAttribute("href");
-
-Swal.fire({
-title: "Delete this question?",
-text: "This action cannot be undone.",
-icon: "warning",
-showCancelButton: true,
-confirmButtonColor: "#dc3545",
-cancelButtonColor: "#6c757d",
-confirmButtonText: "Yes, delete it"
-}).then((result)=>{
-
-if(result.isConfirmed){
-window.location.href = url;
-}
-
-});
-
-});
-
+        Swal.fire({
+            title: "Delete this question?",
+            text: "This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#dc3545",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, delete it"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    });
 });
 </script>
 {% endblock %}
