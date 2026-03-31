@@ -450,6 +450,151 @@ body {
     text-decoration: none;
 }
 
+/* ================= CHATBOT WIDGET ================= */
+#chatbot-widget {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999999 !important;
+}
+#chatbot-box {
+    display: none;
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    z-index: 999999 !important;
+}
+
+#chatbot-toggle {
+    border: none;
+    background: #0d6efd;
+    color: white;
+    border-radius: 50px;
+    padding: 12px 18px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    transition: 0.2s ease;
+}
+
+#chatbot-toggle:hover {
+    background: #0b5ed7;
+}
+
+#chatbot-box {
+    width: 340px;
+    height: 460px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.18);
+    overflow: hidden;
+    display: none;
+    margin-top: 12px;
+}
+
+#chatbot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+#chatbot-close {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    line-height: 1;
+    color: #64748b;
+    cursor: pointer;
+}
+
+#chatbot-messages {
+    height: 320px;
+    overflow-y: auto;
+    padding: 14px;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#chatbot-loading {
+    padding: 0 14px 10px 14px;
+    font-size: 13px;
+    color: #64748b;
+    background: #f8fafc;
+}
+
+#chatbot-input-area {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #e2e8f0;
+    background: white;
+}
+
+#chatbot-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 14px;
+    font-size: 14px;
+    background: transparent;
+}
+
+#chatbot-send {
+    border: none;
+    background: #0d6efd;
+    color: white;
+    margin-right: 10px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.user-message,
+.bot-message,
+.error-message {
+    max-width: 85%;
+    padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.45;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: #dbeafe;
+    color: #0f172a;
+}
+
+.bot-message {
+    align-self: flex-start;
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.error-message {
+    align-self: flex-start;
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+@media (max-width: 576px) {
+    #chatbot-widget {
+        right: 12px;
+        bottom: 12px;
+    }
+
+    #chatbot-box {
+        width: calc(100vw - 24px);
+        height: 75vh;
+    }
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -529,6 +674,265 @@ function loadNotifications(){
 // check every 8 seconds
 setInterval(loadNotifications, 3000);
 
+</script>
+<!-- ================= CHATBOT WIDGET ================= -->
+{% if request.user.is_authenticated %}
+<div id="chatbot-widget">
+
+    <button id="chatbot-toggle" type="button">
+        <i class="bi bi-chat-dots-fill me-1"></i> Chat
+    </button>
+
+    <div id="chatbot-box">
+        <div id="chatbot-header">
+            <div>
+                <strong>SMS Assistant</strong>
+                <div class="small text-muted">Ask about your system</div>
+            </div>
+            <button id="chatbot-close" type="button">&times;</button>
+        </div>
+
+        <div id="chatbot-messages">
+            <div class="bot-message">Hello! I am your Student Management System assistant. Ask me about exams, attendance, quizzes, timetable, dashboard, or notifications.</div>
+        </div>
+
+        <div id="chatbot-loading" style="display:none;">Typing...</div>
+
+        <div id="chatbot-input-area">
+            <input
+                type="text"
+                id="chatbot-input"
+                placeholder="Type your question..."
+                autocomplete="off"
+            >
+            <button id="chatbot-send" type="button">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+{% endif %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const chatbotToggle = document.getElementById("chatbot-toggle");
+    const chatbotBox = document.getElementById("chatbot-box");
+    const chatbotClose = document.getElementById("chatbot-close");
+    const chatbotSend = document.getElementById("chatbot-send");
+    const chatbotInput = document.getElementById("chatbot-input");
+    const chatbotMessages = document.getElementById("chatbot-messages");
+    const chatbotLoading = document.getElementById("chatbot-loading");
+
+    if (!chatbotToggle || !chatbotBox) return;
+
+    chatbotToggle.addEventListener("click", function () {
+        chatbotBox.style.display = "block";
+        chatbotToggle.style.display = "none";
+        chatbotInput.focus();
+    });
+
+    chatbotClose.addEventListener("click", function () {
+        chatbotBox.style.display = "none";
+        chatbotToggle.style.display = "inline-block";
+    });
+
+    function addMessage(text, type) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = type;
+        messageDiv.textContent = text;
+        chatbotMessages.appendChild(messageDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    async function sendChatMessage() {
+        const question = chatbotInput.value.trim();
+
+        if (!question) return;
+
+        addMessage(question, "user-message");
+        chatbotInput.value = "";
+        chatbotLoading.style.display = "block";
+
+        try {
+            const response = await fetch("{% url 'chatbot_ask' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    question: question
+                })
+            });
+
+            const data = await response.json();
+            chatbotLoading.style.display = "none";
+
+            if (response.ok && data.answer) {
+                addMessage(data.answer, "bot-message");
+            } else {
+                addMessage(data.error || "Sorry, I could not process that request.", "error-message");
+            }
+        } catch (error) {
+            chatbotLoading.style.display = "none";
+            addMessage("Chatbot service is currently unavailable.", "error-message");
+        }
+    }
+
+    chatbotSend.addEventListener("click", sendChatMessage);
+
+    chatbotInput.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+            sendChatMessage();
+        }
+    });
+});
+</script>
+{% if request.user.is_authenticated %}
+<div id="chatbot-widget">
+
+    <button id="chatbot-toggle" type="button" onclick="openChatbot()">
+        <i class="bi bi-chat-dots-fill me-1"></i> Chat
+    </button>
+
+    <div id="chatbot-box">
+        <div id="chatbot-header">
+            <div>
+                <strong>SMS Assistant</strong>
+                <div class="small text-muted">Ask me anything about the system</div>
+            </div>
+            <button id="chatbot-close" type="button" onclick="closeChatbot()">&times;</button>
+        </div>
+
+        <div id="chatbot-messages">
+            <div class="bot-message">
+            Hello! I am your Student Management System assistant. Ask me about exams, attendance, quizzes, timetable, dashboard, or notifications.
+            </div>
+        </div>
+
+        <div id="chatbot-loading" style="display:none;">
+            Typing...
+        </div>
+
+        <div id="chatbot-input-area">
+            <input
+                type="text"
+                id="chatbot-input"
+                placeholder="Type your question..."
+                autocomplete="off"
+            >
+            <button id="chatbot-send" type="button">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+{% endif %}
+
+<script>
+function openChatbot() {
+    const chatbotBox = document.getElementById("chatbot-box");
+    const chatbotToggle = document.getElementById("chatbot-toggle");
+    const chatbotInput = document.getElementById("chatbot-input");
+
+    if (chatbotBox) {
+        chatbotBox.style.display = "block";
+    }
+
+    if (chatbotToggle) {
+        chatbotToggle.style.display = "none";
+    }
+
+    if (chatbotInput) {
+        chatbotInput.focus();
+    }
+}
+
+function closeChatbot() {
+    const chatbotBox = document.getElementById("chatbot-box");
+    const chatbotToggle = document.getElementById("chatbot-toggle");
+
+    if (chatbotBox) {
+        chatbotBox.style.display = "none";
+    }
+
+    if (chatbotToggle) {
+        chatbotToggle.style.display = "inline-block";
+    }
+}
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const chatbotSend = document.getElementById("chatbot-send");
+    const chatbotInput = document.getElementById("chatbot-input");
+    const chatbotMessages = document.getElementById("chatbot-messages");
+    const chatbotLoading = document.getElementById("chatbot-loading");
+
+    function addMessage(text, type) {
+        if (!chatbotMessages) return;
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = type;
+        messageDiv.textContent = text;
+        chatbotMessages.appendChild(messageDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    async function sendChatMessage() {
+        const question = chatbotInput.value.trim();
+
+        if (!question) return;
+
+        addMessage(question, "user-message");
+        chatbotInput.value = "";
+
+        if (chatbotLoading) {
+            chatbotLoading.style.display = "block";
+        }
+
+        try {
+            const response = await fetch("{% url 'chatbot_ask' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ question: question })
+            });
+
+            const data = await response.json();
+
+            if (chatbotLoading) {
+                chatbotLoading.style.display = "none";
+            }
+
+            if (response.ok && data.answer) {
+                addMessage(data.answer, "bot-message");
+            } else {
+                addMessage(data.error || "Sorry, I could not process that request.", "error-message");
+            }
+
+        } catch (error) {
+            if (chatbotLoading) {
+                chatbotLoading.style.display = "none";
+            }
+            addMessage("Chatbot service is currently unavailable.", "error-message");
+        }
+    }
+
+    if (chatbotSend) {
+        chatbotSend.addEventListener("click", sendChatMessage);
+    }
+
+    if (chatbotInput) {
+        chatbotInput.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                sendChatMessage();
+            }
+        });
+    }
+});
 </script>
 </body>
 </html>
